@@ -1067,4 +1067,3 @@ window.addEventListener('scroll', function() {
 
     resetIdleTimer();
 })();
-})();
