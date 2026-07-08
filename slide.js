@@ -1,13 +1,10 @@
-(function() {
-window.addEventListener('load', () => {
-    // Μικρή καθυστέρηση 500ms για να είναι σίγουρο ότι όλα τα div έχουν σχεδιαστεί
-    setTimeout(() => {
-        console.log("Ξεκινάω το slider...");
-        // ΕΔΩ ΒΑΖΕΙΣ ΟΛΟ ΤΟΝ ΥΠΟΛΟΙΠΟ ΚΩΔΙΚΑ ΣΟΥ
-    }, 500);
-});
+window.addEventListener('load', function() {
+  const container = document.getElementById('recent-slider');
+  if (!container) return; // Αν δεν βρει το div, σταματάει χωρίς να βγάλει error
+
+  // --- ΤΩΡΑ ΞΕΚΙΝΑΕΙ Η ΛΟΓΙΚΗ ΣΟΥ ---
   let isTouchDevice = false;
-  let isPausedByTitle = false; // ΝΕΟ: Ελέγχει αν το slider έχει παγώσει
+  let isPausedByTitle = false; 
   window.addEventListener('touchstart', () => { isTouchDevice = true; }, { passive: true });
   const feedUrl = "https://dimperist.blogspot.com/feeds/posts/default?alt=json&max-results=106";
   const resumeSlider = (e) => {
@@ -1071,4 +1068,4 @@ window.addEventListener('scroll', function() {
     });
 
     resetIdleTimer();
-})();
+});
