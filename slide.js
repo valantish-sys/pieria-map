@@ -1,3 +1,4 @@
+(function() {
 window.addEventListener('load', () => {
     // Μικρή καθυστέρηση 500ms για να είναι σίγουρο ότι όλα τα div έχουν σχεδιαστεί
     setTimeout(() => {
@@ -1071,4 +1072,5 @@ window.addEventListener('scroll', function() {
     });
 
     resetIdleTimer();
+})();
 })();
