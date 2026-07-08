@@ -1029,3 +1029,40 @@ window.addEventListener('scroll', function() {
         body.classList.remove('nav-is-fixed');
     }
 });
+
+(function() {
+    let idleTimeout;
+
+    function resetIdleTimer() {
+        const nav = document.querySelector('nav'); 
+        if (nav) nav.classList.remove('nav-hidden-active');
+
+        clearTimeout(idleTimeout);
+        idleTimeout = setTimeout(() => {
+            const navToHide = document.querySelector('.nav-fixed');
+            if (navToHide) navToHide.classList.add('nav-hidden-active');
+        }, 2000);
+    }
+
+    // Παρακολούθηση κίνησης
+    ['mousemove', 'scroll', 'touchstart', 'keydown'].forEach(evt => 
+        window.addEventListener(evt, resetIdleTimer, { passive: true })
+    );
+
+    // ΤΟ ΚΛΙΚ ΠΟΥ ΚΑΘΑΡΙΖΕΙ ΤΟ ΟΡΦΑΝΟ
+    document.addEventListener('click', (e) => {
+        const nav = document.querySelector('nav');
+        // Αν το κλικ είναι ΕΞΩ από το μενού
+        if (nav && !nav.contains(e.target)) {
+            const dropdowns = document.querySelectorAll('.dropdown-content, .sub-dropdown-content');
+            dropdowns.forEach(d => {
+                d.style.display = 'none'; // Κλείνει ακαριαία
+                setTimeout(() => { d.style.display = ''; }, 100); // Επανέρχεται η δυνατότητα hover
+            });
+            resetIdleTimer(); // Εμφανίζει ξανά τη μπάρα αφού υπήρξε δραστηριότητα
+        }
+    });
+
+    resetIdleTimer();
+})();
+
