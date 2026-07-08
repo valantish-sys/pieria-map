@@ -1,4 +1,4 @@
-
+document.addEventListener('DOMContentLoaded', () => {
   // --- ΠΡΟΣΘΗΚΗ ΕΔΩ: Ανίχνευση Κινητού για όλο το Script ---
   let isTouchDevice = false;
   let isPausedByTitle = false; // ΝΕΟ: Ελέγχει αν το slider έχει παγώσει
@@ -1028,4 +1028,4 @@ window.addEventListener('scroll', function() {
         nav.classList.remove('nav-fixed');
         body.classList.remove('nav-is-fixed');
     }
-
+});
