@@ -1010,30 +1010,17 @@ setInterval(function() {
 }, 500);
 
 // Κλείσιμο του fetch feed data
+    // ... εδώ τελειώνει η λογική του fetch ...
     })
     .catch(err => {
       console.error("Σφάλμα φόρτωσης feed:", err);
       container.innerHTML = '<div class="no-images">Σφάλμα φόρτωσης αναρτήσεων.</div>';
     });
-});
-window.addEventListener('scroll', function() {
-    const nav = document.querySelector('nav');
-    const body = document.body;
-    if (!nav) return;
+}); // <--- Αυτό κλείνει το window.addEventListener('load', ...)
 
-    // Τέρμα τα if (window.innerWidth). 
-    // Η συνάρτηση θα βάζει την κλάση ΠΑΝΤΑ. 
-    // Το αν θα φαίνεται fixed ή όχι, θα το αποφασίζει το CSS.
-    if (window.pageYOffset > 350) { 
-        nav.classList.add('nav-fixed');
-        body.classList.add('nav-is-fixed');
-    } else {
-        nav.classList.remove('nav-fixed');
-        body.classList.remove('nav-is-fixed');
-    }
-});
-</script>
-<script>
+// Αυτό είναι το δεύτερο script που έχεις (το idle timer για το nav)
+// Δεν χρειάζεται να είναι σε ξεχωριστό script tag στο GitHub, 
+// μπορείς να το βάλεις όλο μαζί σε ένα αρχείο!
 (function() {
     let idleTimeout;
 
@@ -1048,24 +1035,21 @@ window.addEventListener('scroll', function() {
         }, 2000);
     }
 
-    // Παρακολούθηση κίνησης
     ['mousemove', 'scroll', 'touchstart', 'keydown'].forEach(evt => 
         window.addEventListener(evt, resetIdleTimer, { passive: true })
     );
 
-    // ΤΟ ΚΛΙΚ ΠΟΥ ΚΑΘΑΡΙΖΕΙ ΤΟ ΟΡΦΑΝΟ
     document.addEventListener('click', (e) => {
         const nav = document.querySelector('nav');
-        // Αν το κλικ είναι ΕΞΩ από το μενού
         if (nav && !nav.contains(e.target)) {
             const dropdowns = document.querySelectorAll('.dropdown-content, .sub-dropdown-content');
             dropdowns.forEach(d => {
-                d.style.display = 'none'; // Κλείνει ακαριαία
-                setTimeout(() => { d.style.display = ''; }, 100); // Επανέρχεται η δυνατότητα hover
+                d.style.display = 'none';
+                setTimeout(() => { d.style.display = ''; }, 100);
             });
-            resetIdleTimer(); // Εμφανίζει ξανά τη μπάρα αφού υπήρξε δραστηριότητα
+            resetIdleTimer();
         }
     });
 
     resetIdleTimer();
-});
+})();
