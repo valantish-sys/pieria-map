@@ -1,6 +1,11 @@
 (function() {
-document.addEventListener('DOMContentLoaded', () => {
-  // --- ΠΡΟΣΘΗΚΗ ΕΔΩ: Ανίχνευση Κινητού για όλο το Script ---
+window.addEventListener('load', () => {
+    // Μικρή καθυστέρηση 500ms για να είναι σίγουρο ότι όλα τα div έχουν σχεδιαστεί
+    setTimeout(() => {
+        console.log("Ξεκινάω το slider...");
+        // ΕΔΩ ΒΑΖΕΙΣ ΟΛΟ ΤΟΝ ΥΠΟΛΟΙΠΟ ΚΩΔΙΚΑ ΣΟΥ
+    }, 500);
+});
   let isTouchDevice = false;
   let isPausedByTitle = false; // ΝΕΟ: Ελέγχει αν το slider έχει παγώσει
   window.addEventListener('touchstart', () => { isTouchDevice = true; }, { passive: true });
