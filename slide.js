@@ -1,15 +1,24 @@
 window.addEventListener('load', function() {
-    alert("Το αρχείο slide.js φορτώθηκε επιτυχώς!"); // <--- ΠΡΟΣΘΗΚΗ
+    // 1. Έλεγχος αν το div υπάρχει
     const container = document.getElementById('recent-slider');
-    // ...
-  const container = document.getElementById('recent-slider');
-  if (!container) return; // Αν δεν βρει το div, σταματάει χωρίς να βγάλει error
+    
+    // Αν δεν βρει το div, σταματάει (αλλά ας βάλουμε ένα log για να ξέρεις αν φταίει αυτό)
+    if (!container) {
+        console.log("Το #recent-slider δεν βρέθηκε, το script σταμάτησε.");
+        return;
+    }
+    
+    console.log("Το αρχείο slide.js φορτώθηκε επιτυχώς και το slider βρέθηκε!");
 
-  // --- ΤΩΡΑ ΞΕΚΙΝΑΕΙ Η ΛΟΓΙΚΗ ΣΟΥ ---
-  let isTouchDevice = false;
-  let isPausedByTitle = false; 
-  window.addEventListener('touchstart', () => { isTouchDevice = true; }, { passive: true });
-  const feedUrl = "https://dimperist.blogspot.com/feeds/posts/default?alt=json&max-results=106";
+    // 2. Τώρα ορίζουμε τις μεταβλητές μία φορά
+    let isTouchDevice = false;
+    let isPausedByTitle = false; 
+    
+    window.addEventListener('touchstart', () => { isTouchDevice = true; }, { passive: true });
+    
+    const feedUrl = "https://dimperist.blogspot.com/feeds/posts/default?alt=json&max-results=106";
+    
+    // ... εδώ συνεχίζεις με τον υπόλοιπο κώδικά σου ...
   const resumeSlider = (e) => {
     if (isPausedByTitle && !e.target.closest('.slide-title')) {
       isPausedByTitle = false;
