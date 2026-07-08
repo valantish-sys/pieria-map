@@ -1,24 +1,9 @@
-window.addEventListener('load', function() {
-    // 1. Έλεγχος αν το div υπάρχει
-    const container = document.getElementById('recent-slider');
-    
-    // Αν δεν βρει το div, σταματάει (αλλά ας βάλουμε ένα log για να ξέρεις αν φταίει αυτό)
-    if (!container) {
-        console.log("Το #recent-slider δεν βρέθηκε, το script σταμάτησε.");
-        return;
-    }
-    
-    console.log("Το αρχείο slide.js φορτώθηκε επιτυχώς και το slider βρέθηκε!");
-
-    // 2. Τώρα ορίζουμε τις μεταβλητές μία φορά
-    let isTouchDevice = false;
-    let isPausedByTitle = false; 
-    
-    window.addEventListener('touchstart', () => { isTouchDevice = true; }, { passive: true });
-    
-    const feedUrl = "https://dimperist.blogspot.com/feeds/posts/default?alt=json&max-results=106";
-    
-    // ... εδώ συνεχίζεις με τον υπόλοιπο κώδικά σου ...
+document.addEventListener('DOMContentLoaded', () => {
+  // --- ΠΡΟΣΘΗΚΗ ΕΔΩ: Ανίχνευση Κινητού για όλο το Script ---
+  let isTouchDevice = false;
+  let isPausedByTitle = false; // ΝΕΟ: Ελέγχει αν το slider έχει παγώσει
+  window.addEventListener('touchstart', () => { isTouchDevice = true; }, { passive: true });
+  const feedUrl = "https://dimperist.blogspot.com/feeds/posts/default?alt=json&max-results=106";
   const resumeSlider = (e) => {
     if (isPausedByTitle && !e.target.closest('.slide-title')) {
       isPausedByTitle = false;
@@ -1022,46 +1007,25 @@ setInterval(function() {
 }, 500);
 
 // Κλείσιμο του fetch feed data
-    // ... εδώ τελειώνει η λογική του fetch ...
     })
     .catch(err => {
       console.error("Σφάλμα φόρτωσης feed:", err);
       container.innerHTML = '<div class="no-images">Σφάλμα φόρτωσης αναρτήσεων.</div>';
     });
-}); // <--- Αυτό κλείνει το window.addEventListener('load', ...)
+});
+window.addEventListener('scroll', function() {
+    const nav = document.querySelector('nav');
+    const body = document.body;
+    if (!nav) return;
 
-// Αυτό είναι το δεύτερο script που έχεις (το idle timer για το nav)
-// Δεν χρειάζεται να είναι σε ξεχωριστό script tag στο GitHub, 
-// μπορείς να το βάλεις όλο μαζί σε ένα αρχείο!
-(function() {
-    let idleTimeout;
-
-    function resetIdleTimer() {
-        const nav = document.querySelector('nav'); 
-        if (nav) nav.classList.remove('nav-hidden-active');
-
-        clearTimeout(idleTimeout);
-        idleTimeout = setTimeout(() => {
-            const navToHide = document.querySelector('.nav-fixed');
-            if (navToHide) navToHide.classList.add('nav-hidden-active');
-        }, 2000);
+    // Τέρμα τα if (window.innerWidth). 
+    // Η συνάρτηση θα βάζει την κλάση ΠΑΝΤΑ. 
+    // Το αν θα φαίνεται fixed ή όχι, θα το αποφασίζει το CSS.
+    if (window.pageYOffset > 350) { 
+        nav.classList.add('nav-fixed');
+        body.classList.add('nav-is-fixed');
+    } else {
+        nav.classList.remove('nav-fixed');
+        body.classList.remove('nav-is-fixed');
     }
-
-    ['mousemove', 'scroll', 'touchstart', 'keydown'].forEach(evt => 
-        window.addEventListener(evt, resetIdleTimer, { passive: true })
-    );
-
-    document.addEventListener('click', (e) => {
-        const nav = document.querySelector('nav');
-        if (nav && !nav.contains(e.target)) {
-            const dropdowns = document.querySelectorAll('.dropdown-content, .sub-dropdown-content');
-            dropdowns.forEach(d => {
-                d.style.display = 'none';
-                setTimeout(() => { d.style.display = ''; }, 100);
-            });
-            resetIdleTimer();
-        }
-    });
-
-    resetIdleTimer();
-})();
+});
