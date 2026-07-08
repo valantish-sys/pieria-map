@@ -1,4 +1,7 @@
 window.addEventListener('load', function() {
+    alert("Το αρχείο slide.js φορτώθηκε επιτυχώς!"); // <--- ΠΡΟΣΘΗΚΗ
+    const container = document.getElementById('recent-slider');
+    // ...
   const container = document.getElementById('recent-slider');
   if (!container) return; // Αν δεν βρει το div, σταματάει χωρίς να βγάλει error
 
