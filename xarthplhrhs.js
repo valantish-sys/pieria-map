@@ -4346,12 +4346,7 @@ mythic_echidna: {
   desc: "Στιβαρό, γρήγορο και επιβλητικό! Το αγριογούρουνο διασχίζει με ορμή τα πυκνά δάση βελανιδιάς και οξιάς της Πιερίας αναζητώντας την τροφή του. Με την αντοχή του, είναι ο πραγματικός «σκαπανέας» της φύσης, καθώς ανανεώνει το χώμα του δάσους με το πέρασμά του.", 
   img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghUsiIs71NxILVyLrX-hW39uFt4kDRgHcYpzE0ppENmCFd-8RAr56htJhRHmMcVxTymS5qzguiPARbvxWtTpYLhyDvYOS6Kie7_BqHgsm1VIK12lEW3AzSBDABXXRDKfTbr0rqd0cqCYRmtaBkVCLY2idVjlq3Ad4gxPxrrQvW9NHtsrfnlKDMM2M2p0Q/s320/2026-07-08%2013_34_21-2025-09-25%2018_01_46-World%20of%20Warcraft.png",
   sound: "" // Άδειο string για να μην προσπαθεί να φορτώσει ανύπαρκτο αρχείο
-}, sea_fokia: { 
-    title: "Η Μονάχους μονάχους 🦭", 
-    desc: "Η Μεσογειακή φώκια είναι ίσως ο πιο ντροπαλός και σπάνιος επισκέπτης του χάρτη μας! Πού και πού, κάνει μια βόλτα στα νερά του Θερμαϊκού, βγάζει το γλυκό της μουσούδι με τα μεγάλα μουστάκια έξω από το νερό για να μας πει ένα γρήγορο «γεια», και συνεχίζει το μεγάλο της ταξίδι στο Αιγαίο!", 
-    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhw0CapX-lG9DYvMa7BMKm9dysH5Q1MVBilh9RV_A4g_JyFkQERTe1rBdCxR6MoZdmb0CHhnMwOe-_IIsX1w-nHCjd4QIk_TO5UjV6DRktfB3XKw5rDVG7VkzXudm6V2MdZLdS_gjzQLeri68VYs4XmDhM5m2QgwkSUgC1XAlb8Hcj71mf4oz43VW0sdZo/s320/2026-07-09%2000_57_15-2025-09-25%2018_01_46-World%20of%20Warcraft.png.png", /* Μια γλυκιά φωτογραφία φώκιας */
-    sound: "" /* Ήχος από παφλασμό νερού (splash) */
-  
+
   }
   };
 
