@@ -4381,7 +4381,7 @@ mythic_echidna: {
     desc: "Ένας ήσυχος αλλά πανέξυπνος κάτοικος των λιβαδιών! Ο σκαντζόχοιρος δεν τρέχει γρήγορα για να γλιτώσει, ούτε επιτίθεται. Η άμυνά του είναι αλάνθαστη: μόλις νιώσει απειλή, μαζεύει το ευαίσθητο μουσουδάκι και τα ποδαράκια του προς τα μέσα και μετατρέπεται σε μια συμπαγή μπάλα από χιλιάδες σουβλερά αγκάθια.", 
     img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiAFIxa92bhvwrO5CrvmicN0mPkCPHCVAygTIQgSDhSgKk4EoajenTtIWdBNzHNacGDGZwCN_6mrHvmNo1yksX50FJIjw4ILDk-YqUXvsgHAiAyfug9FQkL5NnKR9WTsuHTB3AdVhAYsCmh-VbuRWCPk4NjLIz8i_YMuRXcY848B41jhegjMKThN-ytEOI/s320/2026-07-09%2012_11_19-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
     sound: ""
-  }
+  },
   };
 
   function showPlace(placeId, event) {
