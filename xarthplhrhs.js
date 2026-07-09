@@ -4677,18 +4677,7 @@ const seaSchool = document.getElementById('school-sea-nature');
 if (seaSchool) seaSchool.classList.remove('active');
 const seaSealHide = document.getElementById('seal-sea-nature');
 if (seaSealHide) seaSealHide.classList.remove('active');
-const ecoAlkyoniHide = document.getElementById('alkyoni-eco-nature');
-if (ecoAlkyoniHide) ecoAlkyoniHide.classList.remove('active');
-const ecoSquirrelHide = document.getElementById('squirrel-eco-nature');
-if (ecoSquirrelHide) ecoSquirrelHide.classList.remove('active');
-const ecoMustangHide = document.getElementById('mustang-eco-nature');
-if (ecoMustangHide) ecoMustangHide.classList.remove('active');
-const ecoOwlHide = document.getElementById('owl-eco-nature');
-if (ecoOwlHide) ecoOwlHide.classList.remove('active');
-const ecoFireflyHide = document.getElementById('firefly-eco-nature');
-if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
-const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
-if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
+
         button2.innerHTML = "✨Φώτισε όλα τα Μονοπάτια!";
 const hydra = document.getElementById('hydra-monster');
         if (hydra) hydra.classList.remove('active');
@@ -4804,18 +4793,7 @@ const seaSchool = document.getElementById('school-sea-nature');
 if (seaSchool) seaSchool.classList.remove('active');
 const seaSealHide = document.getElementById('seal-sea-nature');
 if (seaSealHide) seaSealHide.classList.remove('active');
-const ecoAlkyoniHide = document.getElementById('alkyoni-eco-nature');
-if (ecoAlkyoniHide) ecoAlkyoniHide.classList.remove('active');
-const ecoSquirrelHide = document.getElementById('squirrel-eco-nature');
-if (ecoSquirrelHide) ecoSquirrelHide.classList.remove('active');
-const ecoMustangHide = document.getElementById('mustang-eco-nature');
-if (ecoMustangHide) ecoMustangHide.classList.remove('active');
-const ecoOwlHide = document.getElementById('owl-eco-nature');
-if (ecoOwlHide) ecoOwlHide.classList.remove('active');
-const ecoFireflyHide = document.getElementById('firefly-eco-nature');
-if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
-const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
-if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
+
         button2.innerHTML = "⚡ Μυθική Πιερία!";
     mapState2 = 3;
 } 
@@ -4934,18 +4912,7 @@ const seaSchool = document.getElementById('school-sea-nature');
 if (seaSchool) seaSchool.classList.remove('active');
 const seaSealHide = document.getElementById('seal-sea-nature');
 if (seaSealHide) seaSealHide.classList.remove('active');
-const ecoAlkyoniHide = document.getElementById('alkyoni-eco-nature');
-if (ecoAlkyoniHide) ecoAlkyoniHide.classList.remove('active');
-const ecoSquirrelHide = document.getElementById('squirrel-eco-nature');
-if (ecoSquirrelHide) ecoSquirrelHide.classList.remove('active');
-const ecoMustangHide = document.getElementById('mustang-eco-nature');
-if (ecoMustangHide) ecoMustangHide.classList.remove('active');
-const ecoOwlHide = document.getElementById('owl-eco-nature');
-if (ecoOwlHide) ecoOwlHide.classList.remove('active');
-const ecoFireflyHide = document.getElementById('firefly-eco-nature');
-if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
-const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
-if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
+
         button2.innerHTML = "🌿Τα Μυστικά της Φύσης!"; // Προστέθηκε το κουμπί για το επόμενο βήμα!
         mapState2 = 4;
     }
@@ -5059,18 +5026,7 @@ const seaSchool = document.getElementById('school-sea-nature');
 if (seaSchool) seaSchool.classList.add('active');
 const seaSeal = document.getElementById('seal-sea-nature');
 if (seaSeal) seaSeal.classList.add('active');
-const ecoAlkyoni = document.getElementById('alkyoni-eco-nature');
-if (ecoAlkyoni) ecoAlkyoni.classList.add('active');
-const ecoSquirrel = document.getElementById('squirrel-eco-nature');
-if (ecoSquirrel) ecoSquirrel.classList.add('active');
-const ecoMustang = document.getElementById('mustang-eco-nature');
-if (ecoMustang) ecoMustang.classList.add('active');
-const ecoOwl = document.getElementById('owl-eco-nature');
-if (ecoOwl) ecoOwl.classList.add('active');
-const ecoFirefly = document.getElementById('firefly-eco-nature');
-if (ecoFirefly) ecoFirefly.classList.add('active');
-const ecoHedgehog = document.getElementById('hedgehog-eco-nature');
-if (ecoHedgehog) ecoHedgehog.classList.add('active');
+
         button2.innerHTML = "🔄 Επαναφορά στην Αρχή!";
         mapState2 = 5;
     }
@@ -5186,18 +5142,7 @@ const seaSchool = document.getElementById('school-sea-nature');
 if (seaSchool) seaSchool.classList.remove('active');
 const seaSealHide = document.getElementById('seal-sea-nature');
 if (seaSealHide) seaSealHide.classList.remove('active');
-const ecoAlkyoniHide = document.getElementById('alkyoni-eco-nature');
-if (ecoAlkyoniHide) ecoAlkyoniHide.classList.remove('active');
-const ecoSquirrelHide = document.getElementById('squirrel-eco-nature');
-if (ecoSquirrelHide) ecoSquirrelHide.classList.remove('active');
-const ecoMustangHide = document.getElementById('mustang-eco-nature');
-if (ecoMustangHide) ecoMustangHide.classList.remove('active');
-const ecoOwlHide = document.getElementById('owl-eco-nature');
-if (ecoOwlHide) ecoOwlHide.classList.remove('active');
-const ecoFireflyHide = document.getElementById('firefly-eco-nature');
-if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
-const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
-if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
+
         button2.innerHTML = "🗺️ Ανακάλυψε τα υπόλοιπα!";
         mapState2 = 1;
     }
