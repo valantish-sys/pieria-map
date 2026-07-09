@@ -4198,7 +4198,7 @@ display: none;
   height: 70px;
   z-index: 39; /* Υψηλότερα από όλα, στον ουρανό */
   cursor: pointer;
-  display: none; 
+ 
 }
 
 .t-eco-hawk.active { display: block; }
