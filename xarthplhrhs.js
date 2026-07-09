@@ -4580,8 +4580,11 @@ if(document.getElementById('monsters-only-btn')) document.getElementById('monste
 // Εξαφάνιση του Κράκεν (για σιγουριά)
         const kraken = document.getElementById('kraken-monster');
         if (kraken) kraken.classList.remove('active');
-document.getElementById('stym-monster').classList.remove('active');
-document.getElementById('sirens-monster').classList.remove('active');
+const stym = document.getElementById('stym-monster');
+if (stym) stym.classList.remove('active');
+
+const sirens = document.getElementById('sirens-monster');
+if (sirens) sirens.classList.remove('active');
 const chimera = document.getElementById('chimera-monster');
         if (chimera) chimera.classList.remove('active');
 const echidna = document.getElementById('echidna-monster');
@@ -4702,8 +4705,11 @@ if(document.getElementById('monsters-only-btn')) document.getElementById('monste
 // Εξαφάνιση του Κράκεν (για σιγουριά)
         const kraken = document.getElementById('kraken-monster');
         if (kraken) kraken.classList.remove('active');
-document.getElementById('stym-monster').classList.remove('active');
-document.getElementById('sirens-monster').classList.remove('active');
+const stym = document.getElementById('stym-monster');
+if (stym) stym.classList.remove('active');
+
+const sirens = document.getElementById('sirens-monster');
+if (sirens) sirens.classList.remove('active');
 const chimera = document.getElementById('chimera-monster');
         if (chimera) chimera.classList.remove('active');
 const echidna = document.getElementById('echidna-monster');
@@ -4829,8 +4835,11 @@ else if (mapState2 === 3) {
     });
 const kraken = document.getElementById('kraken-monster');
         if (kraken) kraken.classList.add('active');
-document.getElementById('stym-monster').classList.add('active');
-document.getElementById('sirens-monster').classList.add('active');
+const stym = document.getElementById('stym-monster');
+if (stym) stym.classList.add('active');
+
+const sirens = document.getElementById('sirens-monster');
+if (sirens) sirens.classList.add('active');
 const chimera = document.getElementById('chimera-monster');
         if (chimera) chimera.classList.add('active');
 const echidna = document.getElementById('echidna-monster');
@@ -4951,8 +4960,11 @@ if(document.getElementById('monsters-only-btn')) document.getElementById('monste
 // Εξαφάνιση του Κράκεν
         const kraken = document.getElementById('kraken-monster');
         if (kraken) kraken.classList.remove('active');
-document.getElementById('stym-monster').classList.remove('active');
-document.getElementById('sirens-monster').classList.remove('active');
+const stym = document.getElementById('stym-monster');
+if (stym) stym.classList.remove('active');
+
+const sirens = document.getElementById('sirens-monster');
+if (sirens) sirens.classList.remove('active');
 const chimera = document.getElementById('chimera-monster');
         if (chimera) chimera.classList.remove('active');
 const echidna = document.getElementById('echidna-monster');
@@ -5075,8 +5087,11 @@ if(document.getElementById('monsters-only-btn')) document.getElementById('monste
 // Εξαφάνιση του Κράκεν στην επαναφορά
         const kraken = document.getElementById('kraken-monster');
         if (kraken) kraken.classList.remove('active');
-document.getElementById('stym-monster').classList.remove('active');
-document.getElementById('sirens-monster').classList.remove('active');
+const stym = document.getElementById('stym-monster');
+if (stym) stym.classList.remove('active');
+
+const sirens = document.getElementById('sirens-monster');
+if (sirens) sirens.classList.remove('active');
 const chimera = document.getElementById('chimera-monster');
         if (chimera) chimera.classList.remove('active');
 const echidna = document.getElementById('echidna-monster');
