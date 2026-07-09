@@ -3570,9 +3570,7 @@ display: none;
     height: 42px;
   }
 }
-
-
-  `; // Κλείνει το string του CSS
+`; // Κλείνει το string του CSS
 
   // Έγχυση του CSS στο Head του εγγράφου
   const styleHead = document.createElement('style');
@@ -3987,36 +3985,6 @@ mythic_echidna: {
     desc: "Η Μεσογειακή φώκια είναι ίσως ο πιο ντροπαλός και σπάνιος επισκέπτης του χάρτη μας! Πού και πού, κάνει μια βόλτα στα νερά του Θερμαϊκού, βγάζει το γλυκό της μουσούδι με τα μεγάλα μουστάκια έξω από το νερό για να μας πει ένα γρήγορο «γεια», και συνεχίζει το μεγάλο της ταξίδι στο Αιγαίο!", 
     img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhw0CapX-lG9DYvMa7BMKm9dysH5Q1MVBilh9RV_A4g_JyFkQERTe1rBdCxR6MoZdmb0CHhnMwOe-_IIsX1w-nHCjd4QIk_TO5UjV6DRktfB3XKw5rDVG7VkzXudm6V2MdZLdS_gjzQLeri68VYs4XmDhM5m2QgwkSUgC1XAlb8Hcj71mf4oz43VW0sdZo/s320/2026-07-09%2000_57_15-2025-09-25%2018_01_46-World%20of%20Warcraft.png.png", /* Μια γλυκιά φωτογραφία φώκιας */
     sound: "" /* Ήχος από παφλασμό νερού (splash) */
-  }, eco_alkyoni: { 
-    title: "Η Αλκυόνη🐦", 
-    desc: "Η πανέμορφη Αλκυόνη, το πουλί με τα  μπλε και πορτοκαλί φτερά που «ψαρεύει» αστραπιαία! Ο μύθος λέει πως ήταν μια θνητή που μεταμορφώθηκε σε πουλί, και ο Δίας, για να την προστατέψει, διατάζει κάθε Γενάρη να σταματούν οι καταιγίδες για να γεννάει τα αυγά της.", 
-    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgEy12evyZcCpOleNYy3HV1hueGbkWXDnUIyfqs422Xi9Vkh7i6tXkxuhFr3jXKJDRMRPRTBb1I5b4GOr00ZN5Hl2dbTeqAZadvWnSKGlZ51dtpPV1qeWDL7toBIiMiUUJDujb2wOE0WBRRVOAncHuYXeuV-FiUvWnaWJbCKmGaSvq-28TGWSG5FLDUajI/s320/2026-07-09%2010_33_58-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
-    sound: ""
-  }, eco_skouros: { 
-    title: "Ο Σκίουρος ο Ακροβάτης 🐿️", 
-    desc: "Ο μικρός κοκκινωπός ακροβάτης των Πιερίων και του Ολύμπου! Με την τεράστια φουντωτή ουρά του, κάνει απίστευτα άλματα από κλαδί σε κλαδί. Σκαρφαλώνει αστραπιαία στον κορμό, σταματάει για ένα γρήγορο βλέμμα και κρύβεται αμέσως στις φυλλωσιές.", 
-    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhvaPFj0CDENi9x3jFGNgJeiUuf-jpKO3TuW42qTvSZW65C2lRwT_ALOenFMwB877DRV6XTSPRp-WULjBBmGibrXiOCu-Y5943lB1IGFvzQkZtbFyzWz6ZKn44RQqSz7sasYupOlH9z-lFHzOyqB0wkineb9y7mHd7Mg4Zyh1o4cPvMbOMV2mHFl5YqBm8/s320/2026-07-09%2010_51_42-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
-    sound: ""
-  }, eco_wild_horse: { 
-    title: "Τα  Άλογα της Πιερίας 🐎", 
-    desc: "Αυτά τα περήφανα ζώα ζουν στους πρόποδες και τα ξέφωτα των βουνών, αποτελώντας ζωντανό κομμάτι του τοπίου. Με τις χαίτες τους να ανεμίζουν στην παραμικρή ριπή του αέρα, καλπάζουν με απίστευτη δύναμη, θυμίζοντάς μας τη μαγεία της άγριας ελληνικής φύσης.", 
-    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjIib7M4VSrp3mbgWtrDhZw2V2LbgREAFajNyVeyS-0UXAp8omHpYEotc9zNcdUJqLlSb4fJK8_FHgjJu0PPN28b5RBOwXB72l62afjdH8ImmcAdV_bdpwoVnh55TWPluqrClF-R7ANhD5zPyqFOUzGj2kf2hGZsdF-Sfqd8bjrfE0cUb2iXMA5Qx8tu34/s320/2026-07-09%2011_01_23-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
-    sound: ""
-  }, eco_owl_watcher: { 
-    title: "Η Κουκουβάγια 🦉", 
-    desc: "Ο σοφός φύλακας των δασών μας! Κρυμμένη μέσα στις πυκνές φυλλωσιές των δέντρων, η κουκουβάγια παραμονεύει αμίλητη. Το σώμα της μένει εντελώς ακίνητο, αλλά το κεφάλι της γυρνάει σχεδόν ολόκληρο για να ελέγξει την περιοχή, ανοιγοκλείνοντας ξαφνικά τα τεράστια κίτρινα μάτια της.", 
-    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg4LhFePkeB4ySLvSaNqkYDHQGMjKL3NmOJaZ4_kHUEawPhYYly2o5sEweThRaUPHuZ5UKIme94wm10rkgS1Ixhyphenhyphene5h-QsouGT4OhK_8sBkI1QjohZAGgiOoEKRZK2DlPBBQCBjnkz1-GO2TSCFpypEhDzX5Uexaod9uURGf9rxKkLq0AIAHnNtrHEueGg/s320/2026-07-09%2011_54_17-2025-09-25%2018_01_46-World%20of%20Warcraft.png.png", 
-    sound: ""
-  }, eco_firefly: { 
-    title: "Οι Πυγολαμπίδες του Δάσους 🪰", 
-    desc: "Η μαγεία της νύχτας στα δάση του Ολύμπου και των Πιερίων!  Όταν σκοτεινιάζει, χορεύουν ανάμεσα στα δέντρα σαν μικρά αστέρια, δημιουργώντας ένα αληθινό παραμύθι.", 
-    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj4tAb5DU6SWxy7VvDZFw-MJ2nZF4LP8xSPgyQav-1wKDjbsnCm4psrU6qYob9XgRAksxBAmJezivqnigXS1X8HNNRgACfMN4AmB0NberPArKTjFYMdFLRCnTjM2qk7f1JApNd5knrxmfZWl4eJj9bG04u7OTd_bQmC_zWOcTBFxMWJM9V0i1-7Adbe20Q/s320/2026-07-09%2011_59_16-2025-09-25%2018_01_46-World%20of%20Warcraft.png.png", 
-    sound: ""
-  }, eco_hedgehog: { 
-    title: "Ο Σκαντζόχοιρος 🦔", 
-    desc: "Ένας ήσυχος αλλά πανέξυπνος κάτοικος των λιβαδιών! Ο σκαντζόχοιρος δεν τρέχει γρήγορα για να γλιτώσει, ούτε επιτίθεται. Η άμυνά του είναι αλάνθαστη: μόλις νιώσει απειλή, μαζεύει το ευαίσθητο μουσουδάκι και τα ποδαράκια του προς τα μέσα και μετατρέπεται σε μια συμπαγή μπάλα από χιλιάδες σουβλερά αγκάθια.", 
-    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiAFIxa92bhvwrO5CrvmicN0mPkCPHCVAygTIQgSDhSgKk4EoajenTtIWdBNzHNacGDGZwCN_6mrHvmNo1yksX50FJIjw4ILDk-YqUXvsgHAiAyfug9FQkL5NnKR9WTsuHTB3AdVhAYsCmh-VbuRWCPk4NjLIz8i_YMuRXcY848B41jhegjMKThN-ytEOI/s320/2026-07-09%2012_11_19-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
-    sound: ""
   }
   };
 
