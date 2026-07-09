@@ -4248,7 +4248,7 @@ display: none;
   height: 52.5px;
   z-index: 34; /* Στα ξέφωτα και τις πεδιάδες */
   cursor: pointer;
-  /* display: none; */ 
+  display: none; 
 }
 
 .t-eco-hare.active { display: block; }
