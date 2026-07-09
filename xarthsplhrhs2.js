@@ -1,4 +1,4 @@
-const mythicData = {
+ const mythicData = {
     peristasi: { 
   title: "📍 Περίσταση - Η Βάση Μας!", 
   desc: "<b>Το Σχολείο μας!</b> Εδώ που χτυπάει η καρδιά της μάθησης. Ο δικός μας ιερός τόπος εξερεύνησης!<br><span style='color:#591c1c;'><b>📜 ΓΡΙΦΟΣ 1ος:</b></span> <i>«Ο πρώτος θησαυρός κρύβεται εκεί που οι αρχαίοι θεοί τυλίγονται στην ομίχλη... Ψάξε καλά πίσω από τις πιο ψηλές κορυφές!»</i>", 
@@ -436,6 +436,31 @@ mythic_echidna: {
     desc: "Ένας ήσυχος αλλά πανέξυπνος κάτοικος των λιβαδιών! Ο σκαντζόχοιρος δεν τρέχει γρήγορα για να γλιτώσει, ούτε επιτίθεται. Η άμυνά του είναι αλάνθαστη: μόλις νιώσει απειλή, μαζεύει το ευαίσθητο μουσουδάκι και τα ποδαράκια του προς τα μέσα και μετατρέπεται σε μια συμπαγή μπάλα από χιλιάδες σουβλερά αγκάθια.", 
     img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiAFIxa92bhvwrO5CrvmicN0mPkCPHCVAygTIQgSDhSgKk4EoajenTtIWdBNzHNacGDGZwCN_6mrHvmNo1yksX50FJIjw4ILDk-YqUXvsgHAiAyfug9FQkL5NnKR9WTsuHTB3AdVhAYsCmh-VbuRWCPk4NjLIz8i_YMuRXcY848B41jhegjMKThN-ytEOI/s320/2026-07-09%2012_11_19-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
     sound: ""
+  }, eco_apollo: { 
+    title: "Η Πεταλούδα Απόλλων 🦋", 
+    desc: "Το ιπτάμενο κόσμημα του βουνού των Θεών! Η πεταλούδα Απόλλων είναι ένα σπάνιο, προστατευόμενο είδος που αγαπά το υψόμετρο. Είναι τεράστια, κατάλευκη, και έχει εντυπωσιακά κόκκινα και μαύρα σημάδια στα φτερά της, που μοιάζουν με μάτια.", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhoW-YCiGzl4wwYqg3SysBoNclHEBNEfazRD9pU8qI6o4RX7HMucles1FbXALK4xBAOFNhYzwKznXXrWJtygJczLn6xW3ydMBYl21K6FOB5fm40sp5E7BR6ZavNZxGbHTjprz_QncSonCnDHvStCYermVWSNajvRy3y0bw2PiNCF_k0CnYmofvmcynyHHg/s320/2026-07-09%2012_17_21-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
+    sound: "" /* Ένας απαλός ήχος αέρα ή φύσης ταιριάζει τέλεια */
+  }, eco_bat: { 
+    title: "Η Νυχτερίδα 🦇", 
+    desc: "Μην την φοβάσαι, είναι ένας από τους καλύτερους φίλους της φύσης! Οι νυχτερίδες συχνάζουν στις δροσερές σπηλιές του Ολύμπου και των Πιερίων, όπου κοιμούνται κρεμασμένες ανάποδα.  Πετούν χρησιμοποιώντας ένα φυσικό ραντάρ που λέγεται 'ηχοεντοπισμός'.", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiwbl3ixu_iwdlce06e0COliSfU13m-H4VCMFkll1lhNv4FK7GGX3e1rdJsmP82dSsDDn_9PL_NxhbIH0gCQGnCctzZTQy_pOLRYaBOvqWatXbUO0lx36EnnizQ2sSd0J2stc_PTD_XHlQMyPekSUR2b5-4IxmobE9mm3g4Ec8ttS0Dg-NbQq4SNUU2DfI/s320/2026-07-09%2015_20_50-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
+    sound: "" /* Ένας ήχος από φτερούγισμα ή υπερηχητικά 'κλικ' ταιριάζει απόλυτα */
+  }, eco_frog: { 
+    title: "Ο Δενδροβάτραχος  🐸", 
+    desc: "Ο Δενδροβάτραχος είναι μικροσκοπικός, καταπράσινος και περνάει τη μέρα του καμουφλαρισμένος πάνω σε φύλλα. Για να φωνάξει το ταίρι του, φουσκώνει έναν τεράστιο σάκο κάτω από το στόμα του σαν μπαλόνι.", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj7CAanlxzOSkxslSh7NWSC_pA-rVoNkMHUfx6aMrfYJqI7gUNwN3MLz71ax5XIkQteEWypZKv03ODsrRCbcRAhg4u-3dBCZbRLlLS4ssv3ScOpRCll4GQ5X5rkwFmCEsIwpuoS3H5YEcfvwpCjYPs1m4wpypldyojQBK0BhPLRO3FD8VWFwYT3wK6fyow/s320/2026-07-09%2015_27_28-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
+    sound: "" /* Ήχος από κόασμα (croaking) */
+  }, eco_hoopoe: { 
+    title: "Ο Τσαλαπετεινός🐦", 
+    desc: " Ο Τσαλαπετεινός ξεχωρίζει εύκολα από το πολύ μακρύ, κυρτό του ράμφος, με το οποίο ψάχνει το χώμα για τροφή, αλλά κυρίως από το φανταστικό του λοφίο. Όταν θέλει να επικοινωνήσει ή όταν ξαφνιάζεται, ανοίγει τα φτερά του κεφαλιού του απότομα σαν μια πανέμορφη, πολύχρωμη βεντάλια!", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiRGPUn6mCaO_khHMS4I3OEwRKNsDeVsVbesieRWrEzHvW0cxXAHfSF_c4d8iijfrtu46Fspj3TEG3jK4YgOJJwAy5FjLk_1QlMAL8g7kWHqcVrS-ugu4kjJnS0EymtLaW8URCa0cm03ufu35HZLPv3Mzpj4Zxxtuq9Z-MlgW9Doafuq5iChQV1cwEMrZ4/s320/2026-07-09%2015_54_04-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
+    sound: "" /* Ένας ήχος από τη φύση ή το χαρακτηριστικό "ουπ-ουπ-ουπ" του τσαλαπετεινού */
+  }, eco_hawk: { 
+    title: "Το Γεράκι🦅", 
+    desc: "Κοίτα ψηλά στον ουρανό πάνω από τα βουνά! Τα αρπακτικά πουλιά, όπως οι γερακίνες και οι αετοί, είναι οι μόνιμοι φύλακες του Ολύμπου και των Πιερίων. Πετάνε σε τεράστιους κύκλους για ώρες χωρίς να κουνήσουν καθόλου τα φτερά τους; Αυτό το καταφέρνουν χάρη στα ζεστά ρεύματα του αέρα που τα σπρώχνουν προς τα πάνω σαν αόρατο ασανσέρ!", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEivB4LyoWq_d_QE1Vr5jC1zxhr8XGIxgW8WqvH_TXVnPzOAPc2j0rbm09D2z11lI53OIA_KDNYJWH2hXOkXha1SZiaueBusmpjDvXkaylZ7DuhUMKCiljffubdS57oHWh0ofLE0CWrWbb22o9fRZPmrdx2yBhW7c60nHPBOkE3FogVGJz2WBL-4K0Q1sI4/s320/2026-07-09%2016_29_11-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
+    sound: "" /* Ένα μακρόσυρτο, οξύ κάλεσμα γερακιού (hawk screech) είναι ιδανικό εδώ */
   }
   };
 
@@ -741,6 +766,16 @@ const ecoFireflyHide = document.getElementById('firefly-eco-nature');
 if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
 const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
 if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
+const ecoApolloHide = document.getElementById('apollo-eco-nature');
+if (ecoApolloHide) ecoApolloHide.classList.remove('active');
+const ecoBatHide = document.getElementById('bat-eco-nature');
+if (ecoBatHide) ecoBatHide.classList.remove('active');
+const ecoFrogHide = document.getElementById('frog-eco-nature');
+if (ecoFrogHide) ecoFrogHide.classList.remove('active');
+const ecoHoopoeHide = document.getElementById('hoopoe-eco-nature');
+if (ecoHoopoeHide) ecoHoopoeHide.classList.remove('active');
+const ecoHawkHide = document.getElementById('hawk-eco-nature');
+if (ecoHawkHide) ecoHawkHide.classList.remove('active');
         button2.innerHTML = "✨Φώτισε όλα τα Μονοπάτια!";
 const hydra = document.getElementById('hydra-monster');
         if (hydra) hydra.classList.remove('active');
@@ -865,6 +900,16 @@ const ecoFireflyHide = document.getElementById('firefly-eco-nature');
 if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
 const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
 if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
+const ecoApolloHide = document.getElementById('apollo-eco-nature');
+if (ecoApolloHide) ecoApolloHide.classList.remove('active');
+const ecoBatHide = document.getElementById('bat-eco-nature');
+if (ecoBatHide) ecoBatHide.classList.remove('active');
+const ecoFrogHide = document.getElementById('frog-eco-nature');
+if (ecoFrogHide) ecoFrogHide.classList.remove('active');
+const ecoHoopoeHide = document.getElementById('hoopoe-eco-nature');
+if (ecoHoopoeHide) ecoHoopoeHide.classList.remove('active');
+const ecoHawkHide = document.getElementById('hawk-eco-nature');
+if (ecoHawkHide) ecoHawkHide.classList.remove('active');
         button2.innerHTML = "⚡ Μυθική Πιερία!";
     mapState2 = 3;
 } 
@@ -992,6 +1037,16 @@ const ecoFireflyHide = document.getElementById('firefly-eco-nature');
 if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
 const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
 if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
+const ecoApolloHide = document.getElementById('apollo-eco-nature');
+if (ecoApolloHide) ecoApolloHide.classList.remove('active');
+const ecoBatHide = document.getElementById('bat-eco-nature');
+if (ecoBatHide) ecoBatHide.classList.remove('active');
+const ecoFrogHide = document.getElementById('frog-eco-nature');
+if (ecoFrogHide) ecoFrogHide.classList.remove('active');
+const ecoHoopoeHide = document.getElementById('hoopoe-eco-nature');
+if (ecoHoopoeHide) ecoHoopoeHide.classList.remove('active');
+const ecoHawkHide = document.getElementById('hawk-eco-nature');
+if (ecoHawkHide) ecoHawkHide.classList.remove('active');
         button2.innerHTML = "🌿Τα Μυστικά της Φύσης!"; // Προστέθηκε το κουμπί για το επόμενο βήμα!
         mapState2 = 4;
     }
@@ -1114,6 +1169,16 @@ const ecoFirefly = document.getElementById('firefly-eco-nature');
 if (ecoFirefly) ecoFirefly.classList.add('active');
 const ecoHedgehog = document.getElementById('hedgehog-eco-nature');
 if (ecoHedgehog) ecoHedgehog.classList.add('active');
+const ecoApollo = document.getElementById('apollo-eco-nature');
+if (ecoApollo) ecoApollo.classList.add('active');
+const ecoBat = document.getElementById('bat-eco-nature');
+if (ecoBat) ecoBat.classList.add('active');
+const ecoFrog = document.getElementById('frog-eco-nature');
+if (ecoFrog) ecoFrog.classList.add('active');
+const ecoHoopoe = document.getElementById('hoopoe-eco-nature');
+if (ecoHoopoe) ecoHoopoe.classList.add('active');
+const ecoHawk = document.getElementById('hawk-eco-nature');
+if (ecoHawk) ecoHawk.classList.add('active');
         button2.innerHTML = "🔄 Επαναφορά στην Αρχή!";
         mapState2 = 5;
     }
@@ -1238,6 +1303,16 @@ const ecoFireflyHide = document.getElementById('firefly-eco-nature');
 if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
 const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
 if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
+const ecoApolloHide = document.getElementById('apollo-eco-nature');
+if (ecoApolloHide) ecoApolloHide.classList.remove('active');
+const ecoBatHide = document.getElementById('bat-eco-nature');
+if (ecoBatHide) ecoBatHide.classList.remove('active');
+const ecoFrogHide = document.getElementById('frog-eco-nature');
+if (ecoFrogHide) ecoFrogHide.classList.remove('active');
+const ecoHoopoeHide = document.getElementById('hoopoe-eco-nature');
+if (ecoHoopoeHide) ecoHoopoeHide.classList.remove('active');
+const ecoHawkHide = document.getElementById('hawk-eco-nature');
+if (ecoHawkHide) ecoHawkHide.classList.remove('active');
         button2.innerHTML = "🗺️ Ανακάλυψε τα υπόλοιπα!";
         mapState2 = 1;
     }
