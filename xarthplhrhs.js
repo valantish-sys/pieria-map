@@ -4376,6 +4376,11 @@ mythic_echidna: {
     desc: "Η μαγεία της νύχτας στα δάση του Ολύμπου και των Πιερίων!  Όταν σκοτεινιάζει, χορεύουν ανάμεσα στα δέντρα σαν μικρά αστέρια, δημιουργώντας ένα αληθινό παραμύθι.", 
     img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj4tAb5DU6SWxy7VvDZFw-MJ2nZF4LP8xSPgyQav-1wKDjbsnCm4psrU6qYob9XgRAksxBAmJezivqnigXS1X8HNNRgACfMN4AmB0NberPArKTjFYMdFLRCnTjM2qk7f1JApNd5knrxmfZWl4eJj9bG04u7OTd_bQmC_zWOcTBFxMWJM9V0i1-7Adbe20Q/s320/2026-07-09%2011_59_16-2025-09-25%2018_01_46-World%20of%20Warcraft.png.png", 
     sound: ""
+  }, eco_hedgehog: { 
+    title: "Ο Σκαντζόχοιρος 🦔", 
+    desc: "Ένας ήσυχος αλλά πανέξυπνος κάτοικος των λιβαδιών! Ο σκαντζόχοιρος δεν τρέχει γρήγορα για να γλιτώσει, ούτε επιτίθεται. Η άμυνά του είναι αλάνθαστη: μόλις νιώσει απειλή, μαζεύει το ευαίσθητο μουσουδάκι και τα ποδαράκια του προς τα μέσα και μετατρέπεται σε μια συμπαγή μπάλα από χιλιάδες σουβλερά αγκάθια.", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiAFIxa92bhvwrO5CrvmicN0mPkCPHCVAygTIQgSDhSgKk4EoajenTtIWdBNzHNacGDGZwCN_6mrHvmNo1yksX50FJIjw4ILDk-YqUXvsgHAiAyfug9FQkL5NnKR9WTsuHTB3AdVhAYsCmh-VbuRWCPk4NjLIz8i_YMuRXcY848B41jhegjMKThN-ytEOI/s320/2026-07-09%2012_11_19-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
+    sound: ""
   }
   };
 
