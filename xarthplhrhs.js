@@ -1,4 +1,5 @@
 (function() {
+  const css = `
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Lora:ital,wght@0,600;1,400&display=swap');
 
   .pieria-tolkien-widget {
