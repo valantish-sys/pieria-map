@@ -1,5 +1,4 @@
 (function() {
-  const css = `
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Lora:ital,wght@0,600;1,400&display=swap');
 
   .pieria-tolkien-widget {
@@ -3569,6 +3568,371 @@ display: none;
     height: 42px;
   }
 }
+/* === Η ΑΛΚΥΟΝΗ (ΤΟ ΑΙΩΡΟΥΜΕΝΟ ΨΑΡΕΜΑ) === */
+.t-eco-alkyoni {
+  position: absolute;
+  width: 59.5px;
+  height: 52.5px;
+  z-index: 36; /* Ψηλά στον αέρα πάνω από το ποτάμι */
+  cursor: pointer;
+  display: none; 
+}
+
+.t-eco-alkyoni.active { display: block; }
+
+/* Ο κύκλος της αιώρησης και της αστραπιαίας κατάδυσης */
+.alkyoni-dive-master {
+  animation: alkyoni-hunt 5s infinite ease-in-out;
+  transform-origin: 50px 25px;
+}
+@keyframes alkyoni-hunt {
+  /* 0% έως 60%: Στάσιμη αιώρηση στον αέρα με μικρο-κινήσεις */
+  0%, 20%, 40%, 60% { transform: translateY(0px) rotate(0deg); }
+  10%, 30%, 50% { transform: translateY(-2px) rotate(1deg); }
+  
+  /* 64%: Στοχοποίηση και αστραπιαία κατακόρυφη πτώση στο νερό (Y=65) */
+  64% { transform: translateY(40px) rotate(75deg) scaleX(0.9); opacity: 1; }
+  
+  /* 65%-67%: Στιγμιαία εξαφάνιση μέσα στο νερό για το ψάρεμα */
+  65%, 67% { transform: translateY(42px) rotate(75deg); opacity: 0; }
+  
+  /* 75%: Δυναμική ανάδυση και επιστροφή στη θέση της */
+  75% { transform: translateY(-5px) rotate(-20deg); opacity: 1; }
+  82%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+}
+
+/* Πολύ γρήγορο, μικρό φτερούγισμα (flutter) κατά την αιώρηση */
+.alkyoni-wings-flutter {
+  animation: alkyoni-wing-beat 0.15s infinite alternate ease-in-out;
+  transform-origin: 50px 28px;
+}
+@keyframes alkyoni-wing-beat {
+  0% { transform: scaleY(0.3) rotate(-10deg); }
+  100% { transform: scaleY(1.2) rotate(15deg); }
+}
+
+/* Μικρή πιτσιλιά στο ποτάμι τη στιγμή της εισόδου (64%) */
+.alkyoni-river-splash {
+  fill: none;
+  stroke: #ffffff;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: alkyoni-splash-burst 5s infinite ease-out;
+  transform-origin: 62px 65px;
+}
+@keyframes alkyoni-splash-burst {
+  0%, 63% { opacity: 0; transform: scale(0.3); stroke-width: 2; }
+  64% { opacity: 1; transform: scale(1); stroke-width: 2.5; }
+  68% { opacity: 0; transform: scale(1.8); stroke-width: 0.5; }
+  100% { opacity: 0; }
+}
+
+/* Επιπλέον 20% μείωση ΜΟΝΟ στα κινητά */
+@media (max-width: 767px) {
+  #alkyoni-eco-nature {
+    width: 53.6px;
+    height: 48px;
+  }
+}
+/* === Ο ΣΚΙΟΥΡΟΣ (Ο ΑΚΡΟΒΑΤΗΣ ΤΩΝ ΚΟΡΜΩΝ) === */
+.t-eco-squirrel {
+  position: absolute;
+  width: 59.5px;
+  height: 52.5px;
+  z-index: 34; /* Πάνω στους κορμούς των δέντρων */
+  cursor: pointer;
+   display: none; 
+}
+
+.t-eco-squirrel.active { display: block; }
+
+/* Το νευρικό σκαρφάλωμα (Άλμα -> Παύση -> Άλμα) */
+.squirrel-climb-anim {
+  animation: squirrel-scurry 8s infinite ease-in-out;
+}
+@keyframes squirrel-scurry {
+  0%, 15% { transform: translateY(40px); opacity: 0; } /* Κρυμμένος στη βάση */
+  17% { opacity: 1; }
+  
+  /* 1ο Πηδηματάκι */
+  20% { transform: translateY(25px) rotate(-10deg); }
+  22% { transform: translateY(25px) rotate(0deg); } /* Μικρή παύση */
+  
+  /* 2ο Πηδηματάκι */
+  25% { transform: translateY(10px) rotate(-10deg); }
+  27% { transform: translateY(10px) rotate(0deg); } /* Μικρή παύση */
+  
+  /* 3ο Πηδηματάκι - Φτάνει στη μέση του κορμού */
+  30%, 65% { transform: translateY(-5px) rotate(0deg); opacity: 1; } /* Στάση για έλεγχο */
+  
+  /* Αστραπιαίο σκαρφάλωμα και εξαφάνιση στα φύλλα */
+  68% { transform: translateY(-35px) rotate(-5deg); opacity: 1; }
+  72%, 100% { transform: translateY(-35px); opacity: 0; } /* Μέσα στα φύλλα */
+}
+
+/* Το απότομο γύρισμα του κεφαλιού/σώματος (Look Around στο 45%-55%) */
+.squirrel-turn-head {
+  animation: squirrel-flip 8s infinite ease-in-out;
+  transform-origin: 38px 35px; /* Το κέντρο του σκίουρου */
+}
+@keyframes squirrel-flip {
+  0%, 42% { transform: scaleX(1); }
+  45%, 58% { transform: scaleX(-1); } /* Γυρνάει ανάποδα κοιτώντας δεξιά */
+  62%, 100% { transform: scaleX(1); } /* Ξαναγυρνάει μπροστά και φεύγει */
+}
+
+/* Ελαφρύ τρέμουλο στην ουρά του όσο είναι σταματημένος */
+.squirrel-tail-twitch {
+  animation: tail-twitch 0.4s infinite alternate ease-in-out;
+  transform-origin: 32px 38px;
+}
+@keyframes tail-twitch {
+  0% { transform: rotate(-3deg); }
+  100% { transform: rotate(3deg); }
+}
+
+/* Επιπλέον 20% μείωση ΜΟΝΟ στα κινητά */
+@media (max-width: 767px) {
+  #squirrel-eco-nature {
+    width: 52.6px;
+    height: 47px;
+  }
+}
+/* === ΤΟ ΑΓΡΙΟ ΑΛΟΓΟ (Ο ΕΛΕΥΘΕΡΟΣ ΚΑΛΠΑΣΜΟΣ) === */
+.t-wild-mustang {
+  position: absolute;
+  width: 59.5px;
+  height: 52.5px;
+  z-index: 33; /* Πεδιάδες / Πρόποδες */
+  cursor: pointer;
+  display: none; 
+}
+
+.t-wild-mustang.active { display: block; }
+
+/* 1. Η κίνηση κατά μήκος της οθόνης (Περνάει από δεξιά προς αριστερά) */
+.mustang-gallop-across {
+  animation: gallop-path 19s infinite linear;
+}
+@keyframes gallop-path {
+  0% { transform: translateX(30px); opacity: 0; }
+  10% { transform: translateX(15px); opacity: 1; }
+  90% { transform: translateX(-15px); opacity: 1; }
+  100% { transform: translateX(-30px); opacity: 0; }
+}
+
+/* 2. Ο ρυθμός του καλπασμού (Πάνω-κάτω και μπρος-πίσω) */
+.mustang-body-rhythm {
+  animation: gallop-bounce 0.6s infinite ease-in-out;
+  transform-origin: 50px 50px;
+}
+@keyframes gallop-bounce {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(4deg); } /* Τέντωμα στον αέρα */
+  100% { transform: translateY(0) rotate(-2deg); } /* Επαφή με το έδαφος */
+}
+
+/* 3. Η Χαίτη (Ανεμίζει προς τα πίσω) */
+.mustang-mane-wind {
+  animation: wind-blow-mane 0.4s infinite alternate ease-in-out;
+  transform-origin: 28px 25px; /* Στον αυχένα */
+}
+@keyframes wind-blow-mane {
+  0% { transform: skewX(10deg); }
+  100% { transform: skewX(25deg); }
+}
+
+/* 4. Η Ουρά (Ανεμίζει προς τα πίσω έντονα) */
+.mustang-tail-wind {
+  animation: wind-blow-tail 0.5s infinite alternate ease-in-out;
+  transform-origin: 75px 35px; /* Στη βάση της ουράς */
+}
+@keyframes wind-blow-tail {
+  0% { transform: rotate(10deg) skewX(10deg); }
+  100% { transform: rotate(25deg) skewX(20deg); }
+}
+
+/* Τα πόδια (Εντελώς απλό blur/κίνηση για την ψευδαίσθηση ταχύτητας) */
+.mustang-legs-blur {
+  animation: legs-gallop 0.3s infinite alternate;
+  transform-origin: 50px 60px;
+}
+@keyframes legs-gallop {
+  0% { transform: scaleX(0.8) skewX(10deg); }
+  100% { transform: scaleX(1.2) skewX(-10deg); }
+}
+
+/* Επιπλέον 20% μείωση ΜΟΝΟ στα κινητά */
+@media (max-width: 767px) {
+  #mustang-eco-nature {
+    width: 47.6px;
+    height: 42px;
+  }
+}
+/* === Η ΚΟΥΚΟΥΒΑΓΙΑ (Ο ΝΥΧΤΕΡΙΝΟΣ ΠΑΡΑΤΗΡΗΤΗΣ) === */
+.t-eco-owl {
+  position: absolute;
+  width: 59.5px;
+  height: 52.5px;
+  z-index: 34; /* Μέσα στις φυλλωσιές των δέντρων */
+  cursor: pointer;
+  display: none; 
+}
+
+.t-eco-owl.active { display: block; }
+
+/* 1. Η ομαλή περιστροφή του κεφαλιού (Rotate αριστερά-δεξιά) */
+.owl-head-turn {
+  animation: owl-head-rotate 7s infinite ease-in-out;
+  transform-origin: 50px 42px; /* Η βάση του κεφαλιού / λαιμός */
+}
+@keyframes owl-head-rotate {
+  0%, 25% { transform: rotate(0deg); }      /* Κοιτάει ευθεία */
+  35%, 55% { transform: rotate(-70deg); }   /* Στροφή αριστερά */
+  65%, 85% { transform: rotate(70deg); }    /* Στροφή δεξιά */
+  95%, 100% { transform: rotate(0deg); }    /* Επιστροφή στο κέντρο */
+}
+
+/* 2. Το αστραπιαίο ανοιγοκλείσιμο των ματιών (Double Blink με scaleY) */
+.owl-eyes-blink {
+  animation: owl-eye-snap 4s infinite ease-in-out;
+  transform-origin: 50px 33px; /* Ο άξονας των ματιών */
+}
+@keyframes owl-eye-snap {
+  0%, 45%, 49%, 53%, 100% { transform: scaleY(1); }
+  47%, 51% { transform: scaleY(0); } /* Ακαριαίο διπλό κλείσιμο ματιών */
+}
+
+/* 3. Ήπια αναπνοή για το σώμα */
+.owl-body-breath {
+  animation: owl-breath 3s infinite alternate ease-in-out;
+  transform-origin: 50px 55px;
+}
+@keyframes owl-breath {
+  0% { transform: scaleY(0.97); }
+  100% { transform: scaleY(1.03); }
+}
+
+/* Επιπλέον 20% μείωση ΜΟΝΟ στα κινητά */
+@media (max-width: 767px) {
+  #owl-eco-nature {
+    width: 47.6px;
+    height: 42px;
+  }
+}
+/* === ΟΙ ΠΥΓΟΛΑΜΠΙΔΕΣ (ΤΟ ΜΑΓΙΚΟ ΔΑΣΟΣ) === */
+.t-eco-firefly {
+  position: absolute;
+  width: 59.5px;
+  height: 52.5px;
+  z-index: 35; 
+  cursor: pointer;
+display: none; 
+}
+
+.t-eco-firefly.active { display: block; }
+
+.ff-glow {
+  animation: firefly-pulse 2.5s infinite alternate ease-in-out;
+}
+.ff-glow.d1 { animation-duration: 3s; animation-delay: 0.5s; }
+.ff-glow.d2 { animation-duration: 2s; animation-delay: 1.2s; }
+.ff-glow.d3 { animation-duration: 3.5s; animation-delay: 0.2s; }
+
+/* Αυξήσαμε την ένταση (pixels) στο drop-shadow για πολύ μεγαλύτερη λάμψη */
+@keyframes firefly-pulse {
+  0%, 20% { opacity: 0.5; filter: drop-shadow(0 0 4px #ccff00); transform: scale(0.9); }
+  100% { opacity: 1; filter: drop-shadow(0 0 12px #ccff00) drop-shadow(0 0 22px #99ff00); transform: scale(1.1); }
+}
+
+.ff-flight-1 { animation: ff-path-1 8s infinite linear; transform-origin: 50px 45px; }
+.ff-flight-2 { animation: ff-path-2 10s infinite linear reverse; transform-origin: 50px 45px; }
+.ff-flight-3 { animation: ff-path-3 7s infinite linear; transform-origin: 50px 45px; }
+
+@keyframes ff-path-1 {
+  0% { transform: translate(0px, 0px) rotate(0deg); }
+  33% { transform: translate(12px, -8px) rotate(15deg); }
+  66% { transform: translate(-8px, 12px) rotate(-10deg); }
+  100% { transform: translate(0px, 0px) rotate(0deg); }
+}
+@keyframes ff-path-2 {
+  0% { transform: translate(0px, 0px) rotate(0deg); }
+  33% { transform: translate(-15px, -12px) rotate(-20deg); }
+  66% { transform: translate(10px, 8px) rotate(10deg); }
+  100% { transform: translate(0px, 0px) rotate(0deg); }
+}
+@keyframes ff-path-3 {
+  0% { transform: translate(0px, 0px) rotate(0deg); }
+  33% { transform: translate(8px, 15px) rotate(10deg); }
+  66% { transform: translate(-12px, -5px) rotate(-15deg); }
+  100% { transform: translate(0px, 0px) rotate(0deg); }
+}
+
+@media (max-width: 767px) {
+  #firefly-eco-nature {
+    width: 53.6px;
+    height: 48px;
+  }
+}
+/* === Ο ΣΚΑΝΤΖΟΧΟΙΡΟΣ (ΑΜΥΝΑ ΚΑΙ ΚΟΥΒΑΡΙ) === */
+.t-eco-hedgehog {
+  position: absolute;
+  width: 59.5px;
+  height: 52.5px;
+  z-index: 34; /* Στα λιβάδια ή τις καλλιέργειες */
+  cursor: pointer;
+  display: none; 
+}
+
+.t-eco-hedgehog.active { display: block; }
+
+/* 1. Η κίνηση του περπατήματος (Αργά βήματα μπρος-πίσω και κούνημα) */
+.hh-walk-anim {
+  animation: hh-scuttle 8s infinite alternate ease-in-out;
+  transform-origin: 50px 60px;
+}
+@keyframes hh-scuttle {
+  0% { transform: translateX(-15px) rotate(0deg); }
+  25% { transform: translateX(-7.5px) rotate(3deg); }
+  50% { transform: translateX(0px) rotate(0deg); }
+  75% { transform: translateX(7.5px) rotate(-3deg); }
+  100% { transform: translateX(15px) rotate(0deg); }
+}
+
+/* Ομάδες για το Hover Effect με Transitions */
+.hh-face, .hh-legs, .hh-spikes {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Όταν γίνεται HOVER (Ο σκαντζόχοιρος γίνεται κουβάρι) */
+.t-eco-hedgehog:hover .hh-walk-anim {
+  animation-play-state: paused; /* Σταματάει να περπατάει */
+}
+
+/* Το μουσούδι μαζεύεται προς τα μέσα και εξαφανίζεται */
+.t-eco-hedgehog:hover .hh-face {
+  transform: translateX(-12px) scale(0.2);
+  opacity: 0;
+}
+
+/* Τα ποδαράκια μαζεύονται πάνω */
+.t-eco-hedgehog:hover .hh-legs {
+  transform: translateY(-8px) scaleY(0);
+  opacity: 0;
+}
+
+/* Η πλάτη με τα αγκάθια κατεβαίνει και "φουσκώνει" ελαφρώς */
+.t-eco-hedgehog:hover .hh-spikes {
+  transform: scale(1.05) translateY(4px);
+}
+
+/* Επιπλέον 20% μείωση ΜΟΝΟ στα κινητά */
+@media (max-width: 767px) {
+  #hedgehog-eco-nature {
+    width: 47.6px;
+    height: 42px;
+  }
+}
 `;
   // ΑΥΤΕΣ ΕΙΝΑΙ ΟΙ ΥΠΟΧΡΕΩΤΙΚΕΣ ΓΡΑΜΜΕΣ:
   const styleHead = document.createElement('style'); // Δημιουργεί ένα κενό tag <style>
@@ -3983,6 +4347,36 @@ mythic_echidna: {
     desc: "Η Μεσογειακή φώκια είναι ίσως ο πιο ντροπαλός και σπάνιος επισκέπτης του χάρτη μας! Πού και πού, κάνει μια βόλτα στα νερά του Θερμαϊκού, βγάζει το γλυκό της μουσούδι με τα μεγάλα μουστάκια έξω από το νερό για να μας πει ένα γρήγορο «γεια», και συνεχίζει το μεγάλο της ταξίδι στο Αιγαίο!", 
     img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhw0CapX-lG9DYvMa7BMKm9dysH5Q1MVBilh9RV_A4g_JyFkQERTe1rBdCxR6MoZdmb0CHhnMwOe-_IIsX1w-nHCjd4QIk_TO5UjV6DRktfB3XKw5rDVG7VkzXudm6V2MdZLdS_gjzQLeri68VYs4XmDhM5m2QgwkSUgC1XAlb8Hcj71mf4oz43VW0sdZo/s320/2026-07-09%2000_57_15-2025-09-25%2018_01_46-World%20of%20Warcraft.png.png", /* Μια γλυκιά φωτογραφία φώκιας */
     sound: "" /* Ήχος από παφλασμό νερού (splash) */
+  }, eco_alkyoni: { 
+    title: "Η Αλκυόνη🐦", 
+    desc: "Η πανέμορφη Αλκυόνη, το πουλί με τα  μπλε και πορτοκαλί φτερά που «ψαρεύει» αστραπιαία! Ο μύθος λέει πως ήταν μια θνητή που μεταμορφώθηκε σε πουλί, και ο Δίας, για να την προστατέψει, διατάζει κάθε Γενάρη να σταματούν οι καταιγίδες για να γεννάει τα αυγά της.", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgEy12evyZcCpOleNYy3HV1hueGbkWXDnUIyfqs422Xi9Vkh7i6tXkxuhFr3jXKJDRMRPRTBb1I5b4GOr00ZN5Hl2dbTeqAZadvWnSKGlZ51dtpPV1qeWDL7toBIiMiUUJDujb2wOE0WBRRVOAncHuYXeuV-FiUvWnaWJbCKmGaSvq-28TGWSG5FLDUajI/s320/2026-07-09%2010_33_58-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
+    sound: ""
+  }, eco_skouros: { 
+    title: "Ο Σκίουρος ο Ακροβάτης 🐿️", 
+    desc: "Ο μικρός κοκκινωπός ακροβάτης των Πιερίων και του Ολύμπου! Με την τεράστια φουντωτή ουρά του, κάνει απίστευτα άλματα από κλαδί σε κλαδί. Σκαρφαλώνει αστραπιαία στον κορμό, σταματάει για ένα γρήγορο βλέμμα και κρύβεται αμέσως στις φυλλωσιές.", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhvaPFj0CDENi9x3jFGNgJeiUuf-jpKO3TuW42qTvSZW65C2lRwT_ALOenFMwB877DRV6XTSPRp-WULjBBmGibrXiOCu-Y5943lB1IGFvzQkZtbFyzWz6ZKn44RQqSz7sasYupOlH9z-lFHzOyqB0wkineb9y7mHd7Mg4Zyh1o4cPvMbOMV2mHFl5YqBm8/s320/2026-07-09%2010_51_42-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
+    sound: ""
+  }, eco_wild_horse: { 
+    title: "Τα  Άλογα της Πιερίας 🐎", 
+    desc: "Αυτά τα περήφανα ζώα ζουν στους πρόποδες και τα ξέφωτα των βουνών, αποτελώντας ζωντανό κομμάτι του τοπίου. Με τις χαίτες τους να ανεμίζουν στην παραμικρή ριπή του αέρα, καλπάζουν με απίστευτη δύναμη, θυμίζοντάς μας τη μαγεία της άγριας ελληνικής φύσης.", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjIib7M4VSrp3mbgWtrDhZw2V2LbgREAFajNyVeyS-0UXAp8omHpYEotc9zNcdUJqLlSb4fJK8_FHgjJu0PPN28b5RBOwXB72l62afjdH8ImmcAdV_bdpwoVnh55TWPluqrClF-R7ANhD5zPyqFOUzGj2kf2hGZsdF-Sfqd8bjrfE0cUb2iXMA5Qx8tu34/s320/2026-07-09%2011_01_23-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
+    sound: ""
+  }, eco_owl_watcher: { 
+    title: "Η Κουκουβάγια 🦉", 
+    desc: "Ο σοφός φύλακας των δασών μας! Κρυμμένη μέσα στις πυκνές φυλλωσιές των δέντρων, η κουκουβάγια παραμονεύει αμίλητη. Το σώμα της μένει εντελώς ακίνητο, αλλά το κεφάλι της γυρνάει σχεδόν ολόκληρο για να ελέγξει την περιοχή, ανοιγοκλείνοντας ξαφνικά τα τεράστια κίτρινα μάτια της.", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg4LhFePkeB4ySLvSaNqkYDHQGMjKL3NmOJaZ4_kHUEawPhYYly2o5sEweThRaUPHuZ5UKIme94wm10rkgS1Ixhyphenhyphene5h-QsouGT4OhK_8sBkI1QjohZAGgiOoEKRZK2DlPBBQCBjnkz1-GO2TSCFpypEhDzX5Uexaod9uURGf9rxKkLq0AIAHnNtrHEueGg/s320/2026-07-09%2011_54_17-2025-09-25%2018_01_46-World%20of%20Warcraft.png.png", 
+    sound: ""
+  }, eco_firefly: { 
+    title: "Οι Πυγολαμπίδες του Δάσους 🪰", 
+    desc: "Η μαγεία της νύχτας στα δάση του Ολύμπου και των Πιερίων!  Όταν σκοτεινιάζει, χορεύουν ανάμεσα στα δέντρα σαν μικρά αστέρια, δημιουργώντας ένα αληθινό παραμύθι.", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj4tAb5DU6SWxy7VvDZFw-MJ2nZF4LP8xSPgyQav-1wKDjbsnCm4psrU6qYob9XgRAksxBAmJezivqnigXS1X8HNNRgACfMN4AmB0NberPArKTjFYMdFLRCnTjM2qk7f1JApNd5knrxmfZWl4eJj9bG04u7OTd_bQmC_zWOcTBFxMWJM9V0i1-7Adbe20Q/s320/2026-07-09%2011_59_16-2025-09-25%2018_01_46-World%20of%20Warcraft.png.png", 
+    sound: ""
+  }, eco_hedgehog: { 
+    title: "Ο Σκαντζόχοιρος 🦔", 
+    desc: "Ένας ήσυχος αλλά πανέξυπνος κάτοικος των λιβαδιών! Ο σκαντζόχοιρος δεν τρέχει γρήγορα για να γλιτώσει, ούτε επιτίθεται. Η άμυνά του είναι αλάνθαστη: μόλις νιώσει απειλή, μαζεύει το ευαίσθητο μουσουδάκι και τα ποδαράκια του προς τα μέσα και μετατρέπεται σε μια συμπαγή μπάλα από χιλιάδες σουβλερά αγκάθια.", 
+    img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiAFIxa92bhvwrO5CrvmicN0mPkCPHCVAygTIQgSDhSgKk4EoajenTtIWdBNzHNacGDGZwCN_6mrHvmNo1yksX50FJIjw4ILDk-YqUXvsgHAiAyfug9FQkL5NnKR9WTsuHTB3AdVhAYsCmh-VbuRWCPk4NjLIz8i_YMuRXcY848B41jhegjMKThN-ytEOI/s320/2026-07-09%2012_11_19-2025-09-25%2018_01_46-World%20of%20Warcraft.png", 
+    sound: ""
   }
   };
 
@@ -4276,6 +4670,18 @@ const seaSchool = document.getElementById('school-sea-nature');
 if (seaSchool) seaSchool.classList.remove('active');
 const seaSealHide = document.getElementById('seal-sea-nature');
 if (seaSealHide) seaSealHide.classList.remove('active');
+const ecoAlkyoniHide = document.getElementById('alkyoni-eco-nature');
+if (ecoAlkyoniHide) ecoAlkyoniHide.classList.remove('active');
+const ecoSquirrelHide = document.getElementById('squirrel-eco-nature');
+if (ecoSquirrelHide) ecoSquirrelHide.classList.remove('active');
+const ecoMustangHide = document.getElementById('mustang-eco-nature');
+if (ecoMustangHide) ecoMustangHide.classList.remove('active');
+const ecoOwlHide = document.getElementById('owl-eco-nature');
+if (ecoOwlHide) ecoOwlHide.classList.remove('active');
+const ecoFireflyHide = document.getElementById('firefly-eco-nature');
+if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
+const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
+if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
         button2.innerHTML = "✨Φώτισε όλα τα Μονοπάτια!";
 const hydra = document.getElementById('hydra-monster');
         if (hydra) hydra.classList.remove('active');
@@ -4388,6 +4794,18 @@ const seaSchool = document.getElementById('school-sea-nature');
 if (seaSchool) seaSchool.classList.remove('active');
 const seaSealHide = document.getElementById('seal-sea-nature');
 if (seaSealHide) seaSealHide.classList.remove('active');
+const ecoAlkyoniHide = document.getElementById('alkyoni-eco-nature');
+if (ecoAlkyoniHide) ecoAlkyoniHide.classList.remove('active');
+const ecoSquirrelHide = document.getElementById('squirrel-eco-nature');
+if (ecoSquirrelHide) ecoSquirrelHide.classList.remove('active');
+const ecoMustangHide = document.getElementById('mustang-eco-nature');
+if (ecoMustangHide) ecoMustangHide.classList.remove('active');
+const ecoOwlHide = document.getElementById('owl-eco-nature');
+if (ecoOwlHide) ecoOwlHide.classList.remove('active');
+const ecoFireflyHide = document.getElementById('firefly-eco-nature');
+if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
+const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
+if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
         button2.innerHTML = "⚡ Μυθική Πιερία!";
     mapState2 = 3;
 } 
@@ -4503,6 +4921,18 @@ const seaSchool = document.getElementById('school-sea-nature');
 if (seaSchool) seaSchool.classList.remove('active');
 const seaSealHide = document.getElementById('seal-sea-nature');
 if (seaSealHide) seaSealHide.classList.remove('active');
+const ecoAlkyoniHide = document.getElementById('alkyoni-eco-nature');
+if (ecoAlkyoniHide) ecoAlkyoniHide.classList.remove('active');
+const ecoSquirrelHide = document.getElementById('squirrel-eco-nature');
+if (ecoSquirrelHide) ecoSquirrelHide.classList.remove('active');
+const ecoMustangHide = document.getElementById('mustang-eco-nature');
+if (ecoMustangHide) ecoMustangHide.classList.remove('active');
+const ecoOwlHide = document.getElementById('owl-eco-nature');
+if (ecoOwlHide) ecoOwlHide.classList.remove('active');
+const ecoFireflyHide = document.getElementById('firefly-eco-nature');
+if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
+const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
+if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
         button2.innerHTML = "🌿Τα Μυστικά της Φύσης!"; // Προστέθηκε το κουμπί για το επόμενο βήμα!
         mapState2 = 4;
     }
@@ -4613,6 +5043,18 @@ const seaSchool = document.getElementById('school-sea-nature');
 if (seaSchool) seaSchool.classList.add('active');
 const seaSeal = document.getElementById('seal-sea-nature');
 if (seaSeal) seaSeal.classList.add('active');
+const ecoAlkyoni = document.getElementById('alkyoni-eco-nature');
+if (ecoAlkyoni) ecoAlkyoni.classList.add('active');
+const ecoSquirrel = document.getElementById('squirrel-eco-nature');
+if (ecoSquirrel) ecoSquirrel.classList.add('active');
+const ecoMustang = document.getElementById('mustang-eco-nature');
+if (ecoMustang) ecoMustang.classList.add('active');
+const ecoOwl = document.getElementById('owl-eco-nature');
+if (ecoOwl) ecoOwl.classList.add('active');
+const ecoFirefly = document.getElementById('firefly-eco-nature');
+if (ecoFirefly) ecoFirefly.classList.add('active');
+const ecoHedgehog = document.getElementById('hedgehog-eco-nature');
+if (ecoHedgehog) ecoHedgehog.classList.add('active');
         button2.innerHTML = "🔄 Επαναφορά στην Αρχή!";
         mapState2 = 5;
     }
@@ -4725,6 +5167,18 @@ const seaSchool = document.getElementById('school-sea-nature');
 if (seaSchool) seaSchool.classList.remove('active');
 const seaSealHide = document.getElementById('seal-sea-nature');
 if (seaSealHide) seaSealHide.classList.remove('active');
+const ecoAlkyoniHide = document.getElementById('alkyoni-eco-nature');
+if (ecoAlkyoniHide) ecoAlkyoniHide.classList.remove('active');
+const ecoSquirrelHide = document.getElementById('squirrel-eco-nature');
+if (ecoSquirrelHide) ecoSquirrelHide.classList.remove('active');
+const ecoMustangHide = document.getElementById('mustang-eco-nature');
+if (ecoMustangHide) ecoMustangHide.classList.remove('active');
+const ecoOwlHide = document.getElementById('owl-eco-nature');
+if (ecoOwlHide) ecoOwlHide.classList.remove('active');
+const ecoFireflyHide = document.getElementById('firefly-eco-nature');
+if (ecoFireflyHide) ecoFireflyHide.classList.remove('active');
+const ecoHedgehogHide = document.getElementById('hedgehog-eco-nature');
+if (ecoHedgehogHide) ecoHedgehogHide.classList.remove('active');
         button2.innerHTML = "🗺️ Ανακάλυψε τα υπόλοιπα!";
         mapState2 = 1;
     }
