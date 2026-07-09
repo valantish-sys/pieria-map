@@ -4196,9 +4196,9 @@ display: none;
   /* Μικρύναμε το πλαίσιο αφού ο κύκλος είναι πιο κλειστός */
   width: 70px; 
   height: 70px;
-  z-index: 39; /* Υψηλότερα από όλα, στον ουρανό */
+  z-index: 39; 
   cursor: pointer;
- 
+  display: none; 
 }
 
 .t-eco-hawk.active { display: block; }
@@ -4247,9 +4247,9 @@ display: none;
   position: absolute;
   width: 59.5px;
   height: 52.5px;
-  z-index: 34; /* Στα ξέφωτα και τις πεδιάδες */
+  z-index: 34; 
   cursor: pointer;
-  
+  display: none; 
 }
 
 .t-eco-hare.active { display: block; }
