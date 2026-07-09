@@ -1,4 +1,5 @@
 (function() {
+  // Ορίζουμε το CSS ως String χρησιμοποιώντας backticks
   const css = `
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Lora:ital,wght@0,600;1,400&display=swap');
 
@@ -3934,12 +3935,14 @@ display: none;
     height: 42px;
   }
 }
-`;
-  // ΑΥΤΕΣ ΕΙΝΑΙ ΟΙ ΥΠΟΧΡΕΩΤΙΚΕΣ ΓΡΑΜΜΕΣ:
-  const styleHead = document.createElement('style'); // Δημιουργεί ένα κενό tag <style>
-  styleHead.textContent = css;                      // Βάζει το CSS σου μέσα στο tag
-  document.head.appendChild(styleHead);             // Το κολλάει στο <head> του site
-})();
+
+  `; // Κλείνει το string του CSS
+
+  // Έγχυση του CSS στο Head του εγγράφου
+  const styleHead = document.createElement('style');
+  styleHead.textContent = css;
+  document.head.appendChild(styleHead);
+})(); // Κλείνει η IIFE
 const mythicData = {
     peristasi: { 
   title: "📍 Περίσταση - Η Βάση Μας!", 
