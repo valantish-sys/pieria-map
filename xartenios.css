@@ -4245,11 +4245,11 @@ display: none;
 /* === Ο ΛΑΓΟΣ (Η ΣΥΝΕΧΗΣ ΕΓΡΗΓΟΡΣΗ) === */
 .t-eco-hare {
   position: absolute;
-  width: 69.5px;
+  width: 59.5px;
   height: 52.5px;
   z-index: 34; /* Στα ξέφωτα και τις πεδιάδες */
   cursor: pointer;
-  display: none; 
+  /* display: none; */ 
 }
 
 .t-eco-hare.active { display: block; }
@@ -4302,7 +4302,7 @@ display: none;
 /* Επιπλέον 20% μείωση ΜΟΝΟ στα κινητά */
 @media (max-width: 767px) {
   #hare-eco-nature {
-    width: 59.6px;
-    height: 54px;
+    width: 47.6px;
+    height: 42px;
   }
 }
