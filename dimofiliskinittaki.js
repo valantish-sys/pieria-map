@@ -79,7 +79,7 @@ function fetchBloggerPostsMob(json) {
 
     // Μόλις κατέβουν τα δημοφιλή, καλούμε το script για τις ετικέτες
     let script = document.createElement('script');
-    script.src = "/feeds/posts/default/-/Διαπαιδαγώγηση|Ψυχολογία|Σχολείο|Υγεία|Παιχνίδι?alt=json-in-script&max-results=50&callback=fetchLabelPostsForSlider";
+    script.src = "/feeds/posts/default/-/Διαπαιδαγώγηση|Ψυχολογία|Σχολείο|Υγεία|Παιχνίδι|Γενικά?alt=json-in-script&max-results=50&callback=fetchLabelPostsForSlider";
     document.body.appendChild(script);
 }
 
