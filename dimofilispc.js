@@ -192,7 +192,7 @@ function moveSlideDesk(step) {
 
 function startAutoSlideDesk() {
     clearInterval(autoSlideTimerDesk);
-    autoSlideTimerDesk = setInterval(() => { moveSlideDesk(1); }, 3000); // Χρόνος στα 3000ms όπως στο mobile
+    autoSlideTimerDesk = setInterval(() => { moveSlideDesk(1); }, 2000); // Χρόνος στα 3000ms όπως στο mobile
 }
 
 function resetAutoSlideDesk() {
