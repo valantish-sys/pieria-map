@@ -80,7 +80,7 @@ function fetchBloggerPostsDesk(json) {
 
     // Κλήση του νέου script ετικετών για το Desktop
     let scriptDesk = document.createElement('script');
-    scriptDesk.src = "/feeds/posts/default/-/Διαπαιδαγώγηση|Ψυχολογία|Σχολείο|Υγεία|Παιχνίδι?alt=json-in-script&max-results=50&callback=fetchLabelPostsForSliderDesk";
+    scriptDesk.src = "/feeds/posts/default/-/Διαπαιδαγώγηση|Ψυχολογία|Σχολείο|Υγεία|Παιχνίδι|Γενικά?alt=json-in-script&max-results=50&callback=fetchLabelPostsForSliderDesk";
     document.body.appendChild(scriptDesk);
 }
 
