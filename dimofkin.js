@@ -171,7 +171,7 @@ function moveSlideMob(step) {
 
 function startAutoSlideMob() {
     clearInterval(autoSlideTimerMob); // Καθαρίζει το προηγούμενο πριν ξεκινήσει νέο
-    autoSlideTimerMob = setInterval(() => { moveSlideMob(1); }, 3000); // Το πήγα στα 3 δευτερόλεπτα για να είναι πιο αργό
+    autoSlideTimerMob = setInterval(() => { moveSlideMob(1); }, 2000); // Το πήγα στα 3 δευτερόλεπτα για να είναι πιο αργό
 }
 
 function resetAutoSlideMob() {
