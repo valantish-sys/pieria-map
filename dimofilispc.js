@@ -290,18 +290,15 @@
   };
 
   // ==========================================
-  // 6. ΕΚΚΙΝΗΣΗ (Διορθωμένη)
+  // 6. ΕΚΚΙΝΗΣΗ
   // ==========================================
-  // Αντί για addEventListener, τρέχουμε τη συνάρτηση άμεσα αν το DOM είναι έτοιμο,
-  // αλλιώς περιμένουμε το load. Αυτό λύνει το πρόβλημα όταν το script μεταφέρεται.
-  if (document.readyState === 'loading') {
+  if (document.readyState === "loading") {
+    // Αν η σελίδα ακόμα φορτώνει, περίμενε το DOMContentLoaded
     document.addEventListener("DOMContentLoaded", ApiManager.fetchData);
   } else {
+    // Αν το script κατέβηκε αφού η σελίδα είχε ήδη φορτώσει, τρέξτο κατευθείαν
     ApiManager.fetchData();
   }
-
-  // ΕΞΑΓΩΓΗ ΣΥΝΑΡΤΗΣΗΣ ΣΤΟ WINDOW (ΠΡΟΣΟΧΗ: Πρέπει να είναι global)
-  window.moveSlideDesk = SliderManager.moveSlide;
 
 
 })();
