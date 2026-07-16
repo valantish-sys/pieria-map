@@ -289,11 +289,10 @@
     }
   };
 
-  // ==========================================
   // 6. ΕΚΚΙΝΗΣΗ
-  // ==========================================
   document.addEventListener("DOMContentLoaded", ApiManager.fetchData);
-// 6. ΕΞΑΓΩΓΗ ΣΥΝΑΡΤΗΣΕΩΝ ΣΤΟ WINDOW (Για να δουλεύουν τα onclick="")
+
+  // ΕΞΑΓΩΓΗ ΣΥΝΑΡΤΗΣΗΣ ΣΤΟ WINDOW (Μόνο για Desktop)
   window.moveSlideDesk = SliderManager.moveSlide;
 
 })();
