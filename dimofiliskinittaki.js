@@ -1,10 +1,30 @@
-let sliderPostsMob = [];
-let currentSlideIndexMob = 0;
-let autoSlideTimerMob;
+(() => {
+  "use strict";
 
-// 1. Δεξαμενή με τις ΣΤΑΤΙΚΕΣ ΣΕΛΙΔΕΣ (επειδή δεν έχουν ετικέτες στο Blogger)
-let candidatePostsFor16 = [
-    { title: "Τα όρια δεν είναι φράχτες", link: "https://dimperist.blogspot.com/p/blog-page_8.html", image: "" },
+  // ==========================================
+  // 1. CONFIGURATION (Ρυθμίσεις)
+  // ==========================================
+  const CONFIG = Object.freeze({
+    maxBasePosts: 15,
+    targetDate: new Date("2021-09-11T00:00:00Z"),
+    autoSlideIntervalMs: 3000, 
+    animLockMs: 500,
+    
+    // ΕΔΩ Η ΑΛΛΑΓΗ: Τώρα τραβάει απευθείας τα 15 "δημοφιλή" αστραπιαία!
+    feedPopularUrl: "/feeds/posts/default/-/δημοφιλή?alt=json&max-results=15",
+    
+    // Η δεξαμενή για το άρθρο της εβδομάδας
+    feedLabelsUrl: "/feeds/posts/default/-/Διαπαιδαγώγηση|Ψυχολογία|Σχολείο|Υγεία|Παιχνίδι|Γενικά?alt=json&max-results=50",
+    
+    safeImage: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgdYTGP-KF_2ZHc7ykgjO533JVSDXYPsg36Oi3XC0Z6UN-yEKAhpbsK5PME3r9Q_WeAXn-c20sWAmLR65slEVQSaYaDVKLuYQtaqbjuGyH71VxJxgZqWx5vG1JSCOFlqWswSphTn6Zup1d8Uz9Ie2Tq9CQeHmWBPusLJ7rc_bPJkiau4W47iSy6cSp60N4/s800/Gemini_Generated_Image_1itzx51itzx51itz.png",
+    sliderContainerId: "slider-content-mobile",
+    sliderWrapperId: "custom-post-slider-mobile"
+  });
+
+  const DATA = Object.freeze({
+    // [ΒΑΛΕ ΕΔΩ ΤΗ ΔΕΞΑΜΕΝΗ ΜΕ ΤΙΣ ΣΤΑΤΙΚΕΣ ΣΕΛΙΔΕΣ ΣΟΥ]
+    candidatePostsFor16: [
+      { title: "Τα όρια δεν είναι φράχτες", link: "https://dimperist.blogspot.com/p/blog-page_8.html", image: "" },
     { title: "Αόρατος γονιός", link: "https://dimperist.blogspot.com/p/blog-page_1.html", image: "" },
     { title: "Πώς θα μεγαλώσουμε αυτόνομα και ανεξάρτητα παιδιά", link: "https://dimperist.blogspot.com/p/blog-page_13.html", image: "" },
     { title: "Τρόποι μείωσης της χρήσης οθονών από τα παιδιά", link: "https://dimperist.blogspot.com/p/blog-page.html", image: "" },
@@ -27,160 +47,246 @@ let candidatePostsFor16 = [
     { title: "Ενθαρρύνουμε τη δημιουργικότητα των παιδιών", link: "https://dimperist.blogspot.com/p/blog-page_41.html", image: "" },
     { title: "Η σημασία του παιχνιδιού στην ανάπτυξη", link: "https://dimperist.blogspot.com/p/blog-page_83.html", image: "" },
     { title: "Δραστηριότητες που αναπτύσσουν τις μαθησιακές δεξιότητες", link: "https://dimperist.blogspot.com/p/blog-page_56.html", image: "" }
-];
+    ]
+  });
 
-// Συνάρτηση για εύρεση εικόνας (επαναχρησιμοποιήσιμη)
-function extractImageFromEntry(entry) {
-    let imageUrl = ""; let isVideo = false;
-    if (entry.content && entry.content.$t) {
+  // ==========================================
+  // 2. STATE (Κατάσταση & Μνήμη)
+  // ==========================================
+  const STATE = {
+    sliderPosts: [],
+    currentIndex: 0,
+    autoSlideTimer: null,
+    isAnimating: false,
+    touchStartX: 0
+  };
+
+  // ==========================================
+  // 3. UTILITIES (Εργαλεία)
+  // ==========================================
+  const Utils = {
+    extractMedia: (entry) => {
+      let imageUrl = "";
+      let isVideo = false;
+      const content = entry.content ? entry.content.$t : "";
+
+      try {
         const ytRegex = /(?:https?:)?\/\/(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i;
-        const ytMatch = entry.content.$t.match(ytRegex);
-        if (ytMatch && ytMatch[1]) { imageUrl = "https://img.youtube.com/vi/" + ytMatch[1] + "/hqdefault.jpg"; isVideo = true; }
-    }
-    if (!imageUrl && entry.content && entry.content.$t) {
+        const ytMatch = content.match(ytRegex);
+        if (ytMatch && ytMatch[1]) {
+          return { imageUrl: `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`, isVideo: true };
+        }
+
         const imgRegex = /<img[^>]+src="([^"]+)"/i;
-        const match = entry.content.$t.match(imgRegex);
-        if (match) {
-            imageUrl = match[1];
-            if (imageUrl.includes("blogger.googleusercontent.com") || imageUrl.includes("bp.blogspot.com")) {
-                imageUrl = imageUrl.replace(/\/s[0-9]+(-b|-c|-w)?\//, '/s1600/');
-                imageUrl = imageUrl.replace(/=w[0-9]+-h[0-9]+(-c)?/, '=s1600');
-            }
+        const imgMatch = content.match(imgRegex);
+        if (imgMatch && imgMatch[1]) {
+          imageUrl = imgMatch[1];
+          if (imageUrl.includes("blogger.googleusercontent.com") || imageUrl.includes("bp.blogspot.com")) {
+            imageUrl = imageUrl.replace(/\/s[0-9]+(-b|-c|-w)?\//, '/s1600/').replace(/=w[0-9]+-h[0-9]+(-c)?/, '=s1600');
+          }
+          return { imageUrl, isVideo: false };
         }
-    }
-    if (!imageUrl && entry.media$thumbnail) {
-        imageUrl = entry.media$thumbnail.url;
-        imageUrl = imageUrl.replace(/\/s72-c\//, '/s1600/');
-        imageUrl = imageUrl.replace(/=s72-c/, '=s1600');
-    }
-    if (!imageUrl) { imageUrl = "https://via.placeholder.com/350x220?text=Χωρίς+Εικόνα"; }
-    return { imageUrl, isVideo };
-}
 
-// 2. Φόρτωση των Δημοφιλών Αναρτήσεων
-function fetchBloggerPostsMob(json) {
-    const entries = json.feed.entry;
-    if (!entries) return;
-    const targetDate = new Date("2021-09-11T00:00:00Z");
+        if (entry.media$thumbnail && entry.media$thumbnail.url) {
+          imageUrl = entry.media$thumbnail.url.replace(/\/s72-c\//, '/s1600/').replace(/=s72-c/, '=s1600');
+          return { imageUrl, isVideo: false };
+        }
+      } catch (err) {}
 
-    for (let i = 0; i < entries.length; i++) {
-        const entry = entries[i];
+      return { imageUrl: CONFIG.safeImage, isVideo: false };
+    },
+
+    getLink: (entry) => {
+      const linkObj = entry.link.find(l => l.rel === "alternate");
+      return linkObj ? linkObj.href : "#";
+    }
+  };
+
+  // ==========================================
+  // 4. API MANAGER (Σύγχρονες Κλήσεις Δεδομένων)
+  // ==========================================
+  const ApiManager = {
+    fetchData: async () => {
+      try {
+        // Τραβάει ΤΑΥΤΟΧΡΟΝΑ και τις δύο λίστες άρθρων χωρίς <script> tags!
+        const [popularRes, labelsRes] = await Promise.all([
+          fetch(CONFIG.feedPopularUrl).then(r => r.json()),
+          fetch(CONFIG.feedLabelsUrl).then(r => r.json())
+        ]);
+
+        ApiManager.processPopularPosts(popularRes);
+        ApiManager.processWeeklyPick(labelsRes);
+        
+        SliderManager.buildDOM();
+      } catch (error) {
+        document.getElementById(CONFIG.sliderContainerId).innerHTML = 
+          "<p style='text-align:center; padding:20px; color:#a90e0e;'>Σφάλμα φόρτωσης αναρτήσεων.</p>";
+      }
+    },
+
+    processPopularPosts: (json) => {
+      const entries = json.feed.entry || [];
+      for (const entry of entries) {
+        if (STATE.sliderPosts.length >= CONFIG.maxBasePosts) break;
+        
         const publishedDate = new Date(entry.published.$t);
-        if (publishedDate >= targetDate && sliderPostsMob.length < 15) {
-            let title = entry.title.$t;
-            let postLink = "";
-            for (let j = 0; j < entry.link.length; j++) {
-                if (entry.link[j].rel === "alternate") { postLink = entry.link[j].href; break; }
-            }
-            let media = extractImageFromEntry(entry);
-            sliderPostsMob.push({ title, link: postLink, image: media.imageUrl, isVideo: media.isVideo });
+        if (publishedDate >= CONFIG.targetDate) {
+          const media = Utils.extractMedia(entry);
+          STATE.sliderPosts.push({
+            title: entry.title.$t,
+            link: Utils.getLink(entry),
+            image: media.imageUrl,
+            isVideo: media.isVideo
+          });
         }
-    }
+      }
+    },
 
-    // Μόλις κατέβουν τα δημοφιλή, καλούμε το script για τις ετικέτες
-    let script = document.createElement('script');
-    script.src = "/feeds/posts/default/-/Διαπαιδαγώγηση|Ψυχολογία|Σχολείο|Υγεία|Παιχνίδι|Γενικά?alt=json-in-script&max-results=50&callback=fetchLabelPostsForSlider";
-    document.body.appendChild(script);
-}
-
-// 3. Φόρτωση Αναρτήσεων με Ετικέτες (για να γεμίσει η 16η θέση δυναμικά)
-function fetchLabelPostsForSlider(json) {
-    if (json && json.feed && json.feed.entry) {
-        json.feed.entry.forEach(entry => {
-            let title = entry.title.$t;
-            let postLink = "";
-            for (let j = 0; j < entry.link.length; j++) {
-                if (entry.link[j].rel === "alternate") { postLink = entry.link[j].href; break; }
-            }
-            let media = extractImageFromEntry(entry);
-            candidatePostsFor16.push({ title, link: postLink, image: media.imageUrl, isVideo: media.isVideo });
+    processWeeklyPick: (json) => {
+      let candidates = [...DATA.candidatePostsFor16];
+      const entries = json.feed.entry || [];
+      entries.forEach(entry => {
+        const media = Utils.extractMedia(entry);
+        candidates.push({
+          title: entry.title.$t,
+          link: Utils.getLink(entry),
+          image: media.imageUrl,
+          isVideo: media.isVideo
         });
-    }
+      });
 
-    // Υπολογίζουμε την εβδομάδα και διαλέγουμε ένα άρθρο από τη συνολική δεξαμενή
-    const weekNum = Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 7));
-    const weeklyPick = candidatePostsFor16[weekNum % candidatePostsFor16.length];
-    
-    // Εδώ είναι η διορθωμένη εικόνα που δεν θα σπάει ποτέ
-    const safeImage = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgdYTGP-KF_2ZHc7ykgjO533JVSDXYPsg36Oi3XC0Z6UN-yEKAhpbsK5PME3r9Q_WeAXn-c20sWAmLR65slEVQSaYaDVKLuYQtaqbjuGyH71VxJxgZqWx5vG1JSCOFlqWswSphTn6Zup1d8Uz9Ie2Tq9CQeHmWBPusLJ7rc_bPJkiau4W47iSy6cSp60N4/s800/Gemini_Generated_Image_1itzx51itzx51itz.png";
+      const weekNum = Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 7));
+      const weeklyPick = candidates[weekNum % candidates.length];
 
-    const weeklyPostObj = {
+      const weeklyPostObj = {
         title: "⭐ " + weeklyPick.title,
         link: weeklyPick.link,
-        image: weeklyPick.image || safeImage,
+        image: weeklyPick.image || CONFIG.safeImage,
         isVideo: weeklyPick.isVideo || false
-    };
+      };
 
-    // Εισαγωγή στη 16η θέση (index 15)
-    if (sliderPostsMob.length >= 15) {
-        sliderPostsMob.splice(15, 0, weeklyPostObj);
-    } else {
-        sliderPostsMob.push(weeklyPostObj);
+      const targetIndex = Math.min(15, STATE.sliderPosts.length);
+      STATE.sliderPosts.splice(targetIndex, 0, weeklyPostObj);
+
+      if (STATE.sliderPosts.length > 16) {
+        STATE.sliderPosts = STATE.sliderPosts.slice(0, 16);
+      }
     }
+  };
 
-    if (sliderPostsMob.length > 16) {
-        sliderPostsMob = sliderPostsMob.slice(0, 16);
-    }
+  // ==========================================
+  // 5. SLIDER MANAGER (UI & DOM)
+  // ==========================================
+  const SliderManager = {
+    buildDOM: () => {
+      const container = document.getElementById(CONFIG.sliderContainerId);
+      const wrapper = document.getElementById(CONFIG.sliderWrapperId);
+      if (!container || !wrapper) return;
 
-    buildSliderMob();
-}
+      const arrowPrev = wrapper.querySelector('.arrow-prev');
+      const arrowNext = wrapper.querySelector('.arrow-next');
 
-function buildSliderMob() {
-    const container = document.getElementById("slider-content-mobile");
-    const arrowPrev = document.querySelector('#custom-post-slider-mobile .arrow-prev');
-    const arrowNext = document.querySelector('#custom-post-slider-mobile .arrow-next');
-    if(sliderPostsMob.length === 0) {
-        container.innerHTML = "<p style='text-align:center; padding: 20px; font-family: Inter, Arial; color: #a90e0e;'>Δεν βρέθηκαν δημοφιλείς αναρτήσεις.</p>";
+      if (STATE.sliderPosts.length === 0) {
+        container.innerHTML = "<p style='text-align:center; padding:20px; color:#a90e0e;'>Δεν βρέθηκαν δημοφιλείς αναρτήσεις.</p>";
         return;
+      }
+
+      const fragment = document.createDocumentFragment();
+
+      STATE.sliderPosts.forEach((post, index) => {
+        const slide = document.createElement('div');
+        slide.className = `slide-item ${index === 0 ? "active" : ""}`;
+        
+        const loadingAttr = index === 0 ? 'fetchpriority="high"' : 'loading="lazy"';
+        const videoBadge = post.isVideo ? `<div class="video-badge">&#9654;</div>` : "";
+
+        slide.innerHTML = `
+          <a href="${post.link}" class="slide-link">
+            ${videoBadge}
+            <div class="slide-counter">${index + 1} / ${STATE.sliderPosts.length}</div>
+            <img src="${post.image}" alt="${post.title}" ${loadingAttr}>
+            <div class="slide-title-wrapper">
+              <div class="slide-title">${post.title}</div>
+            </div>
+          </a>
+        `;
+        fragment.appendChild(slide);
+      });
+
+      container.innerHTML = "";
+      container.appendChild(fragment);
+
+      if (STATE.sliderPosts.length > 1) {
+        if (arrowPrev) arrowPrev.classList.remove('hidden-arrow');
+        if (arrowNext) arrowNext.classList.remove('hidden-arrow');
+        
+        SliderManager.startAutoSlide();
+        SliderManager.setupEvents(wrapper, arrowPrev, arrowNext);
+      }
+    },
+
+    showSlide: (index) => {
+      const slides = document.querySelectorAll(`#${CONFIG.sliderWrapperId} .slide-item`);
+      if (slides.length === 0) return;
+
+      slides.forEach(slide => slide.classList.remove("active"));
+
+      if (index >= STATE.sliderPosts.length) STATE.currentIndex = 0;
+      else if (index < 0) STATE.currentIndex = STATE.sliderPosts.length - 1;
+      else STATE.currentIndex = index;
+
+      slides[STATE.currentIndex].classList.add("active");
+    },
+
+    moveSlide: (step) => {
+      if (STATE.isAnimating) return;
+      STATE.isAnimating = true;
+
+      SliderManager.showSlide(STATE.currentIndex + step);
+      SliderManager.resetAutoSlide();
+
+      setTimeout(() => { STATE.isAnimating = false; }, CONFIG.animLockMs);
+    },
+
+    startAutoSlide: () => {
+      clearInterval(STATE.autoSlideTimer);
+      STATE.autoSlideTimer = setInterval(() => { 
+        SliderManager.moveSlide(1); 
+      }, CONFIG.autoSlideIntervalMs);
+    },
+
+    resetAutoSlide: () => {
+      clearInterval(STATE.autoSlideTimer);
+      if (STATE.sliderPosts.length > 1) SliderManager.startAutoSlide();
+    },
+
+    setupEvents: (wrapper, arrowPrev, arrowNext) => {
+      if (arrowNext) arrowNext.addEventListener("click", () => SliderManager.moveSlide(1));
+      if (arrowPrev) arrowPrev.addEventListener("click", () => SliderManager.moveSlide(-1));
+
+      wrapper.addEventListener("mouseenter", () => clearInterval(STATE.autoSlideTimer), { passive: true });
+      wrapper.addEventListener("mouseleave", SliderManager.resetAutoSlide, { passive: true });
+      
+      wrapper.addEventListener("touchstart", (e) => {
+        clearInterval(STATE.autoSlideTimer);
+        STATE.touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      wrapper.addEventListener("touchend", (e) => {
+        const touchEndX = e.changedTouches[0].screenX;
+        const diff = STATE.touchStartX - touchEndX;
+        
+        if (diff > 40) SliderManager.moveSlide(1);    
+        else if (diff < -40) SliderManager.moveSlide(-1); 
+        
+        SliderManager.resetAutoSlide();
+      }, { passive: true });
     }
-    let htmlOutput = "";
-    sliderPostsMob.forEach((post, index) => {
-        let activeClass = index === 0 ? "active" : "";
-        let videoBadgeHtml = post.isVideo ? `<div class="video-badge">&#9654;</div>` : "";
-        htmlOutput += `<div class="slide-item ${activeClass}"><a href="${post.link}" class="slide-link">${videoBadgeHtml}<div class="slide-counter">${index + 1} / ${sliderPostsMob.length}</div><img src="${post.image}" alt="${post.title}"><div class="slide-title-wrapper"><div class="slide-title">${post.title}</div></div></a></div>`;
-    });
-    container.innerHTML = htmlOutput;
-    if (sliderPostsMob.length > 1) {
-        arrowPrev.classList.remove('hidden-arrow'); arrowNext.classList.remove('hidden-arrow');
-        startAutoSlideMob(); initSwipeMob();
-    }
-}
+  };
 
-function showSlideMob(index) {
-    const slides = document.querySelectorAll("#custom-post-slider-mobile .slide-item");
-    if (slides.length === 0) return;
-    slides.forEach(slide => slide.classList.remove("active"));
-    if (index >= sliderPostsMob.length) currentSlideIndexMob = 0;
-    if (index < 0) currentSlideIndexMob = sliderPostsMob.length - 1;
-    slides[currentSlideIndexMob].classList.add("active");
-}
+  // ==========================================
+  // 6. ΕΚΚΙΝΗΣΗ
+  // ==========================================
+  document.addEventListener("DOMContentLoaded", ApiManager.fetchData);
 
-let isAnimatingMob = false; // Πρόσθεσε αυτή τη γραμμή έξω από τις συναρτήσεις
-
-function moveSlideMob(step) {
-    if (isAnimatingMob) return; // Αν κινείται ήδη, ακυρώνει το νέο πάτημα
-    isAnimatingMob = true;
-    
-    currentSlideIndexMob += step;
-    showSlideMob(currentSlideIndexMob);
-    resetAutoSlideMob();
-    
-    // Ξεκλειδώνει μετά από 500ms (μισό δευτερόλεπτο)
-    setTimeout(() => { isAnimatingMob = false; }, 500);
-}
-
-function startAutoSlideMob() {
-    clearInterval(autoSlideTimerMob); // Καθαρίζει το προηγούμενο πριν ξεκινήσει νέο
-    autoSlideTimerMob = setInterval(() => { moveSlideMob(1); }, 2000); // Το πήγα στα 3 δευτερόλεπτα για να είναι πιο αργό
-}
-
-function resetAutoSlideMob() {
-    clearInterval(autoSlideTimerMob);
-    if (sliderPostsMob.length > 1) startAutoSlideMob();
-}
-function initSwipeMob() {
-    const sliderElem = document.getElementById("custom-post-slider-mobile");
-    let touchStartX = 0; let touchEndX = 0;
-    sliderElem.addEventListener("touchstart", e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
-    sliderElem.addEventListener("touchend", e => { touchEndX = e.changedTouches[0].screenX; if (touchStartX - touchEndX > 40) moveSlideMob(1); if (touchEndX - touchStartX > 40) moveSlideMob(-1); }, {passive: true});
-}
+})();
