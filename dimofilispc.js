@@ -293,5 +293,7 @@
   // 6. ΕΚΚΙΝΗΣΗ
   // ==========================================
   document.addEventListener("DOMContentLoaded", ApiManager.fetchData);
-
+// 6. ΕΞΑΓΩΓΗ ΣΥΝΑΡΤΗΣΕΩΝ ΣΤΟ WINDOW (Για να δουλεύουν τα onclick="")
+  window.moveSlideDesk = SliderManager.moveSlide;
+  window.toggleMissionPC = ... // αν είχες και το άλλο widget
 })();
