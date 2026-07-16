@@ -1,6 +1,18 @@
-  // Η δεξαμενή με τους Γρίφους - Ελεγμένη και 100% ασφαλής για παιδιά
-  const dailyRiddlesList = [
-    // Οι 10 αρχικοί σου γρίφοι
+(() => {
+  "use strict";
+
+  // ==========================================
+  // 1. CONFIGURATION
+  // ==========================================
+  const CONFIG = Object.freeze({
+    mobileBreakpoint: 768,
+    glassBaseId: "riddle-glass-base",
+    glassBaseClass: "widget mobile-glass-shelf",
+    debounceDelay: 150 // Καθυστέρηση σε ms για βέλτιστη απόδοση στο resize
+  });
+
+  // Η δεξαμενή δεδομένων σου (Επικόλλησε εδώ τους 110 γρίφους)
+  const RIDDLES_DB = [
     { q: "Έχει δόντια, αλλά δε δαγκώνει. Τι είναι;", a: "Η χτένα!" },
     { q: "Όσο περισσότερο παίρνεις από αυτό, τόσο μεγαλύτερο γίνεται. Τι είναι;", a: "Η τρύπα!" },
     { q: "Τι ανεβαίνει αλλά δεν κατεβαίνει ποτέ;", a: "Η ηλικία μας!" },
@@ -106,79 +118,122 @@
     { q: "Έχει μάρσιπο (τσέπη) στην κοιλιά του και κάνει μεγάλα πηδήματα. Τι είναι;", a: "Το καγκουρό!" }
   ];
 
- const questionEl = document.getElementById("daily-riddle-question");
-  const answerEl = document.getElementById("daily-riddle-answer");
-  const riddleBox = document.getElementById("daily-riddle-box");
+  // ==========================================
+  // 2. DOM CACHE
+  // ==========================================
+  const DOM = {
+    box: document.getElementById("daily-riddle-box"),
+    question: document.getElementById("daily-riddle-question"),
+    answer: document.getElementById("daily-riddle-answer"),
+    originalLoc: document.getElementById("riddle-original-location"),
+    targetWidget: document.getElementById("HTML15"),
+    glassBase: null
+  };
 
-  function loadDailyRiddle() {
-    const today = new Date();
-    const timeZoneOffsetMs = today.getTimezoneOffset() * 60 * 1000;
-    const localMs = today.getTime() - timeZoneOffsetMs;
-    const daysPassed = Math.floor(localMs / (1000 * 60 * 60 * 24));
-    const dailyIndex = daysPassed % dailyRiddlesList.length;
-    const todaysRiddle = dailyRiddlesList[dailyIndex];
+  // ==========================================
+  // 3. UTILITIES
+  // ==========================================
+  const Utils = {
+    // Αποτρέπει την υπερφόρτωση του browser κατά το window resize
+    debounce: (func, delay) => {
+      let timeout;
+      return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    },
     
-    questionEl.innerHTML = todaysRiddle.q;
-    answerEl.innerHTML = todaysRiddle.a;
-  }
-
-  function toggleBlur() {
-    const isClear = riddleBox.classList.toggle("is-clear");
-    riddleBox.setAttribute("aria-expanded", String(isClear));
-  }
-
-  loadDailyRiddle();
-
-  riddleBox.addEventListener("click", toggleBlur);
-  riddleBox.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      toggleBlur();
+    // Δημιουργεί τη γυάλινη βάση δυναμικά μόνο όταν χρειαστεί
+    getOrCreateGlassBase: () => {
+      if (DOM.glassBase) return DOM.glassBase;
+      
+      const base = document.createElement("div");
+      base.id = CONFIG.glassBaseId;
+      base.className = CONFIG.glassBaseClass;
+      base.style.cssText = "padding: 15px; margin: 15px 0;";
+      DOM.glassBase = base;
+      
+      return base;
     }
-    if (e.key === "Escape") {
-      riddleBox.classList.remove("is-clear");
-      riddleBox.setAttribute("aria-expanded", "false");
+  };
+
+  // ==========================================
+  // 4. MAIN MANAGER
+  // ==========================================
+  const RiddleManager = {
+    init: () => {
+      // Αν λείπει κάποιο βασικό στοιχείο HTML, σταματάει αθόρυβα
+      if (!DOM.box || !DOM.question || !DOM.answer || RIDDLES_DB.length === 0) return;
+
+      RiddleManager.loadDaily();
+      RiddleManager.setupEvents();
+      RiddleManager.handleLayout();
+    },
+
+    loadDaily: () => {
+      const today = new Date();
+      // Υπολογισμός τοπικής ώρας με ακρίβεια
+      const localMs = today.getTime() - (today.getTimezoneOffset() * 60000);
+      const daysPassed = Math.floor(localMs / 86400000); // 86400000 = ms σε μία μέρα
+      
+      const todaysRiddle = RIDDLES_DB[daysPassed % RIDDLES_DB.length];
+      
+      // Χρήση textContent αντί για innerHTML για προστασία (XSS) και ταχύτητα
+      DOM.question.textContent = todaysRiddle.q;
+      DOM.answer.textContent = todaysRiddle.a;
+    },
+
+    toggleBlur: () => {
+      const isClear = DOM.box.classList.toggle("is-clear");
+      DOM.box.setAttribute("aria-expanded", String(isClear));
+    },
+
+    handleLayout: () => {
+      if (window.innerWidth <= CONFIG.mobileBreakpoint) {
+        if (DOM.targetWidget) {
+          const base = Utils.getOrCreateGlassBase();
+          if (!base.parentNode) {
+            DOM.targetWidget.after(base);
+          }
+          base.appendChild(DOM.box);
+        }
+      } else {
+        if (DOM.originalLoc?.parentNode) {
+          DOM.originalLoc.parentNode.insertBefore(DOM.box, DOM.originalLoc.nextSibling);
+        }
+        if (DOM.glassBase?.parentNode) {
+          DOM.glassBase.remove();
+        }
+      }
+    },
+
+    setupEvents: () => {
+      // Mouse/Touch Events
+      DOM.box.addEventListener("click", RiddleManager.toggleBlur);
+      
+      // Keyboard Accessibility
+      DOM.box.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          RiddleManager.toggleBlur();
+        } else if (e.key === "Escape") {
+          DOM.box.classList.remove("is-clear");
+          DOM.box.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      // Window Resize (Passive listener με Debounce)
+      window.addEventListener("resize", Utils.debounce(RiddleManager.handleLayout, CONFIG.debounceDelay), { passive: true });
     }
-  });
+  };
 
-  /* ---- ΜΕΤΑΚΙΝΗΣΗ ΜΑΖΙ ΜΕ ΤΗ ΓΥΑΛΙΝΗ ΒΑΣΗ ---- */
-  const originalLocation = document.getElementById("riddle-original-location");
-
-  // 1. Δημιουργούμε μια αόρατη "γυάλινη βάση"
-  let glassBase = document.getElementById("riddle-glass-base");
-  if (!glassBase) {
-    glassBase = document.createElement("div");
-    glassBase.id = "riddle-glass-base";
-    // Η μαγική κλάση 'widget' φέρνει αυτόματα όλο το εφέ γυαλιού που έχεις στο blog σου!
-    glassBase.className = "widget mobile-glass-shelf"; // Εδώ προσθέτουμε την κλάση
-    glassBase.style.padding = "15px";
-    glassBase.style.marginTop = "15px";
-    glassBase.style.marginBottom = "15px";
+  // ==========================================
+  // 5. ΕΝΑΡΞΗ (BOOTSTRAP)
+  // ==========================================
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", RiddleManager.init);
+  } else {
+    RiddleManager.init();
   }
 
-  function moveToHTML15() {
-    if (window.innerWidth <= 768) {
-      const targetWidget = document.getElementById("HTML15");
-      if (targetWidget) {
-        // Βάζουμε τη γυάλινη βάση κάτω από το HTML15
-        targetWidget.after(glassBase);
-        // Βάζουμε το σκούρο μπλε κουτί του γρίφου να "πατήσει" ΠΑΝΩ στη γυάλινη βάση
-        glassBase.appendChild(riddleBox);
-      }
-    } else {
-      // Στο PC, ο γρίφος επιστρέφει στη sidebar δίπλα στο αόρατο σημάδι του
-      if (originalLocation && originalLocation.parentNode) {
-        originalLocation.parentNode.insertBefore(riddleBox, originalLocation.nextSibling);
-      }
-      // Εξαφανίζουμε την άδεια γυάλινη βάση από το κινητό
-      if (glassBase.parentNode) {
-        glassBase.parentNode.removeChild(glassBase);
-      }
-    }
-  }
-
-  // Εκτελούμε τη διαδικασία
-  moveToHTML15();
-  setTimeout(moveToHTML15, 500); 
-  window.addEventListener("load", moveToHTML15);
-  window.addEventListener("resize", moveToHTML15);
+})();
