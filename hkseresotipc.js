@@ -1,23 +1,37 @@
- // --- ΝΕΟΣ, ΑΛΑΝΘΑΣΤΟΣ ΕΛΕΓΧΟΣ ΑΡΧΙΚΗΣ ΣΕΛΙΔΑΣ (ΑΚΙΝΗΤΑ) ---
-  (function() {
-    // Ελέγχουμε αν είμαστε ακριβώς στην αρχική σελίδα του Blogger (path "/")
-    if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-      // Δημιουργούμε δυναμικά έναν κανόνα CSS και τον βάζουμε στο Head
-      const hideStyle = document.createElement('style');
-      hideStyle.innerHTML = `
-        @media (min-width: 368px) and (max-width: 1000px) {
-          #desktop-flip-wrapper {
-            display: none !important;
-          }
-        }
-      `;
-      document.head.appendChild(hideStyle);
-    }
-  })();
-  // Οι 150 πληροφορίες 
-  const kidsFactsDesk = [
-    // ===== ΖΩΑ =====
-    "...οι μέλισσες μπορούν να «δείξουν» στις άλλες πού είναι τα λουλούδια με έναν χορό;",
+   (() => {
+  "use strict";
+
+  // ==========================================
+  // 1. ΔΥΝΑΜΙΚΟΣ ΕΛΕΓΧΟΣ ΑΡΧΙΚΗΣ ΣΕΛΙΔΑΣ
+  // ==========================================
+  // Εκτελείται αμέσως, πριν καν φορτώσει το DOM, 
+  // για να μην υπάρξει καθόλου οπτικό "αναβοσβήσιμο" (FOUC).
+  if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+    const hideStyle = document.createElement('style');
+    hideStyle.innerHTML = `
+      @media (min-width: 368px) and (max-width: 1000px) {
+        #desktop-flip-wrapper { display: none !important; }
+      }
+    `;
+    document.head.appendChild(hideStyle);
+  }
+
+  // ==========================================
+  // 2. CONFIGURATION (Σταθερές Desktop)
+  // ==========================================
+  const CONFIG = Object.freeze({
+    factElementId: "fact-text-desk",
+    flipInnerId: "flip-inner-desk",
+    flipCardId: "my-flip-card-desk",
+    flippedClass: "is-flipped",
+    // Το μισό του 700ms για να αλλάζει το κείμενο ακριβώς όταν η κάρτα είναι στις 90 μοίρες
+    flipMidpointMs: 350 
+  });
+
+  const DATA = Object.freeze({
+    // [ΒΑΛΕ ΕΔΩ ΤΙΣ ΠΛΗΡΟΦΟΡΙΕΣ ΣΟΥ ΓΙΑ ΤΟ PC]
+    kidsFactsDesk: [
+     "...οι μέλισσες μπορούν να «δείξουν» στις άλλες πού είναι τα λουλούδια με έναν χορό;",
     "...το χταπόδι έχει τρεις καρδιές;",
     "...τα δελφίνια επικοινωνούν με ήχους και «σφυρίγματα»;",
     "...οι αράχνες δεν είναι έντομα — είναι αραχνοειδή;",
@@ -267,77 +281,145 @@
 "...οι σκύλοι μπορούν να μάθουν πολλές εντολές;",
 "...η βροντή είναι ο ήχος του κεραυνού;",
 "...οι καμηλοπαρδάλεις πίνουν νερό ανοίγοντας πολύ τα πόδια τους;"
-  ];
-
-  const factElementDesk = document.getElementById("fact-text-desk");
-  const flipInnerDesk = document.getElementById("flip-inner-desk");
-  const flipCardDesk = document.getElementById("my-flip-card-desk");
-  const FLIP_MS_DESK = 700;
-  let updateTimerDesk = null;
-  
-  // ΝΕΟ: Εδώ θα κρατάμε τις πληροφορίες που δεν έχουν εμφανιστεί ακόμα
-  let availableFactsDesk = []; 
-
-  function decodeHTMLEntitiesDesk(str) {
-    const txt = document.createElement("textarea");
-    txt.innerHTML = str;
-    return txt.value;
-  }
-
-  function updateFactDesk() {
-    // Αν άδειασε η λίστα, την ξαναγεμίζουμε με όλες τις πληροφορίες
-    if (availableFactsDesk.length === 0) {
-      availableFactsDesk = [...kidsFactsDesk];
-    }
-
-    // Διαλέγουμε μια τυχαία πληροφορία από αυτές που έχουν ΑΠΟΜΕΙΝΕΙ
-    const randomIndex = Math.floor(Math.random() * availableFactsDesk.length);
-    const randomFact = availableFactsDesk[randomIndex];
-
-    // Αφαιρούμε την πληροφορία που επιλέξαμε για να μην ξαναπέσει
-    availableFactsDesk.splice(randomIndex, 1);
-
-    factElementDesk.innerText = decodeHTMLEntitiesDesk(randomFact);
-  }
-
-  function setFlippedDesk(isFlipped) {
-    flipInnerDesk.classList.toggle("is-flipped", isFlipped);
-    flipInnerDesk.setAttribute("aria-pressed", String(isFlipped));
-  }
-
-  function toggleFlipDesk() {
-    const nowFlipped = !flipInnerDesk.classList.contains("is-flipped");
-    setFlippedDesk(nowFlipped);
-
-    // Όταν γυρίζει προς τα πίσω, δείξε νέο fact
-    if (nowFlipped) updateFactDesk();
-  }
-
-  // Αρχική φόρτωση
-  updateFactDesk();
-
-  // Αλλαγή fact όταν το ποντίκι φεύγει (για PC)
-  flipCardDesk.addEventListener("mouseleave", () => {
-    if (flipInnerDesk.classList.contains("is-flipped")) return;
-
-    if (updateTimerDesk) clearTimeout(updateTimerDesk);
-
-    updateTimerDesk = setTimeout(() => {
-      if (!flipInnerDesk.classList.contains("is-flipped")) updateFactDesk();
-    }, FLIP_MS_DESK);
+    ]
   });
 
-  // Tap/click για tablet/pc
-  flipInnerDesk.addEventListener("click", toggleFlipDesk);
+  // ==========================================
+  // 3. STATE (Μνήμη)
+  // ==========================================
+  const STATE = {
+    shuffledFacts: [],
+    currentIndex: 0,
+    updateTimer: null
+  };
 
-  // Πληκτρολόγιο (Enter / Space)
-  flipInnerDesk.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      toggleFlipDesk();
+  // ==========================================
+  // 4. UTILS (Εργαλεία)
+  // ==========================================
+  const Utils = {
+    // Ο αλγόριθμος Fisher-Yates (Ανακάτεμα "Τράπουλας")
+    shuffleArray: (array) => {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    },
+    
+    // Ασφαλής αποκωδικοποίηση HTML Entities (όπως είχες στο αρχικό script)
+    decodeHTML: (str) => {
+      const txt = document.createElement("textarea");
+      txt.innerHTML = str;
+      return txt.value;
     }
-    // Escape: γύρνα μπροστά
-    if (e.key === "Escape") {
-      setFlippedDesk(false);
+  };
+
+  // ==========================================
+  // 5. WIDGET MANAGER (Η λογική)
+  // ==========================================
+  const DesktopFlipManager = {
+    el: {},
+
+    init: () => {
+      DesktopFlipManager.el.fact = document.getElementById(CONFIG.factElementId);
+      DesktopFlipManager.el.flipInner = document.getElementById(CONFIG.flipInnerId);
+      DesktopFlipManager.el.flipCard = document.getElementById(CONFIG.flipCardId);
+
+      // Ασφάλεια: Σταματάει χωρίς σφάλμα αν λείπουν τα HTML στοιχεία
+      if (!DesktopFlipManager.el.fact || !DesktopFlipManager.el.flipInner || !DesktopFlipManager.el.flipCard) return;
+
+      if (DATA.kidsFactsDesk.length > 0) {
+        STATE.shuffledFacts = Utils.shuffleArray(DATA.kidsFactsDesk);
+        STATE.currentIndex = 0;
+        DesktopFlipManager.updateDOM(); // Αρχική φόρτωση χωρίς delay
+      }
+
+      DesktopFlipManager.setupEvents();
+    },
+
+    getNextFact: () => {
+      if (STATE.shuffledFacts.length === 0) return "";
+      
+      const fact = STATE.shuffledFacts[STATE.currentIndex];
+      STATE.currentIndex++;
+
+      // Αν δείξαμε και το τελευταίο, ανακατεύουμε ξανά
+      if (STATE.currentIndex >= STATE.shuffledFacts.length) {
+        STATE.shuffledFacts = Utils.shuffleArray(DATA.kidsFactsDesk);
+        STATE.currentIndex = 0;
+      }
+      return fact;
+    },
+
+    updateDOM: () => {
+      const nextFact = DesktopFlipManager.getNextFact();
+      if (nextFact) {
+        DesktopFlipManager.el.fact.innerText = Utils.decodeHTML(nextFact);
+      }
+    },
+
+    toggle: () => {
+      const { flipInner } = DesktopFlipManager.el;
+      const isCurrentlyFlipped = flipInner.classList.contains(CONFIG.flippedClass);
+      const willBeFlipped = !isCurrentlyFlipped;
+
+      window.requestAnimationFrame(() => {
+        flipInner.classList.toggle(CONFIG.flippedClass, willBeFlipped);
+        flipInner.setAttribute("aria-pressed", String(willBeFlipped));
+      });
+
+      // Αν η κάρτα ανοίγει με κλικ, αλλάζουμε το κείμενο στο τυφλό σημείο
+      if (willBeFlipped) {
+        setTimeout(DesktopFlipManager.updateDOM, CONFIG.flipMidpointMs);
+      }
+    },
+
+    setupEvents: () => {
+      const { flipInner, flipCard } = DesktopFlipManager.el;
+
+      // ----------------------------------------
+      // Mouse Leave (Για το CSS Hover effect)
+      // ----------------------------------------
+      flipCard.addEventListener("mouseleave", () => {
+        // Αν η κάρτα κλειδώθηκε ανοιχτή με κλικ, αγνοούμε το mouseleave
+        if (flipInner.classList.contains(CONFIG.flippedClass)) return;
+
+        if (STATE.updateTimer) clearTimeout(STATE.updateTimer);
+
+        // Αντί να περιμένει 700ms για να αλλάξει το κείμενο, 
+        // τώρα το αλλάζει στις 90 μοίρες καθώς κλείνει, για να είναι έτοιμο στο επόμενο hover!
+        STATE.updateTimer = setTimeout(() => {
+          if (!flipInner.classList.contains(CONFIG.flippedClass)) {
+            DesktopFlipManager.updateDOM();
+          }
+        }, CONFIG.flipMidpointMs);
+      });
+
+      // ----------------------------------------
+      // Click & Keyboard (Για πλήρη προσβασιμότητα)
+      // ----------------------------------------
+      flipInner.addEventListener("click", DesktopFlipManager.toggle);
+
+      flipInner.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          DesktopFlipManager.toggle();
+        } else if (e.key === "Escape") {
+          window.requestAnimationFrame(() => {
+            flipInner.classList.remove(CONFIG.flippedClass);
+            flipInner.setAttribute("aria-pressed", "false");
+          });
+          // Ανανεώνει το κείμενο καθώς κλείνει
+          setTimeout(DesktopFlipManager.updateDOM, CONFIG.flipMidpointMs);
+        }
+      });
     }
-  });
+  };
+
+  // ==========================================
+  // 6. ΕΚΚΙΝΗΣΗ
+  // ==========================================
+  document.addEventListener("DOMContentLoaded", DesktopFlipManager.init);
+
+})();
