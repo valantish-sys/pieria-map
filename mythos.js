@@ -1,5 +1,18 @@
-(function() {
-    const questionsDB = [
+(() => {
+    "use strict";
+
+    // ==========================================
+    // 1. CONFIGURATION & DATABASE
+    // ==========================================
+    const CONFIG = Object.freeze({
+        mobileBreakpoint: 768,
+        glassBaseId: "quiz-mobile-base",
+        glassBaseClass: "widget",
+        debounceDelay: 150
+    });
+
+    // Η Δεξαμενή Ερωτήσεων (Άδεια για να βάλεις τις δικές σου)
+    const QUESTIONS_DB = [
         { text: "Οι καμήλες αποθηκεύουν νερό στην καμπούρα τους.", type: "myth", icon: "🐪", exp: "Αποθηκεύουν λίπος για ενέργεια!" },
         { text: "Οι πιγκουίνοι συναντούν πολικές αρκούδες.", type: "myth", icon: "🐧", exp: "Ποτέ! Ζουν σε αντίθετους πόλους." },
         { text: "Οι χαμαιλέοντες αλλάζουν χρώμα μόνο για να κρυφτούν.", type: "myth", icon: "🦎", exp: "Αλλάζουν χρώμα ανάλογα με τη διάθεσή τους!" },
@@ -130,93 +143,188 @@
         { text: "Τα άλογα μπορούν να κοιμηθούν όρθια.", type: "truth", icon: "🐴", exp: "Σωστά! Κλειδώνουν τις αρθρώσεις στα πόδια τους για να μην πέσουν." }
     ];
 
-    let score = 0, currentItem = null;
-    let availableQuestions = []; 
-
-    const display = document.getElementById("question-display"), feedback = document.getElementById("quiz-feedback");
-    const iconSpan = document.getElementById("q-icon"), expBox = document.getElementById("explanation-box");
-    const expText = document.getElementById("explanation-text"), btnRow = document.getElementById("action-buttons"), stats = document.getElementById("quiz-stats");
-    const qContainer = document.getElementById("question-container"); 
-
-    window.nextQuestion = function() {
-        if (availableQuestions.length === 0) {
-            availableQuestions = [...questionsDB];
-        }
-
-        const randomIndex = Math.floor(Math.random() * availableQuestions.length);
-        currentItem = availableQuestions[randomIndex];
-        availableQuestions.splice(randomIndex, 1);
-
-        display.innerHTML = currentItem.text; 
-        iconSpan.innerHTML = currentItem.icon;
-        feedback.innerHTML = ""; 
-        expBox.style.display = "none"; 
-        btnRow.style.display = "flex";
-        stats.innerHTML = "Σκορ: <strong>" + score + "</strong>";
-
-        qContainer.classList.remove("question-anim");
-        iconSpan.classList.remove("question-anim");
-        void qContainer.offsetWidth; 
-        
-        qContainer.classList.add("question-anim");
-        iconSpan.classList.add("question-anim");
+    // ==========================================
+    // 2. DOM CACHE (Αποθήκευση στοιχείων στη μνήμη)
+    // ==========================================
+    const DOM = {
+        display: document.getElementById("question-display"),
+        feedback: document.getElementById("quiz-feedback"),
+        iconSpan: document.getElementById("q-icon"),
+        expBox: document.getElementById("explanation-box"),
+        expText: document.getElementById("explanation-text"),
+        btnRow: document.getElementById("action-buttons"),
+        stats: document.getElementById("quiz-stats"),
+        qContainer: document.getElementById("question-container"),
+        quizOrig: document.getElementById("quiz-original-location"),
+        quizWrap: document.getElementById("glass-quiz-wrapper"),
+        quizBase: null
     };
 
-    window.processChoice = function(u) {
-        btnRow.style.display = "none";
-        if (u === currentItem.type) { score++; feedback.innerHTML = "Σωστά! ✅"; feedback.style.color = "#27ae60"; }
-        else { feedback.innerHTML = "Λάθος! ❌"; feedback.style.color = "#e74c3c"; }
-        expText.innerHTML = currentItem.exp; expBox.style.display = "block";
-        stats.innerHTML = "Σκορ: <strong>" + score + "</strong>";
+    // ==========================================
+    // 3. UTILITIES
+    // ==========================================
+    const Utils = {
+        // Προστασία από το σπαμάρισμα του Resize
+        debounce: (func, delay) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        },
+        // Αλγόριθμος Fisher-Yates (Ανακάτεμα O(n) μία φορά)
+        shuffleArray: (array) => {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        }
     };
 
-    nextQuestion();
+    // ==========================================
+    // 4. QUIZ ENGINE (Η καρδιά του παιχνιδιού)
+    // ==========================================
+    const QuizEngine = {
+        state: {
+            questions: [],
+            index: 0,
+            score: 0,
+            current: null
+        },
 
-    // --- ΔΙΟΡΘΩΜΕΝΟΣ ΜΗΧΑΝΙΣΜΟΣ ΜΕΤΑΚΙΝΗΣΗΣ ---
-    const quizOrig = document.getElementById("quiz-original-location");
-    const quizWrap = document.getElementById("glass-quiz-wrapper");
-    let quizBase = document.getElementById("quiz-mobile-base");
-    if (!quizBase) {
-        quizBase = document.createElement("div");
-        quizBase.id = "quiz-mobile-base";
-        quizBase.className = "widget";
-    }
+        init: () => {
+            if (QUESTIONS_DB.length === 0) return;
+            // Ανακατεύουμε την "τράπουλα" μία φορά στην αρχή
+            QuizEngine.state.questions = Utils.shuffleArray(QUESTIONS_DB);
+            QuizEngine.loadNext();
+        },
 
-    function move() {
-        if (window.innerWidth <= 768) {
-            // ΣΗΜΑΝΤΙΚΟ: Τώρα ψάχνει το video-mobile-base του HTML 6
-            let target = document.getElementById("video-mobile-base") || document.getElementById("HTML6");
-            if (target) {
-                // Βάζει τη βάση του κουίζ κάτω από τη βάση του βίντεο
-                if (quizBase.parentNode !== target.parentNode || quizBase.previousSibling !== target) {
-                    target.after(quizBase); 
-                }
-                // Βάζει το περιεχόμενο του κουίζ μέσα στη βάση
-                if (quizWrap.parentNode !== quizBase) {
-                    quizBase.appendChild(quizWrap);
-                }
+        loadNext: () => {
+            const s = QuizEngine.state;
+            
+            // Αν παίξαμε όλες τις ερωτήσεις, ανακατεύουμε ξανά (Άπειρο παιχνίδι)
+            if (s.index >= s.questions.length) {
+                s.questions = Utils.shuffleArray(QUESTIONS_DB);
+                s.index = 0;
             }
-        } else {
-            // Επαναφορά στο PC
-            if (quizOrig && quizOrig.parentNode && quizWrap.parentNode !== quizOrig.parentNode) {
-                quizOrig.parentNode.insertBefore(quizWrap, quizOrig.nextSibling);
+
+            // Ανάγνωση επόμενης ερώτησης σε O(1) χρόνο (Ακαριαία!)
+            s.current = s.questions[s.index];
+            s.index++;
+
+            // Ενημέρωση του UI
+            DOM.display.innerHTML = s.current.text; 
+            DOM.iconSpan.innerHTML = s.current.icon;
+            DOM.feedback.innerHTML = ""; 
+            DOM.expBox.style.display = "none"; 
+            DOM.btnRow.style.display = "flex";
+            DOM.stats.innerHTML = `Σκορ: <strong>${s.score}</strong>`;
+
+            // Επανεκκίνηση Animation (Reflow Trick)
+            DOM.qContainer.classList.remove("question-anim");
+            DOM.iconSpan.classList.remove("question-anim");
+            void DOM.qContainer.offsetWidth; 
+            DOM.qContainer.classList.add("question-anim");
+            DOM.iconSpan.classList.add("question-anim");
+        },
+
+        processChoice: (userChoice) => {
+            const s = QuizEngine.state;
+            DOM.btnRow.style.display = "none";
+            
+            if (userChoice === s.current.type) { 
+                s.score++; 
+                DOM.feedback.innerHTML = "Σωστά! ✅"; 
+                DOM.feedback.style.color = "#27ae60"; 
+            } else { 
+                DOM.feedback.innerHTML = "Λάθος! ❌"; 
+                DOM.feedback.style.color = "#e74c3c"; 
             }
-            if (quizBase.parentNode) {
-                quizBase.parentNode.removeChild(quizBase);
+            
+            DOM.expText.innerHTML = s.current.exp; 
+            DOM.expBox.style.display = "block";
+            DOM.stats.innerHTML = `Σκορ: <strong>${s.score}</strong>`;
+        }
+    };
+
+    // ==========================================
+    // 5. LAYOUT MANAGER (Μετακίνηση στα κινητά)
+    // ==========================================
+    const LayoutManager = {
+        getOrCreateBase: () => {
+            if (DOM.quizBase) return DOM.quizBase;
+            const base = document.createElement("div");
+            base.id = CONFIG.glassBaseId;
+            base.className = CONFIG.glassBaseClass;
+            DOM.quizBase = base;
+            return base;
+        },
+
+        move: () => {
+            if (!DOM.quizWrap) return;
+
+            if (window.innerWidth <= CONFIG.mobileBreakpoint) {
+                // Ψάχνει το HTML 6 για να κάτσει από κάτω του
+                let target = document.getElementById("video-mobile-base") || document.getElementById("HTML6");
+                if (target) {
+                    const base = LayoutManager.getOrCreateBase();
+                    if (base.parentNode !== target.parentNode || base.previousSibling !== target) {
+                        target.after(base); 
+                    }
+                    if (DOM.quizWrap.parentNode !== base) {
+                        base.appendChild(DOM.quizWrap);
+                    }
+                }
+            } else {
+                // Επαναφορά στην αρχική θέση (Desktop)
+                if (DOM.quizOrig && DOM.quizOrig.parentNode && DOM.quizWrap.parentNode !== DOM.quizOrig.parentNode) {
+                    DOM.quizOrig.parentNode.insertBefore(DOM.quizWrap, DOM.quizOrig.nextSibling);
+                }
+                if (DOM.quizBase?.parentNode) {
+                    DOM.quizBase.remove();
+                }
             }
         }
+    };
+
+    // ==========================================
+    // 6. BOOTSTRAP (Εκκίνηση & Event Listeners)
+    // ==========================================
+    const App = {
+        init: () => {
+            // Early Return: Αν λείπει το βασικό HTML, ο κώδικας σταματάει αθόρυβα
+            if (!DOM.display || !DOM.btnRow) return;
+
+            QuizEngine.init();
+
+            // 1. Event Delegation για τα κουμπιά απάντησης (Μύθος/Αλήθεια)
+            DOM.btnRow.addEventListener("click", (e) => {
+                const btn = e.target.closest("button");
+                if (!btn || !btn.dataset.choice) return;
+                QuizEngine.processChoice(btn.dataset.choice);
+            });
+
+            // 2. Event Delegation για το κουμπί "Επόμενη Ερώτηση" (μέσα στο κουτί της εξήγησης)
+            DOM.expBox.addEventListener("click", (e) => {
+                const nextBtn = e.target.closest("button");
+                if (nextBtn && nextBtn.dataset.action === "next") {
+                    QuizEngine.loadNext();
+                }
+            });
+
+            // 3. Αρχική Μετακίνηση & Ασφαλής παρακολούθηση Resize
+            LayoutManager.move();
+            window.addEventListener("resize", Utils.debounce(LayoutManager.move, CONFIG.debounceDelay), { passive: true });
+        }
+    };
+
+    // Εκτέλεση όταν φορτώσει το DOM
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", App.init);
+    } else {
+        App.init();
     }
 
-    let lastWidth = window.innerWidth;
-    window.addEventListener("resize", function() {
-        if (window.innerWidth !== lastWidth) {
-            lastWidth = window.innerWidth;
-            move();
-        }
-    });
-
-    move(); 
-    setTimeout(move, 600); 
-    setTimeout(move, 1500);
-    window.addEventListener("load", move);
 })();
