@@ -12,7 +12,7 @@
     animLockMs: 500, // Κλείδωμα για spam κλικ στα βελάκια
     
     // Απευθείας URLs για τα JSON δεδομένα
-    feedPopularUrl: "/feeds/posts/default/-/δημοφιλή?alt=json&max-results=15",
+    feedPopularUrl: "/feeds/posts/default/-/%CE%B4%CE%B7%CE%BC%CE%BF%CF%86%CE%B9%CE%BB%CE%AE?alt=json&max-results=15",
     feedLabelsUrl: "/feeds/posts/default/-/Διαπαιδαγώγηση|Ψυχολογία|Σχολείο|Υγεία|Παιχνίδι|Γενικά?alt=json&max-results=50",
     
     safeImage: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgdYTGP-KF_2ZHc7ykgjO533JVSDXYPsg36Oi3XC0Z6UN-yEKAhpbsK5PME3r9Q_WeAXn-c20sWAmLR65slEVQSaYaDVKLuYQtaqbjuGyH71VxJxgZqWx5vG1JSCOFlqWswSphTn6Zup1d8Uz9Ie2Tq9CQeHmWBPusLJ7rc_bPJkiau4W47iSy6cSp60N4/s800/Gemini_Generated_Image_1itzx51itzx51itz.png",
