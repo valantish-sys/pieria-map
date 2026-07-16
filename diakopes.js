@@ -1,169 +1,20 @@
-(function() {
-    function getOrthodoxEaster(year) {
-        const a = year % 19, b = year % 4, c = year % 7;
-        const d = (19 * a + 15) % 30;
-        const e = (2 * b + 4 * c + 6 * d + 6) % 7;
-        let date = new Date(year, 2, 22);
-        date.setDate(date.getDate() + (d + e + 13));
-        return date;
-    }
+(() => {
+    "use strict";
 
-    function updateHoliday() {
-        const now = new Date();
-        const year = now.getFullYear();
+    // ==========================================
+    // 1. CONFIGURATION & DATABASE
+    // ==========================================
+    const CONFIG = Object.freeze({
+        mobileBreakpoint: 768,
+        glassBaseId: "holiday-glass-base",
+        glassBaseClass: "widget mobile-glass-shelf",
+        messageDelay: 7000,
+        storageKey: "holidayShownMsgs"
+    });
 
-        // 1. Πάσχα: Στόχος -9 μέρες από την Κυριακή
-        let easterDate = getOrthodoxEaster(year);
-        let easterStart = new Date(easterDate);
-        easterStart.setDate(easterDate.getDate() - 8);
-        easterStart.setHours(0, 0, 0);
-
-        let easterEnd = new Date(easterStart);
-        easterEnd.setDate(easterStart.getDate() + 16); // Διακοπές για 15 ημέρες
-
-        // 2. Καλοκαίρι: 15 Ιουνίου έως 11 Σεπτεμβρίου
-        let summerStart = new Date(year, 5, 16, 0, 0, 0);
-        let summerEnd = new Date(year, 8, 10, 23, 59, 59);
-
-        // 3. Χριστούγεννα: 23 Δεκεμβρίου έως 7 Ιανουαρίου
-        let xmasStart = new Date(year, 11, 24, 0, 0, 0);
-        let xmasEnd = new Date(year + (now.getMonth() === 0 ? 0 : 1), 0, 7, 23, 59, 59);
-        if (now.getMonth() === 0 && now.getDate() <= 7) {
-            xmasStart = new Date(year - 1, 11, 23, 0, 0, 0);
-        }
-
-        const display = document.getElementById('h-countdown');
-        const icon = document.getElementById('h-icon');
-
-        
-
-        let targets = [
-    { name: "για τις διακοπές του Πάσχα 🐣", date: easterStart, icon: "🐣" },
-    { name: "για το Καλοκαίρι 🏝️", date: summerStart, icon: "🏝️" }, 
-    { name: "για τα Χριστούγεννα 🎄", date: xmasStart, icon: "🎄" }
-];
-
-        targets.sort((a, b) => a.date - b.date);
-        let next = targets.find(t => t.date > now);
-
-        if (!next) {
-            let nextEaster = getOrthodoxEaster(year + 1);
-            nextEaster.setDate(nextEaster.getDate() - 9);
-            next = { name: "για το Πάσχα 🐣", date: nextEaster, icon: "🐣" };
-        }
-
-        // Αφαιρούμε την ώρα για να συγκρίνουμε καθαρές ημερομηνίες και να αγνοήσουμε την αλλαγή ώρας
-const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-const targetDate = new Date(next.date.getFullYear(), next.date.getMonth(), next.date.getDate());
-
-const diffTime = targetDate - today;
-const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-        icon.innerHTML = next.icon;
-        display.innerHTML = `<span class="holiday-days">Μένουν ${diffDays} ημέρες</span> ${next.name}`;
-// --- 1. ΥΠΟΛΟΓΙΣΜΟΣ ΜΠΑΤΑΡΙΑΣ ΔΑΣΚΑΛΩΝ ---
-        let m = now.getMonth() + 1; // 1-12
-        let d = now.getDate();
-        let batLevel = 50; // Προεπιλογή
-
-                // 1. ΥΠΟΛΟΓΙΣΜΟΣ ΗΜΕΡΑΣ ΕΤΟΥΣ
-        const startOfYear = new Date(year, 0, 0);
-        const diff = now - startOfYear;
-        const oneDay = 1000 * 60 * 60 * 24;
-        const dayOfYear = Math.floor(diff / oneDay);
-
-        // 2. ΟΡΙΣΜΟΣ ΠΕΡΙΟΔΩΝ ΦΟΡΤΙΣΗΣ (Σε ημέρες έτους)
-        const isEaster = (now >= easterStart && now <= easterEnd);
-        const isSummer = (m >= 6 && d >= 21) || (m >= 7 && m <= 8);
-        const isXmas = (m === 12 && d >= 23) || (m === 1 && d <= 7);
-
-      // 3. ΛΟΓΙΚΗ ΜΠΑΤΑΡΙΑΣ
-let easterStartDay = 116; // Για το 2027
-
-if (isSummer) {
-    // Φόρτιση Καλοκαιριού (21/6 - 31/8): Ξεκινάει πλέον από το απόλυτο "πάτωμα" του 5%
-    let summerDays = dayOfYear - 171; 
-    batLevel = 5 + (summerDays * 1.31); 
-} 
-else if (isXmas) {
-    // Φόρτιση Χριστουγέννων: Ανεβαίνει από το 50% στο 80%
-    let xmasDay = (dayOfYear >= 357) ? (dayOfYear - 356) : (dayOfYear + 9);
-    batLevel = 50 + (xmasDay * 1.87); 
-} 
-else if (isEaster) {
-    // Φόρτιση Πάσχα: Ανεβαίνει από το 40% στο 70%
-    let easterDay = dayOfYear - easterStartDay + 1;
-    batLevel = 40 + (easterDay * 1.87);
-} 
-else {
-    // Περίοδος Σχολείου: Αυξημένοι ρυθμοί εκφόρτισης
-    if (dayOfYear >= 244 && dayOfYear <= 356) {
-        // ΦΑΣΗ 1: Σεπτέμβριος - 22 Δεκ (Από 100% πέφτει στο 50%)
-        batLevel = 100 - ((dayOfYear - 243) * 0.47);
-    } 
-    else if (dayOfYear >= 8 && dayOfYear < easterStartDay) {
-        // ΦΑΣΗ 2: 8 Ιανουαρίου - Πάσχα (Από 80% πέφτει στο 40%)
-        batLevel = 80 - ((dayOfYear - 7) * 0.37);
-    } 
-    else {
-        // ΦΑΣΗ 3: Μετά το Πάσχα - Καλοκαίρι
-        // Από 70% κάνει ελεύθερη πτώση και τερματίζει ΑΚΡΙΒΩΣ στο 5% στις 15 Ιουνίου!
-        let daysAfterEaster = dayOfYear - (easterStartDay + 15);
-        batLevel = 70 - (daysAfterEaster * 1.85); 
-    }
-}
-
-// Τελικό Φίλτρο: Στρογγυλοποίηση και όρια (ποτέ κάτω από 5%, ποτέ πάνω από 100%)
-batLevel = Math.max(5, Math.min(100, Math.round(batLevel)));
-
-
-        // Εφαρμογή στην Μπαταρία
-        // Εφαρμογή στην Μπαταρία
-        const batFill = document.getElementById('bat-fill');
-        const batText = document.getElementById('bat-text');
-        batFill.style.width = batLevel + '%';
-        
-        // Ελέγχουμε αν είναι περίοδος διακοπών (φόρτισης)
-        const isCharging = isEaster || isSummer || isXmas;
-        
-        // Αν φορτίζει βάζουμε τον κεραυνό, αλλιώς σκέτο το κείμενο
-        if (isCharging) {
-            batText.innerHTML = `Μπαταρία Δασκάλων: ${batLevel}% <span class="charging-icon">⚡</span>`;
-        } else {
-            batText.innerHTML = `Μπαταρία Δασκάλων: ${batLevel}%`;
-        }
-        
-        // Χρώμα Μπαταρίας & Εφέ Σήματος Κινδύνου (Νέα Gradients)
-        if (batLevel <= 20) {
-            batFill.style.background = ''; // Καθαρίζει το σταθερό χρώμα
-            batFill.style.boxShadow = 'none';
-            batFill.classList.add('battery-low-alert'); // Ενεργοποιεί το αναβόσβημα
-        } else {
-            batFill.classList.remove('battery-low-alert');
-            if (batLevel <= 50) {
-                // Πορτοκαλοκίτρινο (Μέτρια)
-                batFill.style.background = 'linear-gradient(90deg, #f6d365 0%, #fda085 100%)'; 
-                batFill.style.boxShadow = '0 0 10px rgba(246, 211, 101, 0.5)';
-            } else {
-                // Φωτεινό Πράσινο (Γεμάτη)
-                batFill.style.background = 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)'; 
-                batFill.style.boxShadow = '0 0 10px rgba(67, 233, 123, 0.5)';
-            }
-        }
-
-        // === ΕΔΩ ΜΠΑΙΝΕΙ Ο ΕΛΕΓΧΟΣ ΤΩΝ ΔΙΑΚΟΠΩΝ ΤΩΡΑ ===
-        if ((now >= summerStart && now <= summerEnd) || 
-            (now >= xmasStart && now <= xmasEnd) || 
-            (now >= easterStart && now <= easterEnd)) {
-            icon.innerHTML = "&#10024;"; 
-            display.innerHTML = '<span class="holiday-days">Καλές διακοπές!</span>';
-            return; // Το return σταματάει την updateHoliday εδώ, χωρίς να επηρεάζει τα παρακάτω
-        }
-    } // 👈 ΕΔΩ ΚΛΕΙΝΕΙ ΣΩΣΤΑ Η updateHoliday() !
-
-    // === ΟΛΟ ΤΟ ΚΛΙΚ ΜΠΑΙΝΕΙ ΕΔΩ ΑΠΕΞΩ ===
-    const messages = [
-        "– Τοστ, γιατί χαίρεσαι;<br>– Γιατί έρχεται το καλοκαίρι και θα γίνω... ψημένο! 🥪🌞",
+    // Η δεξαμενή με τα μηνύματα/ανέκδοτα (Επικόλλησε εδώ τη λίστα σου)
+    const MESSAGES_DB = [
+       "– Τοστ, γιατί χαίρεσαι;<br>– Γιατί έρχεται το καλοκαίρι και θα γίνω... ψημένο! 🥪🌞",
 "– Γιατί το βιβλίο των μαθηματικών είναι πάντα λυπημένο;<br>– Επειδή έχει πολλά προβλήματα! 📘😥",
     "– Τι λέει το μηδέν στο οχτώ;<br>– Ωραία ζώνη! 0️⃣😎8️⃣",
     "– Δάσκαλε, θα με τιμωρήσετε για κάτι που δεν έκανα;<br>– Φυσικά και όχι!<br>– Ωραία, γιατί δεν έκανα τις ασκήσεις μου! 📝😇",
@@ -319,105 +170,277 @@ batLevel = Math.max(5, Math.min(100, Math.round(batLevel)));
         "Κουράγιο, βγαίνει η χρονιά! Κάνε τα μαθήματά σου γρήγορα σήμερα... η ξεκούραση πλησιάζει! 💪"
     ];
 
-    const widgetBox = document.getElementById('holiday-widget-box');
-    const mainContent = document.getElementById('holiday-main-content');
-    const secretBox = document.getElementById('holiday-secret-message');
-    let isShowingSecret = false;
-    let autoHideTimeout; // Μεταβλητή για το χρονόμετρο
+    // ==========================================
+    // 2. DOM CACHE (Αποθήκευση στοιχείων για ταχύτητα)
+    // ==========================================
+    const DOM = {
+        widgetBox: document.getElementById('holiday-widget-box'),
+        mainContent: document.getElementById('holiday-main-content'),
+        secretBox: document.getElementById('holiday-secret-message'),
+        display: document.getElementById('h-countdown'),
+        icon: document.getElementById('h-icon'),
+        batFill: document.getElementById('bat-fill'),
+        batText: document.getElementById('bat-text'),
+        originalLoc: document.getElementById("holiday-original-location"),
+        glassBase: null
+    };
 
-   if (widgetBox) {
-        // 1. Κλικ ΠΑΝΩ στο Widget: Εμφάνιση μηνύματος
-        widgetBox.addEventListener('click', function(e) {
-            e.stopPropagation(); 
-            if (isShowingSecret) return;
-            
-            isShowingSecret = true;
-            mainContent.style.display = 'none';
-            secretBox.style.display = 'block';
-            
-            // --- ΕΞΥΠΝΟΣ ΜΗΧΑΝΙΣΜΟΣ NON-REPEAT ---
-            let shown = JSON.parse(sessionStorage.getItem('holidayShownMsgs')) || [];
-            
-            if (shown.length >= messages.length) {
-                shown = []; // Εδώ αδειάζει αν έχουν παιχτεί όλα!
+    // ==========================================
+    // 3. UTILITIES (Βοηθητικές Συναρτήσεις)
+    // ==========================================
+    const Utils = {
+        debounce: (func, delay) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        },
+        // Μαθηματικός υπολογισμός Ορθόδοξου Πάσχα
+        getOrthodoxEaster: (year) => {
+            const a = year % 19, b = year % 4, c = year % 7;
+            const d = (19 * a + 15) % 30;
+            const e = (2 * b + 4 * c + 6 * d + 6) % 7;
+            let date = new Date(year, 2, 22);
+            date.setDate(date.getDate() + (d + e + 13));
+            return date;
+        },
+        // Υπολογίζει ποια μέρα του έτους (1-365/366) είναι μια ημερομηνία
+        getDayOfYear: (dateObj) => {
+            const start = new Date(dateObj.getFullYear(), 0, 0);
+            const diff = dateObj - start + (start.getTimezoneOffset() - dateObj.getTimezoneOffset()) * 60000;
+            return Math.floor(diff / (1000 * 60 * 60 * 24));
+        }
+    };
+
+    // ==========================================
+    // 4. HOLIDAY & BATTERY ENGINES
+    // ==========================================
+    const CoreEngine = {
+        update: () => {
+            if (!DOM.display || !DOM.icon) return;
+
+            const now = new Date();
+            const year = now.getFullYear();
+
+            // Ημερομηνίες Ορόσημα
+            let easterDate = Utils.getOrthodoxEaster(year);
+            let easterStart = new Date(easterDate);
+            easterStart.setDate(easterDate.getDate() - 8);
+            easterStart.setHours(0, 0, 0);
+            let easterEnd = new Date(easterStart);
+            easterEnd.setDate(easterStart.getDate() + 16);
+
+            let summerStart = new Date(year, 5, 16, 0, 0, 0); // 16 Ιουνίου
+            let summerEnd = new Date(year, 8, 10, 23, 59, 59); // 10 Σεπτεμβρίου
+
+            let xmasStart = new Date(year, 11, 24, 0, 0, 0); // 24 Δεκ
+            let xmasEnd = new Date(year + (now.getMonth() === 0 ? 0 : 1), 0, 7, 23, 59, 59); // 7 Ιαν
+            if (now.getMonth() === 0 && now.getDate() <= 7) {
+                xmasStart = new Date(year - 1, 11, 23, 0, 0, 0);
             }
-            
-            let availableIndexes = [];
-            for (let i = 0; i < messages.length; i++) {
-                if (!shown.includes(i)) availableIndexes.push(i);
+
+            // Έλεγχος αν είμαστε ΗΔΗ σε διακοπές
+            if ((now >= summerStart && now <= summerEnd) || 
+                (now >= xmasStart && now <= xmasEnd) || 
+                (now >= easterStart && now <= easterEnd)) {
+                
+                DOM.icon.innerHTML = "&#10024;"; 
+                DOM.display.innerHTML = '<span class="holiday-days">Καλές διακοπές!</span>';
+                CoreEngine.updateBattery(now, true, easterStart); 
+                return;
             }
-            
-            const randomIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
-            
-            shown.push(randomIndex);
-            sessionStorage.setItem('holidayShownMsgs', JSON.stringify(shown));
-            
-            // Εμφάνιση του επιλεγμένου μηνύματος
-            secretBox.innerHTML = messages[randomIndex];
-            // ----------------------------------------
 
-            // Αυτόματη επαναφορά μετά από 6 δεύτερα
-            clearTimeout(autoHideTimeout);
-            autoHideTimeout = setTimeout(closeSecretMessage, 7000);
-        });
-    }
+            // Υπολογισμός Επόμενης Γιορτής
+            let targets = [
+                { name: "για τις διακοπές του Πάσχα 🐣", date: easterStart, icon: "🐣" },
+                { name: "για το Καλοκαίρι 🏝️", date: summerStart, icon: "🏝️" }, 
+                { name: "για τα Χριστούγεννα 🎄", date: xmasStart, icon: "🎄" }
+            ].sort((a, b) => a.date - b.date);
 
-    // 2. Κλικ ή Ταπ ΟΠΟΥΔΗΠΟΤΕ ΑΛΛΟΥ στην οθόνη: Κλείσιμο μηνύματος
-    ['click', 'touchstart'].forEach(eventType => {
-        document.addEventListener(eventType, function() {
-            if (isShowingSecret) {
-                closeSecretMessage();
+            let next = targets.find(t => t.date > now);
+            if (!next) {
+                let nextEaster = Utils.getOrthodoxEaster(year + 1);
+                nextEaster.setDate(nextEaster.getDate() - 9);
+                next = { name: "για το Πάσχα 🐣", date: nextEaster, icon: "🐣" };
             }
-        });
-    });
 
-    // Κοινή συνάρτηση που επαναφέρει το widget στην αρχική του μορφή
-    function closeSecretMessage() {
-        clearTimeout(autoHideTimeout);
-        secretBox.style.display = 'none';
-        mainContent.style.display = 'block';
-        isShowingSecret = false;
-    }
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const targetDate = new Date(next.date.getFullYear(), next.date.getMonth(), next.date.getDate());
+            const diffDays = Math.round((targetDate - today) / (1000 * 60 * 60 * 24));
 
-    updateHoliday();
-/* ---- ΝΕΟΣ ΜΗΧΑΝΙΣΜΟΣ ΜΕΤΑΚΙΝΗΣΗΣ ΓΙΑ ΤΟ HTML 18 ---- */
-    const holidayOriginalLocation = document.getElementById("holiday-original-location");
-    const holidayBox = document.getElementById("holiday-widget-box");
+            DOM.icon.innerHTML = next.icon;
+            DOM.display.innerHTML = `<span class="holiday-days">Μένουν ${diffDays} ημέρες</span> ${next.name}`;
 
-    let holidayGlassBase = document.getElementById("holiday-glass-base");
-    if (!holidayGlassBase) {
-        holidayGlassBase = document.createElement("div");
-        holidayGlassBase.id = "holiday-glass-base";
-        // Χρησιμοποιούμε την ίδια κλάση με το 17 για το εφε του γυαλιού
-        holidayGlassBase.className = "widget mobile-glass-shelf"; 
-    }
+            CoreEngine.updateBattery(now, false, easterStart);
+        },
 
-    function moveHolidayWidget() {
-        if (window.innerWidth <= 768) {
-            // Στο κινητό, ψάχνουμε τη γυάλινη βάση του HTML 17 (του γρίφου) ή το ίδιο το HTML17 
-            let targetWidget = document.getElementById("riddle-glass-base") || document.getElementById("HTML17");
+        updateBattery: (now, isHoliday, easterStart) => {
+            if (!DOM.batFill || !DOM.batText) return;
+
+            const dayOfYear = Utils.getDayOfYear(now);
+            const easterStartDay = Utils.getDayOfYear(easterStart); // Δυναμικός υπολογισμός!
+            let batLevel = 50;
+
+            const m = now.getMonth() + 1;
+            const d = now.getDate();
+            const isEaster = (now >= easterStart && now <= new Date(easterStart).setDate(easterStart.getDate() + 16));
+            const isSummer = (m >= 6 && d >= 16) || (m >= 7 && m <= 8) || (m === 9 && d <= 10);
+            const isXmas = (m === 12 && d >= 23) || (m === 1 && d <= 7);
+
+            // Λογική Φόρτισης/Εκφόρτισης
+            if (isSummer) {
+                let summerStartDay = Utils.getDayOfYear(new Date(now.getFullYear(), 5, 16));
+                let summerDays = dayOfYear - summerStartDay; 
+                batLevel = 5 + (summerDays * 1.31); 
+            } 
+            else if (isXmas) {
+                let xmasDay = (dayOfYear >= 357) ? (dayOfYear - 356) : (dayOfYear + 9);
+                batLevel = 50 + (xmasDay * 1.87); 
+            } 
+            else if (isEaster) {
+                let easterDay = dayOfYear - easterStartDay + 1;
+                batLevel = 40 + (easterDay * 1.87);
+            } 
+            else {
+                // Περίοδος Σχολείου
+                if (dayOfYear >= 244 && dayOfYear <= 356) {
+                    batLevel = 100 - ((dayOfYear - 243) * 0.47);
+                } 
+                else if (dayOfYear >= 8 && dayOfYear < easterStartDay) {
+                    batLevel = 80 - ((dayOfYear - 7) * 0.37);
+                } 
+                else {
+                    let daysAfterEaster = dayOfYear - (easterStartDay + 15);
+                    batLevel = 70 - (daysAfterEaster * 1.85); 
+                }
+            }
+
+            batLevel = Math.max(5, Math.min(100, Math.round(batLevel)));
+
+            // Εφαρμογή Στυλ
+            DOM.batFill.style.width = batLevel + '%';
+            DOM.batText.innerHTML = `Μπαταρία Δασκάλων: ${batLevel}% ${isHoliday ? '<span class="charging-icon">⚡</span>' : ''}`;
             
-            if (targetWidget) {
-                // Βάζουμε τη γυάλινη βάση των διακοπών ΑΚΡΙΒΩΣ κάτω από το 17
-                targetWidget.after(holidayGlassBase);
-                holidayGlassBase.appendChild(holidayBox);
-            }
-        } else {
-            // Στο PC, επιστρέφει στην αρχική του θέση (στο HTML 18)
-            if (holidayOriginalLocation && holidayOriginalLocation.parentNode) {
-                holidayOriginalLocation.parentNode.insertBefore(holidayBox, holidayOriginalLocation.nextSibling);
-            }
-            // Και εξαφανίζουμε την άδεια γυάλινη βάση
-            if (holidayGlassBase.parentNode) {
-                holidayGlassBase.parentNode.removeChild(holidayGlassBase);
+            if (batLevel <= 20) {
+                DOM.batFill.style.background = ''; 
+                DOM.batFill.style.boxShadow = 'none';
+                DOM.batFill.classList.add('battery-low-alert');
+            } else {
+                DOM.batFill.classList.remove('battery-low-alert');
+                if (batLevel <= 50) {
+                    DOM.batFill.style.background = 'linear-gradient(90deg, #f6d365 0%, #fda085 100%)'; 
+                    DOM.batFill.style.boxShadow = '0 0 10px rgba(246, 211, 101, 0.5)';
+                } else {
+                    DOM.batFill.style.background = 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)'; 
+                    DOM.batFill.style.boxShadow = '0 0 10px rgba(67, 233, 123, 0.5)';
+                }
             }
         }
-    }
+    };
 
-    // Εκτέλεση με delay για να προλάβει να φορτώσει και το HTML 17
-    moveHolidayWidget();
-    setTimeout(moveHolidayWidget, 500); 
-    window.addEventListener("load", moveHolidayWidget);
-    window.addEventListener("resize", moveHolidayWidget);
+    // ==========================================
+    // 5. MESSAGE MANAGER (Easter Eggs)
+    // ==========================================
+    const MessageManager = {
+        isShowing: false,
+        timeout: null,
+
+        show: (e) => {
+            e.stopPropagation(); 
+            if (MessageManager.isShowing || MESSAGES_DB.length === 0) return;
+            
+            MessageManager.isShowing = true;
+            DOM.mainContent.style.display = 'none';
+            DOM.secretBox.style.display = 'block';
+            
+            let shown = JSON.parse(sessionStorage.getItem(CONFIG.storageKey)) || [];
+            if (shown.length >= MESSAGES_DB.length) shown = []; // Reset αν τα είδε όλα
+            
+            let available = Array.from({length: MESSAGES_DB.length}, (_, i) => i).filter(i => !shown.includes(i));
+            const randomIdx = available[Math.floor(Math.random() * available.length)];
+            
+            shown.push(randomIdx);
+            sessionStorage.setItem(CONFIG.storageKey, JSON.stringify(shown));
+            
+            DOM.secretBox.innerHTML = MESSAGES_DB[randomIdx];
+
+            clearTimeout(MessageManager.timeout);
+            MessageManager.timeout = setTimeout(MessageManager.hide, CONFIG.messageDelay);
+        },
+
+        hide: () => {
+            if (!MessageManager.isShowing) return;
+            clearTimeout(MessageManager.timeout);
+            DOM.secretBox.style.display = 'none';
+            DOM.mainContent.style.display = 'block';
+            MessageManager.isShowing = false;
+        }
+    };
+
+    // ==========================================
+    // 6. LAYOUT MANAGER (Responsive Move)
+    // ==========================================
+    const LayoutManager = {
+        getOrCreateGlassBase: () => {
+            if (DOM.glassBase) return DOM.glassBase;
+            const base = document.createElement("div");
+            base.id = CONFIG.glassBaseId;
+            base.className = CONFIG.glassBaseClass;
+            DOM.glassBase = base;
+            return base;
+        },
+
+        moveWidget: () => {
+            if (!DOM.widgetBox) return;
+
+            if (window.innerWidth <= CONFIG.mobileBreakpoint) {
+                // Ψάχνει το HTML 17 (του γρίφου) για να κάτσει από κάτω του
+                let targetWidget = document.getElementById("riddle-glass-base") || document.getElementById("HTML17");
+                if (targetWidget) {
+                    const base = LayoutManager.getOrCreateGlassBase();
+                    targetWidget.after(base);
+                    base.appendChild(DOM.widgetBox);
+                }
+            } else {
+                if (DOM.originalLoc?.parentNode) {
+                    DOM.originalLoc.parentNode.insertBefore(DOM.widgetBox, DOM.originalLoc.nextSibling);
+                }
+                if (DOM.glassBase?.parentNode) {
+                    DOM.glassBase.remove();
+                }
+            }
+        }
+    };
+
+    // ==========================================
+    // 7. BOOTSTRAP (Εκκίνηση)
+    // ==========================================
+    const App = {
+        init: () => {
+            if (!DOM.widgetBox) return;
+
+            // 1. Υπολογισμοί
+            CoreEngine.update();
+
+            // 2. Events για Μηνύματα
+            DOM.widgetBox.addEventListener('click', MessageManager.show);
+            document.addEventListener('click', MessageManager.hide, { passive: true });
+            document.addEventListener('touchstart', MessageManager.hide, { passive: true });
+
+            // 3. Events για Layout
+            LayoutManager.moveWidget();
+            window.addEventListener("resize", Utils.debounce(LayoutManager.moveWidget, 150), { passive: true });
+            
+            // Καθυστέρηση για σιγουριά ότι έχει φορτώσει το HTML17 (Γρίφος)
+            setTimeout(LayoutManager.moveWidget, 500); 
+        }
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", App.init);
+    } else {
+        App.init();
+    }
 
 })();
