@@ -1,7 +1,22 @@
-  (function() {
-    // Οι 150 πληροφορίες 
-    const kidsFactsMob = [
-      // ===== ΖΩΑ =====
+  (() => {
+  "use strict";
+
+  // ==========================================
+  // 1. CONFIGURATION
+  // ==========================================
+  const CONFIG = Object.freeze({
+    factElementId: "fact-text-mob",
+    flipInnerId: "flip-inner-mob",
+    flippedClass: "is-flipped",
+    // ΠΡΟΣΟΧΗ: Βάλε εδώ τον ΜΙΣΟ χρόνο από το CSS transition σου (σε milliseconds). 
+    // Αν το CSS σου λέει "transition: transform 0.6s;", βάλε εδώ 300. 
+    // Έτσι η αλλαγή θα γίνει ακριβώς στις 90 μοίρες!
+    flipMidpointMs: 350 
+  });
+
+  const DATA = Object.freeze({
+    // [ΒΑΛΕ ΕΔΩ ΤΙΣ 150 ΠΛΗΡΟΦΟΡΙΕΣ ΣΟΥ]
+    kidsFactsMob: [
       "...οι μέλισσες μπορούν να «δείξουν» στις άλλες πού είναι τα λουλούδια με έναν χορό;",
       "...το χταπόδι έχει τρεις καρδιές;",
       "...τα δελφίνια επικοινωνούν με ήχους και «σφυρίγματα»;",
@@ -252,63 +267,124 @@
 "...οι σκύλοι μπορούν να μάθουν πολλές εντολές;",
 "...η βροντή είναι ο ήχος του κεραυνού;",
 "...οι καμηλοπαρδάλεις πίνουν νερό ανοίγοντας πολύ τα πόδια τους;"
-    ];
-
-    const factElementMob = document.getElementById("fact-text-mob");
-    const flipInnerMob = document.getElementById("flip-inner-mob");
     
-    // ΝΕΟ: Εδώ κρατάμε τις πληροφορίες που δεν έχουν εμφανιστεί ακόμα
-    let availableFactsMob = []; 
+    ]
+  });
 
-    // Η συνάρτηση που φέρνει τη νέα πληροφορία (χωρίς επαναλήψεις)
-    function updateFactMob() {
-      // Αν άδειασε η λίστα, την ξαναγεμίζουμε με όλες τις πληροφορίες
-      if (availableFactsMob.length === 0) {
-        availableFactsMob = [...kidsFactsMob];
+  // ==========================================
+  // 2. STATE 
+  // ==========================================
+  const STATE = {
+    shuffledFacts: [],
+    currentIndex: 0
+  };
+
+  // ==========================================
+  // 3. UTILS (Εργαλεία)
+  // ==========================================
+  const Utils = {
+    // Ο περίφημος αλγόριθμος Fisher-Yates
+    // Ανακατεύει τον πίνακα μία φορά, εξαιρετικά γρήγορα και με τέλεια τυχαιότητα
+    shuffleArray: (array) => {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
       }
-
-      // Διαλέγουμε μια τυχαία πληροφορία από αυτές που έχουν ΑΠΟΜΕΙΝΕΙ
-      const randomIndex = Math.floor(Math.random() * availableFactsMob.length);
-      const randomFact = availableFactsMob[randomIndex];
-
-      // Αφαιρούμε την πληροφορία που επιλέξαμε για να μην ξαναπέσει
-      availableFactsMob.splice(randomIndex, 1);
-
-      // Η δική σου ασφαλής λύση για τα σύμβολα
-      factElementMob.innerHTML = randomFact;
+      return arr;
     }
+  };
 
-    // Καθαρή λογική γυρίσματος (από τον 2ο κώδικα)
-    function setFlippedMob(isFlipped) {
-      flipInnerMob.classList.toggle("is-flipped", isFlipped);
-      flipInnerMob.setAttribute("aria-pressed", String(isFlipped));
+  // ==========================================
+  // 4. MANAGER (Λογική & DOM)
+  // ==========================================
+  const FlipManager = {
+    el: {},
+
+    init: () => {
+      FlipManager.el.fact = document.getElementById(CONFIG.factElementId);
+      FlipManager.el.flipInner = document.getElementById(CONFIG.flipInnerId);
+
+      // Ασφάλεια: Αν δεν βρει τα στοιχεία, σταματάει χωρίς error
+      if (!FlipManager.el.fact || !FlipManager.el.flipInner) return;
+
+      // Αν υπάρχουν δεδομένα, ανακατεύουμε την "τράπουλα" κατά το φόρτωμα
+      if (DATA.kidsFactsMob.length > 0) {
+        STATE.shuffledFacts = Utils.shuffleArray(DATA.kidsFactsMob);
+        STATE.currentIndex = 0;
+        FlipManager.updateDOM(); // Φορτώνει το πρώτο χωρίς delay
+      }
+
+      FlipManager.setupEvents();
+    },
+
+    // Τραβάει το επόμενο "χαρτί" χωρίς να κόβει/ράβει τον πίνακα (μηδενικό κόστος CPU)
+    getNextFact: () => {
+      if (STATE.shuffledFacts.length === 0) return "";
+      
+      const fact = STATE.shuffledFacts[STATE.currentIndex];
+      STATE.currentIndex++;
+
+      // Αν φτάσαμε στο τελευταίο fact, ξανα-ανακατεύουμε την τράπουλα και πάμε από την αρχή
+      if (STATE.currentIndex >= STATE.shuffledFacts.length) {
+        STATE.shuffledFacts = Utils.shuffleArray(DATA.kidsFactsMob);
+        STATE.currentIndex = 0;
+      }
+
+      return fact;
+    },
+
+    updateDOM: () => {
+      const nextFact = FlipManager.getNextFact();
+      if (nextFact) {
+        FlipManager.el.fact.innerHTML = nextFact;
+      }
+    },
+
+    toggle: () => {
+      const { flipInner } = FlipManager.el;
+      const isCurrentlyFlipped = flipInner.classList.contains(CONFIG.flippedClass);
+      const willBeFlipped = !isCurrentlyFlipped;
+
+      // 1. Γυρίζουμε την κάρτα άμεσα και ομαλά
+      window.requestAnimationFrame(() => {
+        flipInner.classList.toggle(CONFIG.flippedClass, willBeFlipped);
+        flipInner.setAttribute("aria-pressed", String(willBeFlipped));
+      });
+
+      // 2. Αλλάζουμε το κείμενο ΣΤΟ ΤΥΦΛΟ ΣΗΜΕΙΟ (90 μοίρες) 
+      //    μόνο όταν η κάρτα ανοίγει για να δείξει τη νέα πληροφορία.
+      if (willBeFlipped) {
+        setTimeout(() => {
+          FlipManager.updateDOM();
+        }, CONFIG.flipMidpointMs);
+      }
+    },
+
+    setupEvents: () => {
+      const { flipInner } = FlipManager.el;
+
+      // Mouse & Touch
+      flipInner.addEventListener("click", FlipManager.toggle);
+
+      // Keyboard (Προσβασιμότητα)
+      flipInner.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          FlipManager.toggle();
+        } else if (e.key === "Escape") {
+          window.requestAnimationFrame(() => {
+            flipInner.classList.remove(CONFIG.flippedClass);
+            flipInner.setAttribute("aria-pressed", "false");
+          });
+        }
+      });
     }
+  };
 
-    function toggleFlipMob() {
-      const nowFlipped = !flipInnerMob.classList.contains("is-flipped");
-      setFlippedMob(nowFlipped);
+  // ==========================================
+  // 5. ΕΚΚΙΝΗΣΗ
+  // ==========================================
+  document.addEventListener("DOMContentLoaded", FlipManager.init);
 
-      // Όταν γυρίζει προς τα πίσω, δείξε νέο fact
-      if (nowFlipped) {
-        updateFactMob();
-      }
-    }
-
-    // Αρχική φόρτωση μόλις μπει ο χρήστης
-    updateFactMob();
-
-    // Tap/click για κινητά
-    flipInnerMob.addEventListener("click", toggleFlipMob);
-
-    // Πληκτρολόγιο (Enter / Space) για προσβασιμότητα
-    flipInnerMob.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        toggleFlipMob();
-      }
-      if (e.key === "Escape") {
-        setFlippedMob(false);
-      }
-    });
-
-  })();
+})();
