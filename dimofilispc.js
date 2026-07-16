@@ -1,11 +1,29 @@
-let sliderPostsDesk = [];
-let currentSlideIndexDesk = 0;
-let autoSlideTimerDesk;
-let isAnimatingDesk = false; // Νέο κλείδωμα για Desktop
+(() => {
+  "use strict";
 
-// 1. Δεξαμενή με τις ΣΤΑΤΙΚΕΣ ΣΕΛΙΔΕΣ (Ανεξάρτητη για το Desktop)
-let candidatePostsForExtraDesk = [
-    { title: "Τα όρια δεν είναι φράχτες", link: "https://dimperist.blogspot.com/p/blog-page_8.html", image: "" },
+  // ==========================================
+  // 1. CONFIGURATION (Ρυθμίσεις Desktop)
+  // ==========================================
+  const CONFIG = Object.freeze({
+    // Στο Desktop θέλουμε 20 βασικά άρθρα
+    maxBasePosts: 15, 
+    targetDate: new Date("2021-09-11T00:00:00Z"),
+    autoSlideIntervalMs: 2000, // Αλλαγή κάθε 3 δευτερόλεπτα
+    animLockMs: 500, // Κλείδωμα για spam κλικ στα βελάκια
+    
+    // Απευθείας URLs για τα JSON δεδομένα (τέρμα τα script tags)
+    feedPopularUrl: "/feeds/posts/default/-/δημοφιλή?alt=json&max-results=15",
+    feedLabelsUrl: "/feeds/posts/default/-/Διαπαιδαγώγηση|Ψυχολογία|Σχολείο|Υγεία|Παιχνίδι|Γενικά?alt=json&max-results=50",
+    
+    safeImage: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgdYTGP-KF_2ZHc7ykgjO533JVSDXYPsg36Oi3XC0Z6UN-yEKAhpbsK5PME3r9Q_WeAXn-c20sWAmLR65slEVQSaYaDVKLuYQtaqbjuGyH71VxJxgZqWx5vG1JSCOFlqWswSphTn6Zup1d8Uz9Ie2Tq9CQeHmWBPusLJ7rc_bPJkiau4W47iSy6cSp60N4/s800/Gemini_Generated_Image_1itzx51itzx51itz.png",
+    sliderContainerId: "slider-content-desktop",
+    sliderWrapperId: "custom-post-slider-desktop"
+  });
+
+  const DATA = Object.freeze({
+    // [ΒΑΛΕ ΕΔΩ ΤΗ ΔΕΞΑΜΕΝΗ ΜΕ ΤΙΣ ΣΤΑΤΙΚΕΣ ΣΕΛΙΔΕΣ ΣΟΥ ΓΙΑ ΤΟ DESKTOP]
+    candidatePostsForExtraDesk: [
+      { title: "Τα όρια δεν είναι φράχτες", link: "https://dimperist.blogspot.com/p/blog-page_8.html", image: "" },
     { title: "Αόρατος γονιός", link: "https://dimperist.blogspot.com/p/blog-page_1.html", image: "" },
     { title: "Πώς θα μεγαλώσουμε αυτόνομα και ανεξάρτητα παιδιά", link: "https://dimperist.blogspot.com/p/blog-page_13.html", image: "" },
     { title: "Τρόποι μείωσης της χρήσης οθονών από τα παιδιά", link: "https://dimperist.blogspot.com/p/blog-page.html", image: "" },
@@ -28,192 +46,256 @@ let candidatePostsForExtraDesk = [
     { title: "Ενθαρρύνουμε τη δημιουργικότητα των παιδιών", link: "https://dimperist.blogspot.com/p/blog-page_41.html", image: "" },
     { title: "Η σημασία του παιχνιδιού στην ανάπτυξη", link: "https://dimperist.blogspot.com/p/blog-page_83.html", image: "" },
     { title: "Δραστηριότητες που αναπτύσσουν τις μαθησιακές δεξιότητες", link: "https://dimperist.blogspot.com/p/blog-page_56.html", image: "" }
-];
+    ]
+  });
 
-// Ανεξάρτητη συνάρτηση εύρεσης εικόνας για το Desktop
-function extractImageFromEntryDesk(entry) {
-    let imageUrl = ""; let isVideo = false;
-    if (entry.content && entry.content.$t) {
+  // ==========================================
+  // 2. STATE (Κατάσταση & Μνήμη)
+  // ==========================================
+  const STATE = {
+    sliderPosts: [],
+    currentIndex: 0,
+    autoSlideTimer: null,
+    isAnimating: false,
+    touchStartX: 0
+  };
+
+  // ==========================================
+  // 3. UTILITIES (Εργαλεία & Regex)
+  // ==========================================
+  const Utils = {
+    extractMedia: (entry) => {
+      let imageUrl = "";
+      let isVideo = false;
+      const content = entry.content ? entry.content.$t : "";
+
+      try {
         const ytRegex = /(?:https?:)?\/\/(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i;
-        const ytMatch = entry.content.$t.match(ytRegex);
-        if (ytMatch && ytMatch[1]) { imageUrl = "https://img.youtube.com/vi/" + ytMatch[1] + "/hqdefault.jpg"; isVideo = true; }
-    }
-    if (!imageUrl && entry.content && entry.content.$t) {
+        const ytMatch = content.match(ytRegex);
+        if (ytMatch && ytMatch[1]) {
+          return { imageUrl: `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`, isVideo: true };
+        }
+
         const imgRegex = /<img[^>]+src="([^"]+)"/i;
-        const match = entry.content.$t.match(imgRegex);
-        if (match) {
-            imageUrl = match[1];
-            if (imageUrl.includes("blogger.googleusercontent.com") || imageUrl.includes("bp.blogspot.com")) {
-                imageUrl = imageUrl.replace(/\/s[0-9]+(-b|-c|-w)?\//, '/s1600/');
-                imageUrl = imageUrl.replace(/=w[0-9]+-h[0-9]+(-c)?/, '=s1600');
-            }
+        const imgMatch = content.match(imgRegex);
+        if (imgMatch && imgMatch[1]) {
+          imageUrl = imgMatch[1];
+          if (imageUrl.includes("blogger.googleusercontent.com") || imageUrl.includes("bp.blogspot.com")) {
+            imageUrl = imageUrl.replace(/\/s[0-9]+(-b|-c|-w)?\//, '/s1600/').replace(/=w[0-9]+-h[0-9]+(-c)?/, '=s1600');
+          }
+          return { imageUrl, isVideo: false };
         }
-    }
-    if (!imageUrl && entry.media$thumbnail) {
-        imageUrl = entry.media$thumbnail.url;
-        imageUrl = imageUrl.replace(/\/s72-c\//, '/s1600/');
-        imageUrl = imageUrl.replace(/=s72-c/, '=s1600');
-    }
-    if (!imageUrl) { imageUrl = "https://via.placeholder.com/350x220?text=Χωρίς+Εικόνα"; }
-    return { imageUrl, isVideo };
-}
 
-// 2. Φόρτωση των Δημοφιλών Αναρτήσεων (Desktop)
-function fetchBloggerPostsDesk(json) {
-    const entries = json.feed.entry;
-    if (!entries) return;
-    const targetDate = new Date("2021-09-11T00:00:00Z");
+        if (entry.media$thumbnail && entry.media$thumbnail.url) {
+          imageUrl = entry.media$thumbnail.url.replace(/\/s72-c\//, '/s1600/').replace(/=s72-c/, '=s1600');
+          return { imageUrl, isVideo: false };
+        }
+      } catch (err) {}
 
-    for (let i = 0; i < entries.length; i++) {
-        const entry = entries[i];
+      return { imageUrl: CONFIG.safeImage, isVideo: false };
+    },
+
+    getLink: (entry) => {
+      const linkObj = entry.link.find(l => l.rel === "alternate");
+      return linkObj ? linkObj.href : "#";
+    }
+  };
+
+  // ==========================================
+  // 4. API MANAGER (Ασύγχρονη Λήψη)
+  // ==========================================
+  const ApiManager = {
+    fetchData: async () => {
+      try {
+        // Κατεβάζει ταυτόχρονα και τα δημοφιλή και τις ετικέτες
+        const [popularRes, labelsRes] = await Promise.all([
+          fetch(CONFIG.feedPopularUrl).then(r => r.json()),
+          fetch(CONFIG.feedLabelsUrl).then(r => r.json())
+        ]);
+
+        ApiManager.processPopularPosts(popularRes);
+        ApiManager.processWeeklyPick(labelsRes);
+        
+        SliderManager.buildDOM();
+      } catch (error) {
+        document.getElementById(CONFIG.sliderContainerId).innerHTML = 
+          "<p style='text-align:center; padding: 20px; font-family: Inter, Arial; color: #a90e0e;'>Σφάλμα φόρτωσης αναρτήσεων.</p>";
+      }
+    },
+
+    processPopularPosts: (json) => {
+      const entries = json.feed.entry || [];
+      for (const entry of entries) {
+        if (STATE.sliderPosts.length >= CONFIG.maxBasePosts) break;
+        
         const publishedDate = new Date(entry.published.$t);
-        if (publishedDate >= targetDate && sliderPostsDesk.length < 20) {
-            let title = entry.title.$t;
-            let postLink = "";
-            for (let j = 0; j < entry.link.length; j++) {
-                if (entry.link[j].rel === "alternate") { postLink = entry.link[j].href; break; }
-            }
-            let media = extractImageFromEntryDesk(entry);
-            sliderPostsDesk.push({ title, link: postLink, image: media.imageUrl, isVideo: media.isVideo });
+        if (publishedDate >= CONFIG.targetDate) {
+          const media = Utils.extractMedia(entry);
+          STATE.sliderPosts.push({
+            title: entry.title.$t,
+            link: Utils.getLink(entry),
+            image: media.imageUrl,
+            isVideo: media.isVideo
+          });
         }
-    }
+      }
+    },
 
-    // Κλήση του νέου script ετικετών για το Desktop
-    let scriptDesk = document.createElement('script');
-    scriptDesk.src = "/feeds/posts/default/-/Διαπαιδαγώγηση|Ψυχολογία|Σχολείο|Υγεία|Παιχνίδι|Γενικά?alt=json-in-script&max-results=50&callback=fetchLabelPostsForSliderDesk";
-    document.body.appendChild(scriptDesk);
-}
-
-// 3. Φόρτωση Αναρτήσεων με Ετικέτες (Δυναμική προσθήκη για το Desktop)
-function fetchLabelPostsForSliderDesk(json) {
-    if (json && json.feed && json.feed.entry) {
-        json.feed.entry.forEach(entry => {
-            let title = entry.title.$t;
-            let postLink = "";
-            for (let j = 0; j < entry.link.length; j++) {
-                if (entry.link[j].rel === "alternate") { postLink = entry.link[j].href; break; }
-            }
-            let media = extractImageFromEntryDesk(entry);
-            candidatePostsForExtraDesk.push({ title, link: postLink, image: media.imageUrl, isVideo: media.isVideo });
+    processWeeklyPick: (json) => {
+      let candidates = [...DATA.candidatePostsForExtraDesk];
+      const entries = json.feed.entry || [];
+      entries.forEach(entry => {
+        const media = Utils.extractMedia(entry);
+        candidates.push({
+          title: entry.title.$t,
+          link: Utils.getLink(entry),
+          image: media.imageUrl,
+          isVideo: media.isVideo
         });
-    }
+      });
 
-    const weekNum = Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 7));
-    const weeklyPick = candidatePostsForExtraDesk[weekNum % candidatePostsForExtraDesk.length];
-    
-    const safeImage = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgdYTGP-KF_2ZHc7ykgjO533JVSDXYPsg36Oi3XC0Z6UN-yEKAhpbsK5PME3r9Q_WeAXn-c20sWAmLR65slEVQSaYaDVKLuYQtaqbjuGyH71VxJxgZqWx5vG1JSCOFlqWswSphTn6Zup1d8Uz9Ie2Tq9CQeHmWBPusLJ7rc_bPJkiau4W47iSy6cSp60N4/s800/Gemini_Generated_Image_1itzx51itzx51itz.png";
+      const weekNum = Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 7));
+      const weeklyPick = candidates[weekNum % candidates.length];
 
-    const weeklyPostObj = {
+      const weeklyPostObj = {
         title: "⭐ " + weeklyPick.title,
         link: weeklyPick.link,
-        image: weeklyPick.image || safeImage,
+        image: weeklyPick.image || CONFIG.safeImage,
         isVideo: weeklyPick.isVideo || false
-    };
+      };
 
-    // Εισαγωγή στην 21η θέση (index 20) επειδή το Desktop δείχνει 20 αναρτήσεις
-    if (sliderPostsDesk.length >= 20) {
-        sliderPostsDesk.splice(20, 0, weeklyPostObj);
-    } else {
-        sliderPostsDesk.push(weeklyPostObj);
+      // Εισαγωγή στην 21η θέση (index 20) για το Desktop
+      const targetIndex = Math.min(15, STATE.sliderPosts.length);
+      STATE.sliderPosts.splice(targetIndex, 0, weeklyPostObj);
+
+      // Όριο τα 21 άρθρα (20 δημοφιλή + 1 επιλογή εβδομάδας)
+      if (STATE.sliderPosts.length > 16) {
+        STATE.sliderPosts = STATE.sliderPosts.slice(0, 16);
+      }
     }
+  };
 
-    if (sliderPostsDesk.length > 21) {
-        sliderPostsDesk = sliderPostsDesk.slice(0, 21);
-    }
+  // ==========================================
+  // 5. SLIDER MANAGER (UI & DOM)
+  // ==========================================
+  const SliderManager = {
+    buildDOM: () => {
+      const container = document.getElementById(CONFIG.sliderContainerId);
+      const wrapper = document.getElementById(CONFIG.sliderWrapperId);
+      if (!container || !wrapper) return;
 
-    buildSliderDesk();
-}
+      const arrowPrev = wrapper.querySelector('.arrow-prev');
+      const arrowNext = wrapper.querySelector('.arrow-next');
 
-function buildSliderDesk() {
-    const container = document.getElementById("slider-content-desktop");
-    const arrowPrev = document.querySelector('#custom-post-slider-desktop .arrow-prev');
-    const arrowNext = document.querySelector('#custom-post-slider-desktop .arrow-next');
-    
-    if(sliderPostsDesk.length === 0) {
+      if (STATE.sliderPosts.length === 0) {
         container.innerHTML = "<p style='text-align:center; padding: 20px; font-family: Inter, Arial; color: #a90e0e;'>Δεν βρέθηκαν δημοφιλείς αναρτήσεις μετά τις 11/09/2021.</p>";
-        arrowPrev.classList.add('hidden-arrow');
-        arrowNext.classList.add('hidden-arrow');
+        if (arrowPrev) arrowPrev.classList.add('hidden-arrow');
+        if (arrowNext) arrowNext.classList.add('hidden-arrow');
         return;
-    }
+      }
 
-    let htmlOutput = "";
-    sliderPostsDesk.forEach((post, index) => {
-        let activeClass = index === 0 ? "active" : "";
-        let videoBadgeHtml = post.isVideo ? `<div class="video-badge">&#9654;</div>` : "";
+      const fragment = document.createDocumentFragment();
+
+      STATE.sliderPosts.forEach((post, index) => {
+        const slide = document.createElement('div');
+        slide.className = `slide-item ${index === 0 ? "active" : ""}`;
         
-        htmlOutput += `
-            <div class="slide-item ${activeClass}">
-                <a href="${post.link}" class="slide-link">
-                    ${videoBadgeHtml}
-                    <div class="slide-counter">${index + 1} / ${sliderPostsDesk.length}</div>
-                    <img src="${post.image}" alt="${post.title}">
-                    <div class="slide-title-wrapper">
-                        <div class="slide-title">${post.title}</div>
-                    </div>
-                </a>
+        // Lazy Loading σε όλα εκτός από το πρώτο
+        const loadingAttr = index === 0 ? 'fetchpriority="high"' : 'loading="lazy"';
+        const videoBadge = post.isVideo ? `<div class="video-badge">&#9654;</div>` : "";
+
+        slide.innerHTML = `
+          <a href="${post.link}" class="slide-link">
+            ${videoBadge}
+            <div class="slide-counter">${index + 1} / ${STATE.sliderPosts.length}</div>
+            <img src="${post.image}" alt="${post.title}" ${loadingAttr}>
+            <div class="slide-title-wrapper">
+              <div class="slide-title">${post.title}</div>
             </div>
+          </a>
         `;
-    });
-    
-    container.innerHTML = htmlOutput;
-    
-    if (sliderPostsDesk.length > 1) {
-        arrowPrev.classList.remove('hidden-arrow');
-        arrowNext.classList.remove('hidden-arrow');
-        startAutoSlideDesk();
-        initSwipeDesk();
-        initHoverPauseDesk();
-    } else {
-        arrowPrev.classList.add('hidden-arrow');
-        arrowNext.classList.add('hidden-arrow');
+        fragment.appendChild(slide);
+      });
+
+      container.innerHTML = "";
+      container.appendChild(fragment);
+
+      if (STATE.sliderPosts.length > 1) {
+        if (arrowPrev) arrowPrev.classList.remove('hidden-arrow');
+        if (arrowNext) arrowNext.classList.remove('hidden-arrow');
+        
+        SliderManager.startAutoSlide();
+        SliderManager.setupEvents(wrapper, arrowPrev, arrowNext);
+      } else {
+        if (arrowPrev) arrowPrev.classList.add('hidden-arrow');
+        if (arrowNext) arrowNext.classList.add('hidden-arrow');
+      }
+    },
+
+    showSlide: (index) => {
+      const slides = document.querySelectorAll(`#${CONFIG.sliderWrapperId} .slide-item`);
+      if (slides.length === 0) return;
+
+      slides.forEach(slide => slide.classList.remove("active"));
+
+      if (index >= STATE.sliderPosts.length) STATE.currentIndex = 0;
+      else if (index < 0) STATE.currentIndex = STATE.sliderPosts.length - 1;
+      else STATE.currentIndex = index;
+
+      slides[STATE.currentIndex].classList.add("active");
+    },
+
+    moveSlide: (step) => {
+      if (STATE.isAnimating) return;
+      STATE.isAnimating = true;
+
+      SliderManager.showSlide(STATE.currentIndex + step);
+      SliderManager.resetAutoSlide();
+
+      setTimeout(() => { STATE.isAnimating = false; }, CONFIG.animLockMs);
+    },
+
+    startAutoSlide: () => {
+      clearInterval(STATE.autoSlideTimer);
+      STATE.autoSlideTimer = setInterval(() => { 
+        SliderManager.moveSlide(1); 
+      }, CONFIG.autoSlideIntervalMs);
+    },
+
+    resetAutoSlide: () => {
+      clearInterval(STATE.autoSlideTimer);
+      if (STATE.sliderPosts.length > 1) SliderManager.startAutoSlide();
+    },
+
+    setupEvents: (wrapper, arrowPrev, arrowNext) => {
+      if (arrowNext) arrowNext.addEventListener("click", () => SliderManager.moveSlide(1));
+      if (arrowPrev) arrowPrev.addEventListener("click", () => SliderManager.moveSlide(-1));
+
+      // Έλεγχος Ποντικιού (Desktop)
+      wrapper.addEventListener("mouseenter", () => clearInterval(STATE.autoSlideTimer), { passive: true });
+      wrapper.addEventListener("mouseleave", SliderManager.resetAutoSlide, { passive: true });
+      
+      // Υποστήριξη Οθονών Αφής (Αν κάποιος έχει laptop με οθόνη αφής)
+      wrapper.addEventListener("touchstart", (e) => {
+        clearInterval(STATE.autoSlideTimer);
+        STATE.touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      wrapper.addEventListener("touchend", (e) => {
+        const touchEndX = e.changedTouches[0].screenX;
+        const diff = STATE.touchStartX - touchEndX;
+        
+        if (diff > 40) SliderManager.moveSlide(1);    
+        else if (diff < -40) SliderManager.moveSlide(-1); 
+        
+        SliderManager.resetAutoSlide();
+      }, { passive: true });
     }
-}
+  };
 
-function showSlideDesk(index) {
-    const slides = document.querySelectorAll("#custom-post-slider-desktop .slide-item");
-    if (slides.length === 0) return;
-    
-    slides.forEach(slide => slide.classList.remove("active"));
-    if (index >= sliderPostsDesk.length) currentSlideIndexDesk = 0;
-    if (index < 0) currentSlideIndexDesk = sliderPostsDesk.length - 1;
-    slides[currentSlideIndexDesk].classList.add("active");
-}
+  // ==========================================
+  // 6. ΕΚΚΙΝΗΣΗ
+  // ==========================================
+  document.addEventListener("DOMContentLoaded", ApiManager.fetchData);
 
-function moveSlideDesk(step) {
-    if (isAnimatingDesk) return; // Προστασία από spamming κλικ στο Desktop
-    isAnimatingDesk = true;
-
-    currentSlideIndexDesk += step;
-    showSlideDesk(currentSlideIndexDesk);
-    resetAutoSlideDesk(); 
-    
-    setTimeout(() => { isAnimatingDesk = false; }, 500); // Ξεκλειδώνει μετά από 500ms
-}
-
-function startAutoSlideDesk() {
-    clearInterval(autoSlideTimerDesk);
-    autoSlideTimerDesk = setInterval(() => { moveSlideDesk(1); }, 2000); // Χρόνος στα 3000ms όπως στο mobile
-}
-
-function resetAutoSlideDesk() {
-    clearInterval(autoSlideTimerDesk);
-    if (sliderPostsDesk.length > 1) startAutoSlideDesk();
-}
-
-function initSwipeDesk() {
-    const sliderElem = document.getElementById("custom-post-slider-desktop");
-    let touchStartX = 0; let touchEndX = 0;
-    sliderElem.addEventListener("touchstart", e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
-    sliderElem.addEventListener("touchend", e => {
-        touchEndX = e.changedTouches[0].screenX;
-        if (touchStartX - touchEndX > 40) moveSlideDesk(1);  
-        if (touchEndX - touchStartX > 40) moveSlideDesk(-1); 
-    }, {passive: true});
-}
-
-function initHoverPauseDesk() {
-    const sliderElem = document.getElementById("custom-post-slider-desktop");
-    if (!sliderElem) return;
-    sliderElem.addEventListener("mouseenter", () => clearInterval(autoSlideTimerDesk));
-    sliderElem.addEventListener("mouseleave", resetAutoSlideDesk);
-}
+})();
