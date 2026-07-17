@@ -887,16 +887,20 @@ margin-bottom: 2px;
 .map-overlay.abyss-mode {
   background-color: rgba(5, 25, 55, 0.85); /* Σκοτεινό ωκεάνιο μπλε */
 }
-/* Πινέζες που έχουν ήδη διαβαστεί */
-.t-banner.visited-banner {
-  opacity: 0.6; /* Ξεθωριάζει κατά 40% */
-  filter: grayscale(50%); /* Χάνει τη ζωντάνια των χρωμάτων */
+/* Πινέζες ΚΑΙ SVG ζωάκια/τέρατα που έχουν ήδη διαβαστεί */
+.t-banner.visited-banner, 
+.mythic-banner.visited-banner, 
+.eco-banner.visited-banner {
+  opacity: 0.45 !important; /* Το κατεβάζουμε στο 0.45 για να ξεχωρίζει ακόμα καλύτερα */
+  filter: grayscale(50%) !important;
 }
 
-/* Αν ξαναπάνε το ποντίκι από πάνω, ζωηρεύει πάλι προσωρινά! */
-.t-banner.visited-banner:hover {
-  opacity: 1;
-  filter: grayscale(0%);
+/* Αν ξαναπάνε το ποντίκι από πάνω, ζωηρεύουν πάλι προσωρινά! */
+.t-banner.visited-banner:hover, 
+.mythic-banner.visited-banner:hover, 
+.eco-banner.visited-banner:hover {
+  opacity: 1 !important;
+  filter: grayscale(0%) !important;
 }
 /* === 1. ΧΙΟΝΟΘΥΕΛΛΑ === */
 .map-overlay.fx-snow {
