@@ -1,0 +1,999 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Lora:ital,wght@0,600;1,400&display=swap');
+
+  .pieria-tolkien-widget {
+    width: 100%;
+    max-width: 680px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    background: #2b261f;
+    border: 4px solid #8c7355;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.8);
+    text-align: center;
+    font-family: 'Lora', serif;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  .pt-header { margin-bottom: 16px; }
+  
+  .pt-title {
+    font-family: 'Cinzel', serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: #d4c29d;
+    margin: 0;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  }
+
+  .pt-subtitle {
+    font-size: 13px;
+    color: #a39274;
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+ /* ΤΟ ΧΑΡΤΙ ΠΕΡΓΑΜΗΝΗΣ */
+  .tolkien-map-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 11;
+    border: 3px solid #5c4a36;
+    border-radius: 4px;
+    box-shadow: inset 0 0 40px rgba(71, 52, 30, 0.6);
+    overflow: hidden;
+    background-color: #e3d8bc;
+    /* Εφέ υφής παλιού χαρτιού με CSS */
+    background-image: 
+      radial-gradient(circle at 50% 50%, transparent 60%, rgba(92, 74, 54, 0.4) 100%),
+      linear-gradient(rgba(181, 161, 126, 0.1) 2px, transparent 2px),
+      linear-gradient(90deg, rgba(181, 161, 126, 0.1) 2px, transparent 2px);
+    background-size: 100% 100%, 30px 30px, 30px 30px;
+  }
+
+
+
+  /* CSS DRAWING: ΘΑΛΑΣΣΑ (Δεξιά) */
+  .tolkien-sea {
+    position: absolute;
+    top: 0; right: 0;
+    width: 32%; height: 100%;
+    background: #84a5b3;
+    box-shadow: inset 15px 0 25px rgba(227, 216, 188, 0.7);
+    border-left: 2px dashed #6b8894;
+  }
+  
+  
+  .tolkien-sea::after {
+    content: '~   ~   ~\A    ~   ~\A  ~   ~   ~\A  ~   ~   ~\A  ~   ~   ~\A    ~   ~\A  ~   ~   ~\A  ~   ~   ~\A    ~   ~\A  ~   ~   ~\A  ~   ~   ~\A  ~   ~   ~\A  ~   ~   ~\A    ~   ~';
+    white-space: pre;
+    position: absolute;
+    top: 1%; left: 10%;
+    color: rgba(43, 65, 75, 0.3);
+    font-family: monospace;
+    font-size: 20px;
+    line-height: 40px;
+  }
+
+  /* CSS DRAWING: ΒΟΥΝΑ ΣΤΥΛ TOLKIEN */
+  .mountain-group {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  /* Το κάθε βουνό είναι ένα σκοτεινό τρίγωνο με λευκή κορυφή */
+  .t-peak {
+    position: absolute;
+    width: 0; height: 0;
+    border-left: 35px solid transparent;
+    border-right: 35px solid transparent;
+    border-bottom: 55px solid #4a525d; /* Σχιστόλιθος */
+    filter: drop-shadow(5px 3px 2px rgba(0,0,0,0.25));
+  }
+  
+  /* Το χιόνι στην κορυφή */
+  .t-peak::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -12px;
+    width: 0; height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 22px solid #eef2f5;
+  }
+
+  /* ΠΙΝΕΖΕΣ - ΜΕΣΑΙΩΝΙΚΑ ΛΑΒΑΡΑ (Banners) */
+  .t-banner {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    z-index: 20;
+    transition: transform 0.2s;
+  }
+
+  .t-banner:hover {
+    transform: translate(-50%, -60%) scale(1.15);
+    z-index: 50;
+  }
+
+  .banner-label {
+    background: #6e2525; /* Βαθύ κόκκινο Μέσης Γης */
+    border: 1.5px solid #d4c29d;
+    color: #f7f4eb;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 2px;
+    box-shadow: 2px 4px 6px rgba(0,0,0,0.4);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ΠΕΡΙΣΤΑΣΗ: ΒΑΣΙΛΙΚΟ ΛΑΒΑΡΟ */
+  .banner-peristasi { z-index: 40; }
+  
+  .banner-peristasi .banner-label {
+    background: #c29b38; /* Βασιλικό Χρυσό */
+    color: #1a140c;
+    border: 2px solid #ffffff;
+    font-weight: 900;
+    box-shadow: 0 0 15px rgba(194, 155, 56, 0.8);
+    animation: royal-pulse 2.5s infinite;
+  }
+
+  @keyframes royal-pulse {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
+  }
+
+  /* ΠΕΡΓΑΜΗΝΗ ΠΛΗΡΟФΟΡΙΩΝ (POPUP) */
+  .tolkien-tooltip {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 82%;
+    max-width: 340px;
+    background: #f4ecd8;
+    border: 3px solid #6e2525;
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.25s ease;
+    z-index: 100;
+    text-align: center;
+  }
+
+  .tolkien-tooltip.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .tolkien-tooltip h4 {
+    font-family: 'Cinzel', serif;
+    margin: 0 0 10px 0;
+    color: #591c1c;
+    font-size: 17px;
+    font-weight: 900;
+    border-bottom: 1px solid #c8b99c;
+    padding-bottom: 6px;
+  }
+
+  .tolkien-tooltip p {
+    margin: 0 0 18px 0;
+    color: #3b3228;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .close-t-btn {
+    background: #591c1c;
+    color: #d4c29d;
+    font-family: 'Cinzel', serif;
+    border: 1px solid #8c7355;
+    padding: 8px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+  }
+  .close-t-btn:hover { background: #7a2626; }
+
+  @media (max-width: 480px) {
+    .banner-label { font-size: 8px; padding: 3px 5px; }
+    .banner-peristasi .banner-label { font-size: 9px; }
+  }
+@media (max-width: 680px) {
+  /* Αλλάζει το ύψος και την εμφάνιση του container στα κινητά */
+  .pieria-tolkien-widget {
+    height: 85vh; /* Καταλαμβάνει το 90% του ύψους της οθόνης */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Ο χάρτης μεγαλώνει για να γεμίσει τον διαθέσιμο χώρο */
+  .tolkien-map-frame {
+    flex-grow: 1;
+    aspect-ratio: auto; /* Καταργούμε το σταθερό ratio για να μην αφήνει κενά */
+  }
+
+  .banner-label { font-size: 8px; padding: 3px 5px; }
+  .banner-peristasi .banner-label { font-size: 9px; }
+}
+/* CSS DRAWING: ΔΕΝΤΡΑ (Στυλ Tolkien) */
+  .t-tree {
+    position: absolute;
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 20px solid #2b5736; /* Σκούρο πράσινο */
+filter: drop-shadow(2px 2px 1px rgba(0,0,0,0.2));
+   
+  }
+  
+  .t-tree::after {
+    content: '';
+    position: absolute;
+    bottom: -24px; left: -2px;
+    width: 4px; height: 10px;
+    background: #5c4a36; /* Καφέ κορμός */
+  }
+
+  /* ΟΜΑΔΕΣ ΔΕΝΤΡΩΝ */
+  .tree-group {
+    position: absolute;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* CSS DRAWING: ΒΑΡΚΕΣ (Στη Θάλασσα) */
+  .t-boat {
+    position: absolute;
+    width: 25px; height: 8px;
+    background: #5c4a36; /* Καφέ σκάφος */
+    border-radius: 0 0 10px 10px;
+ filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+    z-index: 15;
+animation: t-boat 11s infinite ease-in-out;
+  }
+
+  .t-boat::before { /* Κατάρτι */
+    content: '';
+    position: absolute;
+    top: -10px; left: 10px;
+    width: 2px; height: 10px;
+    background: #5c4a36;
+  }
+
+  .t-boat::after { /* Πανί */
+    content: '';
+    position: absolute;
+    top: -10px; left: 2px;
+    width: 0; height: 0;
+    border-left: 8px solid #f4ecd8;
+    border-bottom: 10px solid transparent;
+  }
+
+ /* ΣΩΣΤΟ ΣΧΗΜΑ ΔΕΛΦΙΝΙΟΥ */
+  .t-dolphin {
+    position: absolute;
+    width: 22px; 
+    height: 8px;
+    background: #3a434c;
+    border-radius: 70% 30% 20% 40%;
+    transform: rotate(-15deg);
+    z-index: 15;
+    animation: t-leap 4s infinite ease-in-out;
+  }
+
+  /* Ραχιαίο πτερύγιο */
+  .t-dolphin::before {
+    content: '';
+    position: absolute;
+    top: -4px; 
+    left: 8px;
+    width: 6px; 
+    height: 6px;
+    background: #3a434c;
+    clip-path: polygon(0 100%, 35% 0, 100% 100%);
+    transform: rotate(18deg);
+  }
+
+  /* Ουρά */
+  .t-dolphin::after {
+    content: '';
+    position: absolute;
+    top: -1px; 
+    left: -5px;
+    width: 7px; 
+    height: 8px;
+    background: #3a434c;
+    clip-path: polygon(0 0, 100% 50%, 0 100%, 45% 50%);
+  }
+@keyframes t-leap {
+    0%, 100% { transform: translateY(0px) rotate(-18deg); }
+    50%      { transform: translateY(-4px) rotate(8deg); }
+  }
+
+/* ΤΟ ΣΧΗΜΑ ΤΟΥ ΓΛΑΡΟΥ */
+.t-bird {
+  position: absolute;
+  width: 16px;       /* Ήταν 14px, το κάναμε ελάχιστα πιο μεγάλο */
+  height: 7px;
+  z-index: 12; 
+  animation: t-flap 2.5s infinite ease-in-out;
+  opacity: 0.9;      /* ΑΥΞΗΘΗΚΕ: Από 0.6 πήγε στο 0.9 για να φαίνεται καθαρά */
+}
+
+/* Αριστερό φτερό */
+.t-bird::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0;
+  width: 50%; height: 100%;
+  border-top: 2px solid #2b1a08;   /* ΑΛΛΑΧΘΗΚΕ: Πιο χοντρή γραμμή και σκούρο μελάνι */
+  border-right: 2px solid #2b1a08; /* ΑΛΛΑΧΘΗΚΕ: Πιο χοντρή γραμμή και σκούρο μελάνι */
+  border-radius: 0 100% 0 0;
+}
+
+/* Δεξί φτερό */
+.t-bird::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0;
+  width: 50%; height: 100%;
+  border-top: 2px solid #2b1a08;   /* ΑΛΛΑΧΘΗΚΕ: Πιο χοντρή γραμμή και σκούρο μελάνι */
+  border-left: 2px solid #2b1a08;  /* ΑΛΛΑΧΘΗΚΕ: Πιο χοντρή γραμμή και σκούρο μελάνι */
+  border-radius: 100% 0 0 0;
+}
+/* ΚΙΝΗΣΗ ΦΤΕΡΩΝ (Ανοιγοκλείνουν και ανεβοκατεβαίνουν ελαφρώς) */
+@keyframes t-flap {
+  0%, 100% { 
+    transform: scaleY(1) translateY(0px); 
+  }
+  50% { 
+    transform: scaleY(0.4) translateY(-3px); /* Τα φτερά κλείνουν προς τα πάνω */
+  }
+}
+/* Εφαρμογή μόνο σε οθόνες από 1300px και πάνω */
+@media (min-width: 769px) {
+  .tolkien-map-frame {
+    aspect-ratio: 16 / 15;
+}
+ .pieria-tolkien-widget {
+    margin-top: 35px;
+  }
+}
+.tolkien-tt-img-1 {
+    width: 100%;
+    max-height: 130px;
+    object-fit: cover;
+    border: 2px solid #8c7355;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    filter: sepia(0.3) contrast(1.1);
+  }
+@media (max-width: 360px) {
+  .banner-label { font-size: 7px!important; padding: 3px 5px; }
+  .banner-peristasi .banner-label { font-size: 7px!important; }
+}
+/* Αρχική κατάσταση απόκρυψης */
+.hidden-group {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1.4s ease, visibility 1.4s;
+    pointer-events: none; /* Για να μην πατιούνται όσο είναι κρυμμένα */
+}
+
+/* Κατάσταση εμφάνισης */
+.visible-group {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+.t-dolphin {
+  position: absolute;
+  width: 20px;
+  height: 10px;
+  background: #3a434c;
+  border-radius: 50% 50% 20% 20%;
+  z-index: 15;
+  /* Η κίνηση "arc" */
+  animation: dolphin-arc 15s infinite ease-in-out;
+}
+
+/* Πτερύγιο */
+.t-dolphin::before {
+  content: '';
+  position: absolute;
+  top: -5px; left: 6px;
+  width: 6px; height: 6px;
+  background: #3a434c;
+  border-radius: 50% 50% 0 0;
+}
+
+/* Ουρά */
+.t-dolphin::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: -5px;
+  width: 6px; height: 6px;
+  background: #3a434c;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+@keyframes dolphin-arc {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); }
+  25% { transform: translateY(-15px) translateX(10px) rotate(15deg); }
+  50% { transform: translateY(0) translateX(20px) rotate(0deg); }
+  75% { transform: translateY(-10px) translateX(10px) rotate(-10deg); }
+  100% { transform: translateY(0) translateX(0) rotate(0deg); }
+}
+@keyframes t-boat {
+  0% {
+    transform: translateX(0px) translateY(0px) rotate(-3deg);
+  }
+  10% {
+    transform: translateX(2px) translateY(-1px) rotate(-1deg);
+  }
+  20% {
+    transform: translateX(5px) translateY(0px) rotate(2deg);
+  }
+  30% {
+    transform: translateX(8px) translateY(-2px) rotate(0deg);
+  }
+  40% {
+    transform: translateX(11px) translateY(-1px) rotate(3deg);
+  }
+  50% {
+    transform: translateX(15px) translateY(0px) rotate(1deg);
+  }
+  60% {
+    transform: translateX(11px) translateY(-2px) rotate(-2deg);
+  }
+  70% {
+    transform: translateX(8px) translateY(-1px) rotate(2deg);
+  }
+  80% {
+    transform: translateX(5px) translateY(0px) rotate(-1deg);
+  }
+  90% {
+    transform: translateX(2px) translateY(-1px) rotate(1deg);
+  }
+  100% {
+    transform: translateX(0px) translateY(0px) rotate(-3deg);
+  }
+}
+
+/* ΝΕΑ ΤΕΧΝΙΚΗ: SVG ΠΟΤΑΜΙΑ */
+.tolkien-rivers-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Για να μην εμποδίζει τα κλικ στα banner */
+  z-index: 5;
+}
+
+.t-river-path {
+  fill: none;
+  stroke: #3a6b68;          /* Το μελανί-μπλε χρώμα */
+  stroke-width: 3;            /* Το πάχος του κεντρικού ποταμού */
+  stroke-linecap: round;      /* Στρογγυλεμένες άκρες για φυσικότητα */
+  stroke-linejoin: round;     /* Στρογγυλεμένες ενώσεις στις στροφές */
+  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.2));
+  opacity: 0.85;
+}
+
+/* Ο παραπόταμος (πιο λεπτή γραμμή) */
+.t-river-branch {
+  stroke-width: 1.8;
+  opacity: 0.75;
+}
+.pt-header { 
+    margin-bottom: 16px; 
+    position: relative; /* Προστέθηκε για να καρφιτσώσουμε το εικονίδιο δεξιά */
+  }
+  
+  /* ΝΕΟ: Εικονίδιο Ήχου */
+  .sound-toggle-btn {
+    position: absolute;
+    top: 0px;
+    right: -7px;
+    background: transparent;
+    border: 1px solid #8c7355;
+    border-radius: 4px;
+    color: #d4c29d;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px 5px;
+    transition: background 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  .sound-toggle-btn:hover { background: #591c1c; }
+@media (max-width: 768px) {
+  .pt-header {
+    display: flex;
+    flex-direction: column; /* Τα βάζει σε σειρά: Τίτλος -> Υπότιτλος -> Κουμπί */
+    align-items: flex-end;  /* Σπρώχνει το κουμπί τέρμα δεξιά */
+    text-align: center;     /* Κρατάει το κείμενο κεντραρισμένο */
+    width: 100%;
+  }
+
+  .pt-title, .pt-subtitle {
+    width: 100%;            /* Αναγκάζει το κείμενο να πιάνει όλο το πλάτος */
+  }
+
+  .sound-toggle-btn {
+    position: static !important;
+    margin-top: -45px;        /* Δίνει απόσταση ακριβώς κάτω από τον υπότιτλο */
+margin-bottom: 2px;
+    align-self: flex-end;   /* Το κρατάει αυστηρά στη δεξιά μεριά */
+    padding: 5px 6px;
+  }
+}
+
+/* ΚΡΥΜΜΕΝΟΙ ΘΗΣΑΥΡΟΙ */
+  .t-treasure {
+    position: absolute;
+    cursor: pointer;
+    z-index: 45; /* Πάνω από τα δέντρα, κάτω από τα λαβάρα */
+    font-size: 16px;
+    filter: sepia(0.8) opacity(0.7); /* Δένει με το χρώμα της περγαμηνής */
+    transition: all 0.3s ease;
+  }
+
+  .t-treasure:hover {
+    transform: scale(1.6);
+    filter: sepia(0) opacity(1);
+    z-index: 55;
+  }
+
+  /* Κλάση για να κρύβουμε τα επόμενα αντικείμενα μέχρι να λυθεί ο γρίφος */
+  .hidden-treasure {
+    display: none;
+  }
+
+/* === 🧭 ΠΥΞΙΔΑ ΧΑΡΤΗ === */
+.t-compass-container {
+  position: absolute;
+  bottom: 15px;
+  left: 0px;
+  width: 75px;
+  height: 75px;
+  z-index: 30; /* Πάνω από βουνά, κάτω από τα banners */
+  pointer-events: none; /* Να μην εμποδίζει τα κλικ αν κάποιο δέντρο είναι από κάτω */
+  filter: drop-shadow(3px 5px 6px rgba(0,0,0,0.5));
+}
+
+.compass-needle {
+  transform-origin: 50px 50px;
+  /* Ελαφρύ κούνημα της βελόνας για ρεαλισμό */
+  animation: compass-wobble 6s ease-in-out infinite;
+}
+
+@keyframes compass-wobble {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(5deg); }
+}
+
+/* Μικραίνει έξυπνα στα κινητά για να μην πιάνει χώρο */
+@media (max-width: 680px) {
+  .t-compass-container {
+    width: 55px;
+    height: 55px;
+    bottom: 9px;
+    left: 0px;
+  }
+}
+/* === ΝΕΟ ΚΟΥΜΠΙ ΠΛΟΗΓΗΣΗΣ (Compact Έκδοση) === */
+.map-action-btn {
+  width: 100%;
+  margin-top: 5px; /* Ακριβώς όπως το παλιό */
+  padding: 8px 18px; /* Ακριβώς το ίδιο padding με το .close-t-btn */
+  background: linear-gradient(135deg, #591c1c 0%, #3a0e0e 100%);
+  color: #d4c29d;
+  font-family: 'Cinzel', serif;
+  font-size: 15px; /* Ακριβώς το ίδιο μέγεθος γραμματοσειράς */
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid #8c7355; /* Ίδιο πάχος περιγράμματος */
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 0 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  box-sizing: border-box;
+}
+
+/* Εφέ Hover: Φωτίζει το χρυσό χωρίς να αλλάζει μέγεθος */
+.map-action-btn:hover {
+  background: linear-gradient(135deg, #7a2626 0%, #4a1515 100%);
+  color: #f4ecd8;
+  border-color: #d4c29d;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.6), 0 0 8px rgba(212, 194, 157, 0.2);
+}
+
+/* Εφέ Active: Μικρό βούλιαγμα στο κλικ */
+.map-action-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+/* Αυτόνομη μαγνητική κίνηση με μεγάλο άνοιγμα και ομαλή επιστροφή */
+  .compass-needle {
+    transform-origin: 50px 50px;
+    animation: magnetic-heavy-wobble 24s infinite ease-in-out;
+  }
+
+  @keyframes magnetic-heavy-wobble {
+    0% {
+      transform: rotate(0deg);
+    }
+    20% {
+      transform: rotate(50deg);   /* Φτάνει γρήγορα και δυναμικά στις 25 μοίρες δεξιά */
+    }
+    50% {
+      transform: rotate(0deg);    /* Επιστρέφει πολύ πιο σιγά και ομαλά στο κέντρο */
+    }
+    70% {
+      transform: rotate(-50deg);  /* Φτάνει αντίστοιχα στις 25 μοίρες αριστερά */
+    }
+    100% {
+      transform: rotate(0deg);    /* Επιστρέφει σιγά-σιγά στην αρχική του θέση */
+    }
+  }
+
+/* === 📜 Η ΠΕΡΓΑΜΗΝΗ ΠΟΥ ΞΕΤΥΛΙΓΕΤΑΙ === */
+  .tolkien-tooltip {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 82%;
+    max-width: 340px;
+    background: #f4ecd8;
+    border: 3px solid #6e2525;
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.9);
+    z-index: 100;
+    text-align: center;
+    
+    /* 1. Αρχική κατάσταση (Κλειστό ρολό ψηλά) */
+    visibility: hidden;
+    opacity: 0;
+    transform: translate(-50%, -65%); /* Λίγο πιο ψηλά */
+    clip-path: inset(-100px -100px 100% -100px); /* "Κρύβει" όλο το περιεχόμενο προς τα πάνω */
+    
+    /* 2. Ομαλό animation για άνοιγμα και κλείσιμο */
+    transition: clip-path 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.15),
+                transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.15),
+                opacity 0.4s ease, 
+                visibility 0.6s;
+  }
+
+  .tolkien-tooltip.active {
+    visibility: visible;
+    opacity: 1;
+    transform: translate(-50%, -50%); /* Πέφτει ακριβώς στο κέντρο */
+    clip-path: inset(-100px -100px -100px -100px); /* Ξετυλίγεται πλήρως */
+  }
+
+  /* === ΟΙ ΞΥΛΙΝΟΙ ΚΥΛΙΝΔΡΟΙ (Πάνω και Κάτω) === */
+  .tolkien-tooltip::before,
+  .tolkien-tooltip::after {
+    content: '';
+    position: absolute;
+    left: -8px; 
+    right: -8px;
+    height: 12px;
+    /* Μπρούτζινο/Ξύλινο χρώμα */
+    background: linear-gradient(180deg, #3b2a1a 0%, #8c7355 50%, #2b1a08 100%);
+    border: 1px solid #1a1107;
+    border-radius: 8px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.6);
+    z-index: 105;
+  }
+
+  .tolkien-tooltip::before {
+    top: -6px; /* Ο πάνω κύλινδρος */
+  }
+
+  .tolkien-tooltip::after {
+    bottom: -6px; /* Ο κάτω κύλινδρος */
+  }
+
+  /* Ρυθμίσεις για τα κείμενα μέσα στην περγαμηνή */
+  .tolkien-tooltip h4 {
+    font-family: 'Cinzel', serif;
+    margin: 0 0 10px 0;
+    color: #591c1c;
+    font-size: 17px;
+    font-weight: 900;
+    border-bottom: 1px dashed #a39274; /* Αλλαγή σε dashed για πιο παλιό στυλ */
+    padding-bottom: 6px;
+  }
+
+  .tolkien-tooltip p {
+    margin: 0 0 18px 0;
+    color: #3b3228;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .close-t-btn {
+    background: #591c1c;
+    color: #d4c29d;
+    font-family: 'Cinzel', serif;
+    border: 1px solid #8c7355;
+    padding: 8px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  
+  .close-t-btn:hover { 
+    background: #7a2626; 
+    transform: scale(1.05);
+  }
+/* ΟΝΟΜΑΤΑ ΠΕΡΙΟΧΩΝ ΕΝΣΩΜΑΤΩΜΕΝΑ ΣΤΟ ΧΑΡΤΙ */
+.map-paper-text {
+  position: absolute;
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  color: #3b2a1a; /* Το μελανί χρώμα της περγαμηνής */
+  opacity: 0.25;   /* 15-20% διαφάνεια */
+  pointer-events: none; /* Για να μην εμποδίζει τα κλικ στα banner */
+  z-index: 2;      /* Πίσω από τα banners, πάνω από το υπόβαθρο */
+  text-transform: uppercase;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Για σωστή εμφάνιση και στα κινητά */
+@media (max-width: 480px) {
+  .map-paper-text { font-size: 16px !important; letter-spacing: 2px !important; }
+}
+/* 4. Άγρια Λουλούδια Πεδιάδας: Μικρά ανθάκια σχεδιασμένα με πενάκι (Μέγιστη Ένταση) */
+  .t-terrain-flowers {
+    position: absolute;
+    /* Inline SVG με 100% opaque, συμπαγή και ζωηρά χρώματα */
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' opacity='1'%3E%3C!-- Λουλούδι 1 (Κατακόκκινο) --%3E%3C!-- Μίσχος & Φύλλα (Καθαρό Σκούρο Πράσινο) --%3E%3Cpath d='M10 25 Q10 20 8 18 M10 25 Q11 19 13 17 M10 25 L10 15' stroke='%23194d22' fill='none'/%3E%3C!-- Πέταλα με μαύρο περίγραμμα και γεμάτο κόκκινο γέμισμα --%3E%3Cpath d='M10 15 C8 13, 7 11, 10 10 C13 11, 12 13, 10 15 M7 13 C6 15, 8 16, 10 15 C12 16, 14 15, 13 13' stroke='%231a1a1a' fill='%23e74c3c'/%3E%3C!-- Λουλούδι 2 - Πιο μικρό (Λαμπερό Κίτρινο) --%3E%3C!-- Μίσχος --%3E%3Cpath d='M28 32 L28 26' stroke='%23194d22' fill='none'/%3E%3C!-- Ανθός με μαύρο περίγραμμα και έντονο κίτρινο γέμισμα --%3E%3Cpath d='M28 26 C26 25, 26 23, 28 23 C30 23, 30 25, 28 26 M26 25 L30 25' stroke='%231a1a1a' fill='%23f1c40f'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 40px 40px;
+    pointer-events: none; /* Για να μην εμποδίζει τα κλικ στα banners */
+    z-index: 1; /* Πίσω από τα banners και τα κείμενα */
+  }
+.t-ancient-path {
+  fill: none;
+  stroke: #664d34; /* Σκούρο καφέ/σέπια μελάνι */
+  stroke-width: 2;
+  stroke-dasharray: 6 6; /* Διακεκομμένη γραμμή */
+  stroke-linecap: round;
+  opacity: 0.6;
+  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.2));
+  /* Αφαιρέθηκε το animation για να μην κολλάει το κινητό */
+}
+/* =========================================
+     CSS DRAWING: ΘΑΛΑΣΣΑ (Τέλεια Φανταστική Ακτογραμμή)
+     ========================================= */
+
+  /* 1. Αφαιρούμε την παλιά ίσια θάλασσα και τα ASCII κύματα */
+  .tolkien-sea {
+    position: absolute;
+    top: 0; right: 0;
+    width: 38%; /* Λίγο πιο φαρδιά για να απλωθούν σωστά οι κόλποι */
+    height: 100%;
+    background: transparent;
+    border-left: none; /* Τέλος η ίσια γραμμή! */
+    box-shadow: none;
+    z-index: 1; /* Πίσω από τα banners και τα καράβια */
+  }
+
+  /* 2. Το Σώμα της Θάλασσας και οι Κόλποι */
+  .tolkien-sea::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='seaGrad' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%237092a1'/%3E%3Cstop offset='100%25' stop-color='%2384a5b3'/%3E%3C/linearGradient%3E%3C/defs%3E%3C!-- Γέμισμα Θάλασσας (Με Gradient) --%3E%3Cpath d='M15,0 C40,15 5,35 15,50 C25,65 0,80 15,95 C20,98 15,100 10,100 L100,100 L100,0 Z' fill='url(%23seaGrad)'/%3E%3C!-- Χρυσή Άμμος (Ακτογραμμή) --%3E%3Cpath d='M15,0 C40,15 5,35 15,50 C25,65 0,80 15,95 C20,98 15,100 10,100' fill='none' stroke='%23d4c29d' stroke-width='3' opacity='0.7'/%3E%3C!-- Μελάνι (Έντονο Περίγραμμα Ακτής) --%3E%3Cpath d='M15,0 C40,15 5,35 15,50 C25,65 0,80 15,95 C20,98 15,100 10,100' fill='none' stroke='%232b1a08' stroke-width='1.2'/%3E%3C!-- 1η Γραμμή Βάθους (Κοντά στην ακτή) --%3E%3Cpath d='M20,0 C45,15 10,35 20,50 C30,65 5,80 20,95 C25,98 20,100 15,100' fill='none' stroke='%23587b8a' stroke-width='0.6' stroke-dasharray='2 2'/%3E%3C!-- 2η Γραμμή Βάθους --%3E%3Cpath d='M25,0 C50,15 15,35 25,50 C35,65 10,80 25,95 C30,98 25,100 20,100' fill='none' stroke='%23587b8a' stroke-width='0.4' stroke-dasharray='1 3'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    pointer-events: none;
+  }
+
+  /* 3. ΕΠΙΣΤΡΟΦΗ ΣΤΑ ΑΥΘΕΝΤΙΚΑ ΚΥΜΑΤΑ (Όπως τα είχες με χαρακτήρες κειμένου) */
+  .tolkien-sea::after {
+    content: '~   ~   ~\A  ~   ~   ~\A    ~   ~\A  ~   ~   ~\A    ~   ~\A  ~   ~   ~\A    ~   ~\A  ~   ~   ~\A    ~   ~\A  ~   ~   ~\A    ~   ~\A  ~   ~   ~\A    ~   ~\A  ~   ~   ~\A    ~   ~'; /* Τα δικά σου κύματα */
+    white-space: pre; /* Επαναφορά για να λειτουργούν οι αλλαγές γραμμής \A */
+    position: absolute;
+    top: 2%; left: 20%;
+    color: rgba(43, 65, 75, 0.3); /* Το αρχικό σου μελάνι */
+    font-family: monospace;
+    font-size: 20px;
+    line-height: 40px;
+    pointer-events: none;
+  }
+@media (max-width: 680px) {
+  /* ΕΠΑΝΑΦΟΡΑ: Το widget προσαρμόζεται αυτόματα στο περιεχόμενό του */
+  .pieria-tolkien-widget {
+    height: auto !important;
+    display: block !important;
+  }
+
+  /* Ρυθμίσεις τίτλου για να μην κρύβεται από το μενού του blog */
+  .pt-title { 
+    font-size: 19px !important; 
+    font-weight: 700 !important;
+    line-height: 1.3;
+  }
+  
+  .pt-subtitle {
+    font-size: 11px !important;
+  }
+
+  /* Το κουτί του zoom απλά ακολουθεί τη ροή */
+  .map-zoom-wrapper {
+    width: 100%;
+    height: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* Ο χάρτης κρατάει την αναλογία 16/15 για να είναι ευρύχωρος στα κινητά! */
+  .tolkien-map-frame {
+    width: 100%;
+    height: auto !important; /* Αφήνουμε το aspect-ratio να ορίσει το ύψος */
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    aspect-ratio: 16 / 26 !important; /* Αυτό ξαναζωντανεύει τον χάρτη */
+  }
+
+  /* Ρυθμίσεις για τα γράμματα στα κινητά */
+  .banner-label { font-size: 8px !important; padding: 3px 5px !important; }
+  .banner-peristasi .banner-label { font-size: 9px !important; }
+}
+  
+ /* === ΝΕΟ: ΑΤΜΟΣΦΑΙΡΙΚΑ ΦΙΛΤΡΑ (ΟVERLAY) === */
+.map-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-color: transparent;
+  pointer-events: none; /* Επιτρέπει τα κλικ να περνάνε ελεύθερα από κάτω */
+  z-index: 18; /* Πάνω από βουνά(χωρίς z-index) και θάλασσα, κάτω από τα banners (z-index: 20+) */
+  transition: background-color 0.8s ease;
+  mix-blend-mode: multiply; /* Ενσωματώνεται ιδανικά με την υφή της περγαμηνής */
+}
+
+/* Το Σκοτεινό/Χθόνιο φίλτρο */
+.map-overlay.dark-mode {
+  background-color: rgba(40, 25, 20, 0.75); /* Βαρύ, μουντό καφε-μαύρο */
+}
+
+/* Το φίλτρο της Αβύσσου για το Κήτος */
+.map-overlay.abyss-mode {
+  background-color: rgba(5, 25, 55, 0.85); /* Σκοτεινό ωκεάνιο μπλε */
+}
+/* Πινέζες ΚΑΙ SVG ζωάκια/τέρατα που έχουν ήδη διαβαστεί */
+.t-banner.visited-banner, 
+.mythic-banner.visited-banner, 
+.eco-banner.visited-banner {
+  opacity: 0.45 !important; /* Το κατεβάζουμε στο 0.45 για να ξεχωρίζει ακόμα καλύτερα */
+  filter: grayscale(50%) !important;
+}
+
+/* Αν ξαναπάνε το ποντίκι από πάνω, ζωηρεύουν πάλι προσωρινά! */
+.t-banner.visited-banner:hover, 
+.mythic-banner.visited-banner:hover, 
+.eco-banner.visited-banner:hover {
+  opacity: 1 !important;
+  filter: grayscale(0%) !important;
+}
+/* === 1. ΧΙΟΝΟΘΥΕΛΛΑ === */
+.map-overlay.fx-snow {
+  background-image:
+    radial-gradient(4px 4px at 100px 50px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(6px 6px at 200px 150px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(3px 3px at 300px 250px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(5px 5px at 400px 70px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(4px 4px at 500px 180px, rgba(255,255,255,0.9), transparent);
+  background-size: 600px 300px;
+  animation: snow-anim 3s linear infinite;
+  background-color: rgba(200, 210, 220, 0.2); /* Ελαφριά παγωμένη αίσθηση */
+}
+@keyframes snow-anim {
+  0% { background-position: 0px 0px; }
+  100% { background-position: 100px 300px; } /* Πέφτουν κάτω και δεξιά */
+}
+
+/* === 2. ΘΕΪΚΗ ΧΡΥΣΟΣΚΟΝΗ === */
+.map-overlay.fx-sparkles {
+  background-image:
+    radial-gradient(3px 3px at 50px 100px, #ffd700, transparent),
+    radial-gradient(4px 4px at 150px 200px, #ffdf00, transparent),
+    radial-gradient(2px 2px at 250px 300px, #fffacd, transparent),
+    radial-gradient(5px 5px at 350px 400px, #ffd700, transparent),
+    radial-gradient(3px 3px at 450px 150px, #ffdf00, transparent);
+  background-size: 400px 400px;
+  animation: sparkles-anim 5s linear infinite;
+}
+@keyframes sparkles-anim {
+  0% { background-position: 0px 400px; opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { background-position: 0px 0px; opacity: 0.6; } /* Ανεβαίνουν προς τα πάνω */
+}
+
+/* === 3. ΔΡΟΣΕΡΗ ΟΜΙΧΛΗ === */
+.map-overlay.fx-mist {
+  background: radial-gradient(circle at 50% 50%, rgba(200, 230, 255, 0.5) 0%, transparent 80%);
+  animation: mist-anim 4s ease-in-out infinite alternate;
+}
+@keyframes mist-anim {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 0.9; } /* Πάλλεται σαν σύννεφο */
+}
+
+/* === 4. ΑΣΤΡΑΠΕΣ (Δίας) === */
+.map-overlay.fx-lightning {
+  background-color: rgba(30, 30, 35, 0.6); /* Σκοτεινιάζει ο ουρανός */
+  animation: lightning-anim 5s infinite;
+}
+@keyframes lightning-anim {
+  0%, 90%, 94%, 98%, 100% { background-color: rgba(30, 30, 35, 0.6); }
+  91%, 95% { background-color: rgba(255, 255, 255, 0.85); } /* Διπλή Λάμψη! */
+}
+.map-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 18;
+  transition: background-color 0.8s ease, background-image 0.8s ease;
+  /* Αφαιρέσαμε το mix-blend-mode από εδώ για να φαίνονται τα χρώματα */
+}
+
+/* Για τα χρωματιστά εφέ (χιόνι, χρυσόσκονη) */
+.map-overlay.fx-snow, 
+.map-overlay.fx-sparkles, 
+.map-overlay.fx-mist {
+  mix-blend-mode: normal; /* Τα αφήνουμε κανονικά */
+}
+
+/* Για τα σκοτεινά εφέ */
+.map-overlay.dark-mode, 
+.map-overlay.abyss-mode,
+.map-overlay.fx-lightning {
+  mix-blend-mode: multiply; /* Εδώ το θέλουμε για να σκοτεινιάζει */
+}
+const panzoom = Panzoom(mapAreaPanzoom, {
+    maxScale: 2.5, // Μειωμένο από 3 για λιγότερη πίεση
+    minScale: 1,
+    contain: 'none', // Πιο ελαφρύ από το 'outside'
+    step: 0.3,
+    pinchSpeed: 1,
+    excludeClass: 't-banner' 
+});
+
+.tolkien-map-frame {
+  /* ... τα υπάρχοντα ... */
+  will-change: transform; /* Ενημερώνει τον browser ότι αυτό θα κινείται */
+  backface-visibility: hidden;
+  transform: translateZ(0); /* Ενεργοποιεί το GPU acceleration */
+}
+.tree-group, .mountain-group {
+    /* ... */
+    contain: layout style; /* Λέει στον browser να μην ξανα-υπολογίζει αυτά τα στοιχεία */
+    pointer-events: none;
+}
