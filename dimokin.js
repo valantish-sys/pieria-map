@@ -7,7 +7,7 @@
   const CONFIG = Object.freeze({
     maxBasePosts: 15,
     targetDate: new Date("2021-09-11T00:00:00Z"),
-    autoSlideIntervalMs: 2000, 
+    autoSlideIntervalMs: 3000, 
     animLockMs: 500,
     
     // ΕΔΩ Η ΑΛΛΑΓΗ: Τώρα τραβάει απευθείας τα 15 "δημοφιλή" αστραπιαία!
