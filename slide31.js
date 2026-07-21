@@ -237,7 +237,7 @@ const db = getDatabase(app);
       runTransaction(reactionRef, (currentCount) => {
         return (currentCount || 0) + 1;
       }).then(() => {
-        localStorage.setItem(`feedback_${postId}`, 'voted');
+        localStorage.setItem(`feedback_${safePostId}`, 'voted');
         rDiv.classList.remove('is-voting');
         // ΣΗΜΕΙΩΣΗ: Δεν αλλάζουμε το νούμερο χειροκίνητα. 
         // Θα ενημερωθεί αυτόματα σε 1ms από τον onValue observer παραπάνω!
@@ -584,8 +584,10 @@ const db = getDatabase(app);
         caption.appendChild(descContainer);
         
         const postId = href ? new URL(href).pathname : "";
-        if (postId?.length > 3) {
-          const isVoted = localStorage.getItem(`feedback_${postId}`);
+if (postId?.length > 3) {
+    // SENIOR FIX: Μετατροπή σε safePostId για να συγχρονίζεται με το reactionsneo.js!
+    const safePostId = postId.replace(/[\.\#\$\[\]]/g, '_');
+    const isVoted = localStorage.getItem(`feedback_${safePostId}`);
           const reactDiv = Object.assign(document.createElement("div"), { className: `floating-reactions ${isVoted ? 'voted' : ''}` });
           reactDiv.dataset.postid = postId;
           
