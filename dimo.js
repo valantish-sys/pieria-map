@@ -8,7 +8,7 @@
     // Στο Desktop θέλουμε 15 βασικά άρθρα (συν 1 της εβδομάδας = 16)
     maxBasePosts: 15, 
     targetDate: new Date("2021-09-11T00:00:00Z"),
-    autoSlideIntervalMs: 2000, // Αλλαγή κάθε 2 δευτερόλεπτα
+    autoSlideIntervalMs: 3000, // Αλλαγή κάθε 2 δευτερόλεπτα
     animLockMs: 500, // Κλείδωμα για spam κλικ στα βελάκια
     
     // Απευθείας URLs για τα JSON δεδομένα
