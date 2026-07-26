@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
            =================================================== */
         if (index === 0) {
           // Μπορείς να αλλάξεις το ⚡ σε 🔴 ή 🔥 
-          anchor.innerHTML = `<span style="color: #ff0000; margin-right: 8px;">🔥</span> ${title}`; 
+          anchor.innerHTML = `<span style="color: #ff0000; margin-right: 8px;">⭐</span> ${title}`; 
         } else {
           anchor.textContent = title; 
         }
