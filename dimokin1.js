@@ -82,13 +82,13 @@
         if (imgMatch && imgMatch[1]) {
           imageUrl = imgMatch[1];
           if (imageUrl.includes("blogger.googleusercontent.com") || imageUrl.includes("bp.blogspot.com")) {
-            imageUrl = imageUrl.replace(/\/s[0-9]+(-b|-c|-w)?\//, '/s1600/').replace(/=w[0-9]+-h[0-9]+(-c)?/, '=s1600');
+            imageUrl = imageUrl.replace(/\/s[0-9]+(-b|-c|-w)?\//, '/s1600/').replace(/=w[0-9]+-h[0-9]+(-c)?/, '=s800');
           }
           return { imageUrl, isVideo: false };
         }
 
         if (entry.media$thumbnail && entry.media$thumbnail.url) {
-          imageUrl = entry.media$thumbnail.url.replace(/\/s72-c\//, '/s1600/').replace(/=s72-c/, '=s1600');
+          imageUrl = entry.media$thumbnail.url.replace(/\/s72-c\//, '/s1600/').replace(/=s72-c/, '=s800');
           return { imageUrl, isVideo: false };
         }
       } catch (err) {}
