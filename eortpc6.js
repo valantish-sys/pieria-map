@@ -328,7 +328,7 @@ let feelsLikeText = "Αίσθηση 8πμ";
 
 if (i === 0) {
     feelsLikeHour = new Date().getHours(); // Παίρνει την τρέχουσα ώρα του υπολογιστή/κινητού
-    feelsLikeText = "Τωρινή αίσθηση";
+    feelsLikeText = "Αίσθηση";
 }
 const currentFeelsLike = Math.round(data.hourly.apparent_temperature[baseIndex + feelsLikeHour]);
                     
