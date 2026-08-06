@@ -384,7 +384,7 @@ const currentFeelsLike = Math.round(data.hourly.apparent_temperature[baseIndex +
                                     icon = "☀️"; msg = "Ζεστούλα! Μην ξεχάσεις το παγούρι με το νερό σου!"; 
                                     borderColor = "#f59e0b"; bgColor = "rgba(245, 158, 11, 0.1)";
                                 } else {
-                                    icon = "🌤️"; msg = "Ιδανικός καιρός σήμερα για παιχνίδι στο προαύλιο!"; 
+                                    icon = "🌤️"; msg = "Ιδανικός καιρός σήμερα για παιχνίδι!"; 
                                     borderColor = "#10b981"; bgColor = "rgba(16, 185, 129, 0.1)";
                                 }
                                 
