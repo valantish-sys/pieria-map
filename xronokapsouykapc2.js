@@ -193,9 +193,7 @@ const DragEngine = {
         triggerReRoll: () => {
             if (DataEngine.isFetching) return;
           // --- ΠΡΟΣΘΕΣΕ ΑΥΤΕΣ ΤΙΣ 2 ΓΡΑΜΜΕΣ ---
-            if (DOM.arrow) DOM.arrow.remove(); 
-            DOM.arrow = null;
-            
+   
             DOM.widget.style.transition = "opacity 0.3s";
             DOM.widget.style.opacity = "0.5";
             DOM.title.innerText = "Αναζήτηση μνήμης...";
