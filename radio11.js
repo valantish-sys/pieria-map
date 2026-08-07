@@ -168,7 +168,7 @@
         // 2. Ακούμε ζωντανά (Real-Time) τις αλλαγές στο σύνολο
         listenersRef.on('value', (snapshot) => {
            const total = snapshot.numChildren() || 0; // numChildren = το άθροισμα των ατόμων
-           const word = total === 1 ? 'μαθητής συντονισμένος' : 'μαθητές συντονισμένοι';
+           const word = total === 1 ? 'ακούει τώρα' : 'ακούνε τώρα';
            pulseDiv.innerHTML = `<span style="animation: pulseAnim 2s infinite; display: inline-block;">🔴</span> ${total} ${word}`;
         });
 
