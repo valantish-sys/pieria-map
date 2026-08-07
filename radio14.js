@@ -129,8 +129,8 @@
           let tiltY = e.gamma / 3;
 
           // 2. Κατεβάζουμε το όριο: από 15 που ήταν, το κάνουμε 5 μοίρες max.
-          tiltX = Math.max(-4, Math.min(5, tiltX));
-          tiltY = Math.max(-4, Math.min(5, tiltY));
+          tiltX = Math.max(-2, Math.min(2, tiltX));
+          tiltY = Math.max(-2, Math.min(2, tiltY));
 
           // Εφαρμόζουμε 3D κλίση στο κεντρικό γυαλί και μετατοπίζουμε τη σκιά του
           container.style.transition = 'transform 0.1s ease-out, box-shadow 0.1s ease-out';
