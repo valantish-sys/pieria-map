@@ -145,7 +145,7 @@
       if (!header) return;
       
       const pulseDiv = document.createElement('div');
-      pulseDiv.style.cssText = 'font-size: 11px; color: #e74c3c; font-weight: 600; text-align: center; margin-bottom: 12px; margin-top: -5px;';
+      pulseDiv.style.cssText = 'font-size: 13px; color: #e74c3c; font-weight: 600; text-align: center; margin-bottom: 12px; margin-top: -5px;';
       header.parentNode.insertBefore(pulseDiv, header.nextSibling);
 
       if (!document.getElementById('pulse-css')) {
