@@ -151,7 +151,7 @@
                 
                 // Κείμενο
                 scratchCtx.fillStyle = '#444';
-                scratchCtx.font = 'bold 36px sans-serif';
+                scratchCtx.font = 'bold 32px sans-serif';
                 scratchCtx.textAlign = 'center';
                 scratchCtx.textBaseline = 'middle';
                 scratchCtx.fillText('\u2728 ΞΥΣΕ ΕΔΩ \u2728', DOM.canvas.width / 2, DOM.canvas.height / 2);
