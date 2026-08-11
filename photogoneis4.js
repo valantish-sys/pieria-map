@@ -68,7 +68,7 @@ dbPub.ref("album_settings").on("value", snap => {
   selector.value = currentViewId;
   document.getElementById("display-theme").innerText = data.themes[currentViewId].name;
   
-  loadPhotos();
+  window.loadPhotos();
 });
 
 window.changeTheme = function() {
@@ -85,10 +85,10 @@ currentDbLimit = window.innerWidth <= 768 ? 1 : 3; // Επαναφορά ορί�
   dbPub.ref("album_settings/themes/" + currentViewId).once("value", snap => {
     document.getElementById("display-theme").innerText = snap.val().name;
   });
-  loadPhotos();
+ window.loadPhotos();
 }
 
-function loadPhotos(isLoadMore = false) {
+window.loadPhotos = function(isLoadMore = false) {
   const grid = document.getElementById("masonry-grid");
   if (!grid) return;
   const emptyState = document.getElementById("empty-state");
@@ -199,13 +199,13 @@ window.showMorePhotos = function() {
   btnLoadMore.innerText = "Φόρτωση... \u23F3";
   
   currentDbLimit += window.innerWidth <= 768 ? 4 : 9; 
-  loadPhotos(true); // Περνάμε true για να μην παίξουν τα animation delay ξανά
+  window.loadPhotos(true); // Περνάμε true για να μην παίξουν τα animation delay ξανά
   
   setTimeout(() => { btnLoadMore.innerText = "Δείτε όλες τις αναμνήσεις 👇"; }, 1000);
 }
 
 // Συνάρτηση που ελέγχει το όριο απευθείας από τη Firebase
-async function canUserUpload() {
+window.canUserUpload = async function() {
   if (!currentUserUid) {
     Swal.fire({ icon: 'info', title: 'Σύνδεση...', text: 'Ασφαλής σύνδεση. Παρακαλώ περίμενε 1-2 δευτερόλεπτα.' });
     return false;
@@ -271,7 +271,7 @@ async function canUserUpload() {
 // Η νέα συνάρτηση που καλείται όταν πατάει το κουμπί Upload
 window.checkUploadLimit = async function() {
   if (navigator.vibrate) navigator.vibrate(50);
-  const isAllowed = await canUserUpload();
+  const isAllowed = await window.canUserUpload();
   if (isAllowed) {
     document.getElementById('file-upload').click();
   }
@@ -528,7 +528,7 @@ albumBox.addEventListener('drop', async e => {
   }
 
   // Έλεγχος 2: Αδιαπέραστο όριο μέσω Server!
-  const isAllowed = await canUserUpload();
+  const isAllowed = await window.canUserUpload();
   if (!isAllowed) return; // Το Pop-up με το χρονόμετρο εμφανίστηκε ήδη, άρα σταματάμε εδώ.
 
   // Αν όλα είναι τέλεια...
