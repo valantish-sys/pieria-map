@@ -496,7 +496,7 @@ const currentFeelsLike = Math.round(data.hourly.apparent_temperature[baseIndex +
                                     icon = "☔"; msg = "Προβλέπεται βροχή! Μην ξεχάσεις την ομπρέλα σου!"; 
                                     borderColor = "#3b82f6"; bgColor = "rgba(59, 130, 246, 0.1)";
                                 } else if (morningTemp < 6) {
-                                    icon = "🧣"; msg = "Παγωνιά! Σκούφος και γάντια απαραίτητα!"; 
+                                    icon = "🧣"; msg = "Ίσως παγωνιά! Σκούφος και γάντια απαραίτητα!"; 
                                     borderColor = "#0ea5e9"; bgColor = "rgba(14, 165, 233, 0.1)";
                                 } else if (maxSchoolTemp > 24) {
                                     icon = "☀️"; msg = "Ζεστούλα! Μην ξεχάσεις το παγούρι με το νερό σου!"; 
