@@ -467,7 +467,8 @@ window.updateLightboxContent = function() {
         const photo = window.albumPhotosList[currentLightboxIndex];
         const highResUrl = photo.url.replace('/upload/', '/upload/q_auto,f_auto,w_1600/');
         document.getElementById('album-dynamic-img').src = highResUrl;
-        document.getElementById('album-dynamic-caption').innerHTML = photo.caption || "";
+        // Χρησιμοποιούμε innerHTML για τα Emojis, ΑΛΛΑ με escapeHTML για προστασία από ιούς (XSS)!
+      document.getElementById('album-dynamic-caption').innerHTML = photo.caption ? escapeHTML(photo.caption) : "";
     }
 };
 
