@@ -282,7 +282,7 @@ window.uploadImage = async function(event) {
         <img src="${previewUrl}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 2px; display: block; background: #f4f4f4;">
         <div id="live-caption" style="font-family: 'Caveat', cursive; font-size: 24px; color: #333; text-align: center; margin-top: 10px; min-height: 28px; line-height: 1.2; word-wrap: break-word;"></div>
       </div>
-      <input id="swal-input-caption" class="swal2-input" placeholder="Γράψε αν θέλεις μια λεζάντα! ✍️" maxlength="50" oninput="document.getElementById('live-caption').innerHTML = this.value" autocomplete="off">
+      <input id="swal-input-caption" class="swal2-input" placeholder="Γράψε αν θέλεις μια λεζάντα! ✍️" maxlength="50" oninput="document.getElementById('live-caption').innerHTML = escapeHTML(this.value)" autocomplete="off">
     `,
     showCancelButton: true,
     confirmButtonText: 'Ανέβασμα 🚀',
