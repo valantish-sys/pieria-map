@@ -499,10 +499,10 @@ const currentFeelsLike = Math.round(data.hourly.apparent_temperature[baseIndex +
                                     } else if (hasRain) {
                                         icon = "☔"; msg = "Προσοχή για βροχή! Μην ξεχάσεις την ομπρέλα σου!"; 
                                         borderColor = "#3b82f6"; bgColor = "rgba(59, 130, 246, 0.1)";
-                                    } else if (checkTemp < 6) {
+                                    } else if (checkTemp < 7) {
                                         icon = "🧣"; msg = "Έχει παγωνιά έξω! Σκούφος και γάντια απαραίτητα!"; 
                                         borderColor = "#0ea5e9"; bgColor = "rgba(14, 165, 233, 0.1)";
-                                    } else if (checkTemp > 24) {
+                                    } else if (checkTemp > 21) {
                                         icon = "☀️"; msg = "Ζεστούλα έξω! Μην ξεχάσεις το παγούρι με το νερό σου!"; 
                                         borderColor = "#f59e0b"; bgColor = "rgba(245, 158, 11, 0.1)";
                                     } else {
@@ -533,10 +533,10 @@ const currentFeelsLike = Math.round(data.hourly.apparent_temperature[baseIndex +
                                     } else if (hasRain) {
                                         icon = "☔"; msg = "Αύριο δίνει βροχή! Βάλε από απόψε την ομπρέλα στην τσάντα!"; 
                                         borderColor = "#3b82f6"; bgColor = "rgba(59, 130, 246, 0.1)";
-                                    } else if (checkTemp < 6) {
+                                    } else if (checkTemp < 7) {
                                         icon = "🧣"; msg = "Αύριο το πρωί θα έχει παγωνιά! Ετοίμασε σκούφο και γάντια!"; 
                                         borderColor = "#0ea5e9"; bgColor = "rgba(14, 165, 233, 0.1)";
-                                    } else if (checkTemp > 24) {
+                                    } else if (checkTemp > 21) {
                                         icon = "☀️"; msg = "Αύριο θα κάνει ζέστη! Μην ξεχάσεις το παγούρι σου!"; 
                                         borderColor = "#f59e0b"; bgColor = "rgba(245, 158, 11, 0.1)";
                                     } else {
