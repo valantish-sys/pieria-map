@@ -26,6 +26,7 @@
   let isWaitingForResponse = false;
   let isChatOpen = false; 
   let idleTimer, teaserTimeout, teaserHideTimeout;
+let activeRequest = null;
 
   // --- RΥΘΜΙΣΗ DOMPurify ---
   DOMPurify.addHook('afterSanitizeAttributes', function(node) {
@@ -99,17 +100,18 @@
   let isHiddenByScroll = false;
   let lastScrollTop = window.scrollY || document.documentElement.scrollTop;
 
-  function wakeUpChat() {
-    // Αν το έχουμε κρύψει επειδή ο χρήστης κατεβαίνει, ΔΕΝ το ξυπνάμε με τυχαία αγγίγματα στην οθόνη
+ function wakeUpChat() {
     if (isHiddenByScroll) return;
     
     DOM.widget.classList.remove('widget-sleep');
     clearTimeout(idleTimer);
     
-    if (isChatOpen) return;
+    // FIX: Στα desktop το widget δεν κοιμάται ποτέ. Μπλοκάρουμε τη δημιουργία
+    // εκατοντάδων άχρηστων timers στο mousemove για εξοικονόμηση πόρων.
+    if (isChatOpen || window.innerWidth > 768) return;
     
     idleTimer = setTimeout(() => {
-      if (window.innerWidth <= 768 && !isChatOpen) DOM.widget.classList.add('widget-sleep');
+      DOM.widget.classList.add('widget-sleep');
     }, 5000);
   }
 
@@ -180,11 +182,14 @@
     
     isHiddenByScroll = false; // ΝΕΟ: Αν ο χρήστης ανοίξει/κλείσει το chat, το ξεκλειδώνουμε!
     
-    if (isOpen) {
+   if (isOpen) {
       DOM.window.classList.remove('is-open'); isChatOpen = false;
     } else {
       DOM.window.classList.add('is-open'); isChatOpen = true;
-      setTimeout(() => DOM.input.focus(), 300); 
+      
+      // ΝΕΟ: Focus μόνο σε υπολογιστές, ώστε στα κινητά να μην πετάγεται βίαια το πληκτρολόγιο!
+      setTimeout(() => { if (window.innerWidth > 768) DOM.input.focus(); }, 300); 
+      
       DOM.messagesBox.scrollTop = DOM.messagesBox.scrollHeight;
     }
     wakeUpChat();
@@ -220,7 +225,8 @@
         cleaned = cleaned.toLowerCase();
     }
 
-    cleaned = cleaned.replace(/[^\p{L}\p{N}\s\.,;:\?!()'"-]/gu, '');
+  
+    cleaned = cleaned.replace(/[^\p{L}\p{N}\s\.,;:\?!()'"\-€\$%\+=/@&\*<>^_#]/gu, '');
     return cleaned;
   }
 
@@ -241,8 +247,15 @@
     const rawText = DOM.input.value.trim(); 
     if (!rawText || isWaitingForResponse) return;
     
+   
     // Καθαρίζουμε το κείμενο πριν το στείλουμε
-    const optimizedTextForModel = optimizeGreekText(rawText);
+    let optimizedTextForModel = optimizeGreekText(rawText);
+    
+    // FIX: Αν η Regex έσβησε τα πάντα (π.χ. ο χρήστης έστειλε μόνο Emojis), 
+    // χρησιμοποιούμε το αρχικό κείμενο για να μη σκάσει το API με Error 400.
+    if (!optimizedTextForModel) {
+        optimizedTextForModel = rawText;
+    }
     
     isWaitingForResponse = true; 
     resetInput();
@@ -260,8 +273,9 @@
     DOM.messagesBox.appendChild(indicator); DOM.messagesBox.scrollTop = DOM.messagesBox.scrollHeight;
     wakeUpChat();
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); 
+  // ΑΝΤΙΚΑΤΑΣΤΑΣΗ: Χρήση της global μεταβλητής activeRequest
+    activeRequest = new AbortController();
+    const timeoutId = setTimeout(() => { if (activeRequest) activeRequest.abort(); }, 15000); 
 
     try {
       if (!navigator.onLine) throw new Error('OFFLINE');
@@ -272,7 +286,7 @@
       const response = await fetch(CONFIG.WORKER_URL, {
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal,
+        signal: activeRequest.signal, // ΑΝΤΙΚΑΤΑΣΤΑΣΗ: Εδώ μπαίνει το activeRequest.signal,
         body: JSON.stringify({
           contents: optimizedHistory
         })
@@ -291,15 +305,36 @@
           throw new Error('EMPTY_RESPONSE');
       }
 
-      document.getElementById('typing-indicator').remove();
-      const botReply = data.candidates[0].content.parts[0].text;
+      document.getElementById('typing-indicator')?.remove();
+      
+      const candidate = data.candidates[0];
+      // FIX: Προστασία από Safety Blocks που αφαιρούν το αντικείμενο content
+      if (candidate.finishReason === 'SAFETY' || !candidate.content) {
+          throw new Error('SAFETY_BLOCK');
+      }
+      
+      const botReply = candidate.content.parts[0].text;
       
       addMessageToUI(botReply, 'msg-bot', true);
       conversationHistory.push({ role: "model", parts: [{ text: botReply }] });
       saveSession(); 
 
-    } catch (error) {
+   } catch (error) {
+      // ΝΕΟ: Αν η διακοπή έγινε επίτηδες από το "Σκουπάκι" (το οποίο μηδενίζει το activeRequest), σταματάμε εδώ!
+      if (error.name === 'AbortError' && activeRequest === null) {
+          return;
+      }
+
       document.getElementById('typing-indicator')?.remove();
+      
+      // ΝΕΟ: Διαγραφή του τελευταίου μηνύματος χρήστη από το UI για αποφυγή διπλοτυπίας
+      
+      // ΝΕΟ: Διαγραφή του τελευταίου μηνύματος χρήστη από το UI για αποφυγή διπλοτυπίας
+      const userMessages = DOM.messagesBox.querySelectorAll('.msg-user');
+      if (userMessages.length > 0) {
+        userMessages[userMessages.length - 1].remove();
+      }
+
       let errorMessage = "⚠️ Προέκυψε σφάλμα σύνδεσης. Δοκιμάστε ξανά.";
       
       if (error.name === 'AbortError') errorMessage = "⏳ Η σύνδεση άργησε πολύ και διακόπηκε. Δοκιμάστε ξανά.";
@@ -312,21 +347,27 @@
       conversationHistory.pop(); 
       saveSession();
       DOM.input.value = rawText; DOM.input.style.height = 'auto'; DOM.input.style.height = (DOM.input.scrollHeight) + 'px';
-    } finally {
+   } finally {
       clearTimeout(timeoutId); 
-      isWaitingForResponse = false; DOM.input.disabled = false; DOM.sendBtn.disabled = false; DOM.input.focus();
+      isWaitingForResponse = false; DOM.input.disabled = false; DOM.sendBtn.disabled = false; 
+      
+      // ΝΕΟ: Focus μόνο σε υπολογιστές, ώστε στα κινητά να μην πετάγεται βίαια το πληκτρολόγιο
+      if (window.innerWidth > 768) {
+        DOM.input.focus();
+      }
     }
-  }
-
+}
   loadInitialMessages();
   initTeaser();
 
-  if (window.visualViewport) {
+ if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
-      if (!DOM.window.classList.contains('is-open')) return;
       const viewportHeight = window.visualViewport.height;
+      // FIX: Ενημερώνουμε το ύψος ΠΑΝΤΑ, ακόμα και όταν το chat είναι κλειστό.
       DOM.window.style.maxHeight = `${viewportHeight - 20}px`;
-      DOM.messagesBox.scrollTop = DOM.messagesBox.scrollHeight;
+      if (DOM.window.classList.contains('is-open')) {
+        DOM.messagesBox.scrollTop = DOM.messagesBox.scrollHeight;
+      }
     });
   }
 
@@ -334,6 +375,12 @@
   DOM.closeBtn.addEventListener('click', toggleChat);
   DOM.sendBtn.addEventListener('click', handleSend);
   DOM.clearBtn.addEventListener('click', () => {
+    // ΝΕΟ: Ακυρώνει τη σύνδεση αν το bot "σκέφτεται" τη στιγμή του καθαρισμού
+    if (activeRequest) { activeRequest.abort(); activeRequest = null; }
+    isWaitingForResponse = false;
+    DOM.input.disabled = false; DOM.sendBtn.disabled = false;
+    document.getElementById('typing-indicator')?.remove();
+    
     conversationHistory = [];
     sessionStorage.removeItem(CONFIG.SESSION_KEY);
     renderWelcomeMessage();
@@ -369,6 +416,7 @@
     };
 
     recognition.onerror = function(event) {
+      isRecording = false; // ΝΕΟ: Ξεκλειδώνει το μικρόφωνο για την επόμενη χρήση
       micBtn.classList.remove('is-recording');
       DOM.input.placeholder = "Γράψτε το ερώτημά σας εδώ...";
     };
