@@ -531,7 +531,7 @@ const currentFeelsLike = Math.round(data.hourly.apparent_temperature[baseIndex +
                                         icon = "⛄"; msg = "Αύριο περιμένουμε χιόνι! Ετοίμασε ζεστά ρούχα 🧅!"; 
                                         borderColor = "#1e6cff"; bgColor = "rgba(30, 108, 255, 0.1)";
                                     } else if (hasRain) {
-                                        icon = "☔"; msg = "Αύριο δίνει βροχή! Βάλε από απόψε την ομπρέλα στην τσάντα!"; 
+                                        icon = "☔"; msg = "Αύριο δίνει βροχή! Μην ξεχάσεις την ομπρέλα σου!"; 
                                         borderColor = "#3b82f6"; bgColor = "rgba(59, 130, 246, 0.1)";
                                     } else if (checkTemp < 7) {
                                         icon = "🧣"; msg = "Αύριο το πρωί θα έχει παγωνιά! Ετοίμασε σκούφο και γάντια!"; 
@@ -540,7 +540,7 @@ const currentFeelsLike = Math.round(data.hourly.apparent_temperature[baseIndex +
                                         icon = "☀️"; msg = "Αύριο θα κάνει ζέστη! Μην ξεχάσεις το παγούρι σου!"; 
                                         borderColor = "#f59e0b"; bgColor = "rgba(245, 158, 11, 0.1)";
                                     } else {
-                                        icon = "🌤️"; msg = "Αύριο φαίνεται ιδανικός καιρός για το σχολείο!"; 
+                                        icon = "🌤️"; msg = "Αύριο φαίνεται ιδανικός καιρός για παιχνίδι!"; 
                                         borderColor = "#10b981"; bgColor = "rgba(16, 185, 129, 0.1)";
                                     }
                                 }
