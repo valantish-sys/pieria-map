@@ -1,0 +1,631 @@
+(() => {
+  "use strict";
+
+  // --- CONFIGURATION ---
+  const CONFIG = Object.freeze({
+    loopModes: ['Κλειστή', 'Όλη η λίστα', 'Ένα τραγούδι'],
+    loopClasses: ['loop-btn', 'loop-btn active-loop-all', 'loop-btn active-loop-one'],
+    icons: ['🔁', '🔁', '🔂'], // <--- Μπήκε το κόμμα!
+    visualizerClass: 'is-playing'
+  });
+
+  const STATE = {
+    loopModeIndex: 1,
+    fadeInterval: null,
+    targetVolume: 1,
+    isFading: false,
+    playToken: 0
+  };
+
+  // --- JUKEBOX MANAGER ---
+  const JukeboxManager = {
+    // 1. Δημιουργούμε ένα άδειο αντικείμενο για το DOM
+    dom: {},
+    // --- 0. ΚΟΥΜΠΙ ΕΠΑΝΑΛΗΨΗΣ (LOOP TOGGLE) ---
+    toggleLoop: () => {
+      if (navigator.vibrate) navigator.vibrate(10); 
+      
+      // Κυκλική εναλλαγή (0 -> 1 -> 2 -> 0)
+      STATE.loopModeIndex = (STATE.loopModeIndex + 1) % 3;
+      const idx = STATE.loopModeIndex;
+      const els = JukeboxManager.dom;
+      
+     if (els.loopBtn) {
+        els.loopBtn.innerHTML = `${CONFIG.icons[idx]} Επανάληψη: ${CONFIG.loopModes[idx]}`;
+        els.loopBtn.className = CONFIG.loopClasses[idx];
+      }
+      
+      // ΝΕΟ: Ενεργοποιούμε το εγγενές (native) gapless loop του browser 
+      // ΜΟΝΟ όταν επιλέγεται το "Ένα τραγούδι" (idx === 2)
+      if (els.player) {
+          els.player.loop = (idx === 2);
+      }
+    },
+// --- 1. ΟΜΑΛΗ ΜΕΤΑΒΑΣΗ (FADE IN/OUT) - BULLETPROOF ---
+    fadeAudio: (targetVolume, duration) => {
+      return new Promise((resolve) => {
+        const player = JukeboxManager.dom.player;
+        if (!player) return resolve();
+        
+        clearInterval(STATE.fadeInterval);
+        STATE.isFading = true; // Κλειδώνουμε: Τον ήχο τον αλλάζει ο υπολογιστής!
+        
+        try { player.volume = player.volume; } catch(e) { 
+           STATE.isFading = false;
+           return resolve(); 
+        }
+        
+        const steps = 15; // Πιο γρήγορα βήματα (Για να προλαβαίνει τα γρήγορα Swipes)
+        const stepTime = duration / steps;
+        const volumeStep = (targetVolume - player.volume) / steps;
+        let currentStep = 0;
+
+        STATE.fadeInterval = setInterval(() => {
+          currentStep++;
+          let newVol = player.volume + volumeStep;
+          if (newVol > 1) newVol = 1;
+          if (newVol < 0) newVol = 0;
+          
+          player.volume = newVol;
+
+          if (currentStep >= steps || (volumeStep > 0 && newVol >= targetVolume) || (volumeStep < 0 && newVol <= targetVolume)) {
+            clearInterval(STATE.fadeInterval);
+            player.volume = targetVolume;
+            STATE.isFading = false; // Ξεκλειδώνουμε!
+            resolve();
+          }
+        }, stepTime);
+      });
+    },
+
+    // --- 2. ΟΘΟΝΗ ΚΛΕΙΔΩΜΑΤΟΣ (MEDIA SESSION) ---
+    setupMediaSession: (title) => {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: title,
+          artist: 'Δ.Σ. Περίστασης',
+          album: 'Radio & Podcast',
+          artwork: [
+            // Βάλε το URL ενός λογοτύπου (π.χ. .png 512x512) για να φαίνεται στην οθόνη του κινητού!
+            { src: 'https://cdn-icons-png.flaticon.com/512/1256/1256083.png', sizes: '512x512', type: 'image/png' }
+          ]
+        });
+        navigator.mediaSession.setActionHandler('play', () => JukeboxManager.dom.player.play());
+        navigator.mediaSession.setActionHandler('pause', () => JukeboxManager.dom.player.pause());
+        navigator.mediaSession.setActionHandler('nexttrack', () => JukeboxManager.playNextOrPrev(1));
+        navigator.mediaSession.setActionHandler('previoustrack', () => JukeboxManager.playNextOrPrev(-1));
+      }
+    },
+    // --- 3. ΑΙΣΘΗΤΗΡΕΣ (ΜΑΓΝΗΤΙΚΑ ΚΟΥΜΠΙΑ & ΓΥΡΟΣΚΟΠΙΟ) ---
+    setupSensors: () => {
+      // Α. ΜΑΓΝΗΤΙΚΑ ΚΟΥΜΠΙΑ (Desktop)
+      const buttons = document.querySelectorAll('.playlist-btn, .extra-track-btn');
+      
+      buttons.forEach(btn => {
+        let magnetTimeout;
+        btn.addEventListener('mousemove', (e) => {
+          clearTimeout(magnetTimeout);
+          const rect = btn.getBoundingClientRect();
+          // Βρίσκουμε πόσο απέχει το ποντίκι από το κέντρο του κουμπιού
+          const x = e.clientX - rect.left - rect.width / 2;
+          const y = e.clientY - rect.top - rect.height / 2;
+          
+          // Το κουμπί ακολουθεί το ποντίκι (το 0.3 είναι η "δύναμη" του μαγνήτη)
+          btn.style.transition = 'transform 0.1s ease-out';
+          btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+        });
+
+        btn.addEventListener('mouseleave', () => {
+          // Ελαστική αναπήδηση (Bouncy Effect) όταν το ποντίκι φεύγει
+          btn.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          btn.style.transform = 'translate(0px, 0px)';
+          
+          // Καθαρίζουμε το inline CSS μετά από 0.5s για να μην χαλάσει τα hover χρώματα του CSS σου
+         magnetTimeout = setTimeout(() => { 
+            btn.style.transition = ''; 
+            btn.style.transform = ''; 
+          }, 500);
+        });
+      });
+
+      // Β. ΓΥΡΟΣΚΟΠΙΚΟ PARALLAX (Κινητά/Tablets)
+      const container = document.querySelector('.jukebox-container');
+      if (window.DeviceOrientationEvent && container) {
+        window.addEventListener('deviceorientation', (e) => {
+          if (!e.beta || !e.gamma) return;
+
+          // 1. Διαιρούμε με το 3 για να ρίξουμε την ευαισθησία (πιο "βαριά" και ομαλή κίνηση)
+          let tiltX = (e.beta - 45) / 3; 
+          let tiltY = e.gamma / 3;
+
+          // 2. Κατεβάζουμε το όριο: από 15 που ήταν, το κάνουμε 5 μοίρες max.
+          tiltX = Math.max(-2, Math.min(2, tiltX));
+          tiltY = Math.max(-2, Math.min(2, tiltY));
+
+          // Εφαρμόζουμε 3D κλίση στο κεντρικό γυαλί και μετατοπίζουμε τη σκιά του
+          container.style.transition = 'transform 0.1s ease-out, box-shadow 0.1s ease-out';
+          container.style.transform = `perspective(1000px) rotateX(${-tiltX}deg) rotateY(${tiltY}deg)`;
+          container.style.boxShadow = `${tiltY}px ${tiltX}px 32px rgba(0, 0, 0, 0.1)`;
+        });
+      }
+    },
+   // --- 4. ΖΩΝΤΑΝΟΣ ΠΑΛΜΟΣ (ΑΛΗΘΙΝΟ FIREBASE PRESENCE) ---
+    // --- 4. ΖΩΝΤΑΝΟΣ ΠΑΛΜΟΣ (ΑΛΗΘΙΝΟ FIREBASE PRESENCE) ---
+    setupPulse: () => {
+      const header = document.querySelector('.juke-header');
+      if (!header) return;
+      
+      const pulseDiv = document.createElement('div');
+      pulseDiv.style.cssText = 'font-size: 13px; color: #e74c3c; font-weight: 600; text-align: center; margin-bottom: 12px; margin-top: -5px;';
+      header.parentNode.insertBefore(pulseDiv, header.nextSibling);
+
+     if (!document.getElementById('pulse-css')) {
+          const style = document.createElement('style');
+          style.id = 'pulse-css';
+          style.innerHTML = `@keyframes pulseAnim { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }`;
+          document.head.appendChild(style);
+      }
+
+      // --- 1. ΑΣΠΙΔΑ BOTS (Λύση για PageSpeed / Ghost Listeners) ---
+      const isBot = navigator.webdriver || /bot|crawler|spider|lighthouse|pagespeed|gtmetrix|ptst|headless|chrome-lighthouse/i.test(navigator.userAgent);
+      
+      if (isBot) {
+          pulseDiv.innerHTML = `<span style="display: inline-block;">🤖</span> Αναμονή... (Ανίχνευση Bot)`;
+          return; // Σταματάει την εκτέλεση! Το ρομπότ δεν εγγράφεται ΠΟΤΕ στο Firebase.
+      }
+      // --------------------------------------------------------------
+
+      pulseDiv.innerHTML = `<span style="display: inline-block;">⏳</span> Σύνδεση με Live Server...`;
+
+      // Η συνάρτηση που κάνει την πραγματική σύνδεση
+      const connectFirebase = () => {
+        try {
+          // Η ΛΥΣΗ: Παίρνουμε τη βάση (radioDb) που έχεις ήδη ορίσει και συνδέσει στο HTML σου!
+          const db = window.radioDb || firebase.app('radioApp').database();
+          
+          const listenersRef = db.ref('jukebox_active_listeners');
+          const connectedRef = db.ref('.info/connected'); 
+
+         let myConnectionRef = null;
+         let forceDisconnect = () => { if (myConnectionRef) try { myConnectionRef.remove(); } catch(e){} };
+
+         // 1. Μόλις συνδεθεί ή επανασυνδεθεί ο μαθητής
+         connectedRef.on('value', (snap) => {
+            if (snap.val() === true) {
+              if (myConnectionRef) { forceDisconnect(); } // Καθαρισμός προηγούμενης (νεκρής) σύνδεσης
+
+              myConnectionRef = listenersRef.push(); 
+              myConnectionRef.onDisconnect().remove();
+              myConnectionRef.set(true);
+
+              // Καθαρισμός παλιών events πριν την προσθήκη νέων
+              window.removeEventListener('beforeunload', forceDisconnect);
+              window.removeEventListener('pagehide', forceDisconnect);
+              
+              window.addEventListener('beforeunload', forceDisconnect);
+              window.addEventListener('pagehide', forceDisconnect);
+            }
+          });
+
+          // 2. Ακούμε ζωντανά τις αλλαγές
+          listenersRef.on('value', (snapshot) => {
+             const total = snapshot.numChildren() || 0; 
+             const word = total === 1 ? 'ακούει τώρα' : 'ακούνε τώρα';
+             pulseDiv.innerHTML = `<span style="animation: pulseAnim 2s infinite; display: inline-block;">🔴</span> ${total} ${word}`;
+          });
+
+        } catch(e) {
+          console.error("Σφάλμα Firebase:", e);
+          pulseDiv.innerHTML = `<span style="animation: pulseAnim 2s infinite; display: inline-block;">🔴</span> Live Ραδιόφωνο`;
+        }
+      };
+
+      let attempts = 0;
+      const checkAndConnect = () => {
+          if (typeof window.radioDb !== 'undefined' || typeof firebase !== 'undefined') {
+              connectFirebase();
+          } else if (attempts < 20) { // Δοκιμάζει 20 φορές (σύνολο 10 δευτερόλεπτα αναμονής)
+              attempts++;
+              setTimeout(checkAndConnect, 500);
+          }
+      };
+      checkAndConnect();
+    },
+
+   
+    // --- 6. PICTURE-IN-PICTURE (Mini Player) ---
+    setupPiP: () => {
+       // Ελέγχουμε αν υπάρχει PiP ΚΑΙ αν ο browser υποστηρίζει captureStream (αλλιώς το κρύβουμε)
+        if (!document.pictureInPictureEnabled || !document.createElement('canvas').captureStream) return;
+        
+        const loopBtn = document.getElementById('loop-btn');
+        if (!loopBtn) return;
+
+        // Φτιάχνουμε δυναμικά το κουμπί PiP δίπλα στο Loop
+        const pipBtn = document.createElement('button');
+        pipBtn.innerHTML = '📺 Mini Player';
+        pipBtn.className = 'loop-btn';
+        pipBtn.style.marginRight = '8px';
+        loopBtn.parentNode.insertBefore(pipBtn, loopBtn);
+
+        // Το Μυστικό: Αόρατος καμβάς και βίντεο
+        const canvas = document.createElement('canvas');
+        canvas.width = 400; canvas.height = 200;
+        const ctx = canvas.getContext('2d');
+        const video = document.createElement('video'); video.muted = true;
+
+       let isPipOpening = false; // ΝΕΟ: Ασπίδα για να μην παίζει μουσική μόνο του κατά το άνοιγμα
+
+        // Συγχρονισμός PiP -> Σελίδας
+        video.addEventListener('play', () => { 
+            if (!isPipOpening && JukeboxManager.dom.player.paused) JukeboxManager.dom.player.play(); 
+        });
+        video.addEventListener('pause', () => { 
+            // Μην κλείσεις τη μουσική αν το παραθυράκι του PiP ΔΕΝ υπάρχει πια (δηλ. αν πατήθηκε το "X")
+            if (document.pictureInPictureElement === video && !JukeboxManager.dom.player.paused) {
+                JukeboxManager.dom.player.pause(); 
+            }
+        });
+
+      // Συγχρονισμός Σελίδας -> PiP (ΔΙΟΡΘΩΣΗ: Εκτέλεση μόνο όταν το PiP είναι ανοιχτό!)
+        JukeboxManager.dom.player.addEventListener('play', () => { 
+            if (document.pictureInPictureElement === video && video.paused) video.play().catch(()=>{}); 
+        });
+        JukeboxManager.dom.player.addEventListener('pause', () => { 
+            if (document.pictureInPictureElement === video && !video.paused) video.pause(); 
+        });
+
+        let drawInterval;
+        const drawFrame = () => { /* (ΚΡΑΤΑ ΤΗ ΔΙΚΗ ΣΟΥ ΣΥΝΑΡΤΗΣΗ drawFrame ΟΠΩΣ ΗΤΑΝ!) */
+           ctx.fillStyle = '#1e272e'; ctx.fillRect(0, 0, 400, 200);
+           ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center';
+           ctx.font = '22px Arial'; ctx.fillText('📻 Radio Δ.Σ. Περίστασης', 200, 50);
+           const els = JukeboxManager.dom;
+           const trackName = els.textTarget ? els.textTarget.innerText : '';
+           ctx.font = 'bold 24px Arial'; ctx.fillStyle = '#e74c3c';
+           ctx.fillText(trackName, 200, 110, 380);
+           if (els.player && !els.player.paused) {
+               ctx.fillStyle = '#ffffff';
+               for(let i=0; i<6; i++) { let h = 10 + Math.random() * 25; ctx.fillRect(145 + (i*20), 180 - h, 10, h); }
+           }
+        };
+
+        pipBtn.addEventListener('click', async () => {
+           if (document.pictureInPictureElement) { 
+               await document.exitPictureInPicture(); 
+               return; 
+           }
+      
+           if (!video.srcObject) video.srcObject = canvas.captureStream(15);
+      
+           clearInterval(drawInterval);
+           drawInterval = setInterval(drawFrame, 100); 
+
+           isPipOpening = true;
+           try { 
+               await video.play(); 
+               // Αν η μουσική ήταν σε Παύση, βάζουμε παύση και στο βίντεο αμέσως, ώστε 
+               // το εικονίδιο στο PiP να δείχνει "Play" και να μη ξεκινήσει η μουσική
+               if (JukeboxManager.dom.player.paused) {
+                   video.pause();
+               }
+               await video.requestPictureInPicture(); 
+           } catch(e) { 
+               clearInterval(drawInterval);
+               console.warn("PiP blocked by browser", e); 
+           } finally {
+               setTimeout(() => { isPipOpening = false; }, 100);
+           }
+        });
+
+        video.addEventListener('leavepictureinpicture', () => clearInterval(drawInterval));
+    },
+    // --- 7. TINDER-STYLE SWIPE NAVIGATION ---
+    setupSwipeSupport: () => {
+      const container = document.querySelector('.jukebox-container');
+      if (!container) return;
+
+      // Απαγορεύει στον browser να αλλάξει σελίδα (History Back/Forward) όταν κάνουμε Swipe!
+      container.style.touchAction = 'pan-y';
+
+      let startX = 0;
+      let startY = 0; // ΝΕΟ
+      let currentX = 0;
+      let isDragging = false;
+      let isVerticalScrolling = false; // ΝΕΟ
+      let isAnimatingSwipe = false; // ΝΕΟ
+      const SWIPE_THRESHOLD = 90;
+
+      const handleDragStart = (e) => {
+        if (isAnimatingSwipe) return;
+        if (e.target.closest('button, audio, .extra-tracks-wrapper, input')) return;
+        
+        startX = e.touches ? e.touches[0].clientX : e.clientX;
+        startY = e.touches ? e.touches[0].clientY : e.clientY; // ΝΕΟ
+        isDragging = true;
+        isVerticalScrolling = false; // ΝΕΟ
+        
+        container.style.setProperty('transition', 'none', 'important');
+      };
+
+      const handleDragMove = (e) => {
+        if (!isDragging || isVerticalScrolling) return;
+        
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY; // ΝΕΟ
+        currentX = clientX - startX;
+        const currentY = clientY - startY; // ΝΕΟ
+        
+        // ΝΕΟ: Αν κουνάει το δάχτυλο πιο πολύ πάνω-κάτω (Scroll), ακύρωσε το Swipe του Jukebox!
+        if (Math.abs(currentY) > Math.abs(currentX) && Math.abs(currentY) > 5) {
+            isVerticalScrolling = true;
+            container.style.transition = '';
+            container.style.transform = '';
+            return;
+        }
+        
+        const resistance = currentX * 0.4;
+        const tilt = currentX * 0.05;
+        
+        container.style.setProperty('transform', `translateX(${resistance}px) rotate(${tilt}deg)`, 'important');
+        const opacity = Math.max(0.5, 1 - Math.abs(currentX) / 300);
+        container.style.opacity = opacity.toString();
+      };
+
+      const handleDragEnd = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        // ΝΕΟ: Αν ο χρήστης έκανε κάθετο scroll, ακυρώνουμε εντελώς το Swipe!
+        if (isVerticalScrolling) {
+            currentX = 0;
+            return;
+        }
+
+        // Επαναφέρουμε την ομαλή, ελαστική επιστροφή
+        container.style.setProperty('transition', 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease', 'important');
+
+       if (currentX < -SWIPE_THRESHOLD) {
+          // ΔΙΟΡΘΩΣΗ: Περνάμε την αλλαγή ως callback
+          animateSwipeOut('left', () => JukeboxManager.playNextOrPrev(1));
+        } else if (currentX > SWIPE_THRESHOLD) {
+          animateSwipeOut('right', () => JukeboxManager.playNextOrPrev(-1));
+        } else {
+          // Δεν το τράβηξε αρκετά -> Ακύρωση & Ελαστική Επιστροφή (Snap back)
+          container.style.setProperty('transform', 'translateX(0px) rotate(0deg)', 'important');
+          container.style.opacity = '1';
+          
+          // Απελευθέρωση για να παίξει πάλι το Γυροσκόπιο
+          setTimeout(() => {
+              container.style.transition = '';
+              container.style.transform = '';
+          }, 400);
+        }
+        
+        currentX = 0; // Μηδενισμός
+      };
+
+      const animateSwipeOut = (direction, onHidden) => {
+         isAnimatingSwipe = true; 
+
+         const moveOut = direction === 'right' ? window.innerWidth : -window.innerWidth;
+         container.style.setProperty('transform', `translateX(${moveOut}px) rotate(${direction === 'right' ? 15 : -15}deg)`, 'important');
+         container.style.opacity = '0';
+
+         setTimeout(() => {
+            container.style.setProperty('transition', 'none', 'important');
+            container.style.setProperty('transform', `translateX(${-moveOut}px) rotate(0deg)`, 'important');
+            
+            // ΔΙΟΡΘΩΣΗ: Η αλλαγή τραγουδιού γίνεται ΤΩΡΑ που η κάρτα είναι εκτός οθόνης
+            if (onHidden) onHidden();
+            
+            setTimeout(() => {
+               container.style.setProperty('transition', 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease', 'important');
+               container.style.setProperty('transform', 'translateX(0px) rotate(0deg)', 'important');
+               container.style.opacity = '1';
+               
+               setTimeout(() => {
+                  container.style.transition = '';
+                  container.style.transform = '';
+                  isAnimatingSwipe = false; 
+               }, 500);
+            }, 50);
+         }, 300);
+      };
+
+      // Συνδέουμε τα Events για Οθόνες Αφής (Touch / Κινητά)
+      container.addEventListener('touchstart', handleDragStart, { passive: true });
+      container.addEventListener('touchmove', handleDragMove, { passive: true });
+      container.addEventListener('touchend', handleDragEnd);
+      container.addEventListener('touchcancel', handleDragEnd);
+
+      // Συνδέουμε τα Events για Ποντίκι (Για να μπορείς να το δοκιμάσεις και στο PC)
+      container.addEventListener('mousedown', handleDragStart);
+      window.addEventListener('mousemove', handleDragMove);
+      window.addEventListener('mouseup', handleDragEnd);
+      window.addEventListener('mouseleave', handleDragEnd);
+    },
+
+   // 7Β. Η βοηθητική λογική για Swipe & Loop (Εύρεση τραγουδιού)
+    playNextOrPrev: (direction) => {
+      const allBtns = Array.from(document.querySelectorAll('.playlist-btn[data-url], .extra-track-btn[data-url]'));
+      const activeBtn = document.querySelector('.track-active');
+      
+      if (allBtns.length === 0) return;
+      
+     // Αν δεν παίζει τίποτα και ζητήσουμε το Προηγούμενο (-1), το index ξεκινάει από 0 για να βρει το τελευταίο
+      let currentIndex = activeBtn ? allBtns.indexOf(activeBtn) : (direction === 1 ? -1 : 0);
+      let attempts = 0;
+      
+      while (attempts < allBtns.length) {
+         // Προχωράμε μπρος ή πίσω κυκλικά
+         currentIndex = (currentIndex + direction + allBtns.length) % allBtns.length;
+         const targetBtn = allBtns[currentIndex];
+         const targetUrl = targetBtn.dataset.url || "";
+         
+         // Αν το κουμπί έχει πραγματικό link (http) και όχι "LINK_3", παίξ'το!
+        if (targetUrl.trim() !== "" && !targetUrl.includes('LINK_')) {
+            JukeboxManager.playTrack(targetBtn, targetUrl, targetBtn.dataset.name);
+            break;
+         }
+         attempts++;
+      }
+    },
+
+    init: () => {
+      // 2. Βρίσκουμε τα στοιχεία ΤΩΡΑ που έχει φορτώσει η σελίδα! (Απόλυτη ασφάλεια)
+      JukeboxManager.dom = {
+        player: document.getElementById('main-juke-player'),
+        source: document.getElementById('juke-audio-source'),
+        display: document.getElementById('juke-track-display'),
+        textTarget: document.getElementById('juke-text-target'), // <-- ΠΡΟΣΘΕΣΕ ΑΥΤΗ ΤΗ ΓΡΑΜΜΗ
+        visualizer: document.getElementById('juke-visualizer'),
+        wrapper: document.getElementById('extra-tracks-wrapper'),
+        loopBtn: document.getElementById('loop-btn'),
+        moreBtn: document.getElementById('toggle-more-btn')
+      };
+
+     const els = JukeboxManager.dom;
+      if (!els.player) return; // Αν λείπει το widget, σταματάμε ομαλά
+
+      // Συγχρονισμός του native loop μόλις φορτώσει το script
+      els.player.loop = (STATE.loopModeIndex === 2);
+
+      // Events
+
+      // Events
+      els.player.addEventListener('ended', JukeboxManager.handleTrackEnd);
+      els.player.addEventListener('play', () => { if (els.visualizer) els.visualizer.classList.add(CONFIG.visualizerClass); });
+      els.player.addEventListener('pause', () => { if (els.visualizer) els.visualizer.classList.remove(CONFIG.visualizerClass); });
+      
+      if (els.loopBtn) els.loopBtn.addEventListener('click', JukeboxManager.toggleLoop);
+
+      if (els.moreBtn) {
+        els.moreBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); 
+          els.wrapper.classList.toggle('open');
+        });
+      }
+
+      document.addEventListener('click', JukeboxManager.handleGlobalClick);
+      // 1. Αποθήκευση της νέας έντασης αν ο χρήστης την αλλάξει από τον Player
+      // 1. Αποθήκευση της έντασης ΜΟΝΟ αν ο χρήστης την αλλάξει με το χέρι
+      els.player.addEventListener('volumechange', () => {
+         // ΑΛΛΑΓΗ: Το "> 0" έγινε ">= 0" για να αποθηκεύεται και η επιλογή Mute.
+         if (!STATE.isFading && els.player.volume >= 0 && els.player.volume <= 1) {
+             STATE.targetVolume = els.player.volume;
+         }
+      });
+       // Ενεργοποίηση Αισθητήρων (Μαγνήτης & Parallax)
+      JukeboxManager.setupSensors();
+      // Εκκίνηση "Next-Gen" Λειτουργιών
+      JukeboxManager.setupPulse();
+      JukeboxManager.setupPiP();
+      // Ενεργοποίηση Swipe (Tinder-Style)
+      JukeboxManager.setupSwipeSupport();
+    },
+
+    playTrack: (button, url, name) => {
+      if (navigator.vibrate) navigator.vibrate(15); 
+      const els = JukeboxManager.dom;
+      
+      if (button && button.classList.contains('track-active')) {
+          if (els.player.paused) {
+             if (els.player.ended) els.player.currentTime = 0;
+             els.player.play().then(() => {
+                 JukeboxManager.fadeAudio(STATE.targetVolume, 600);
+             }).catch(()=>{});
+          } else {
+             // ΔΙΟΡΘΩΣΗ: Αν παίζει ήδη, κάνουμε Παύση
+             els.player.pause();
+             STATE.isFading = false;
+          }
+          return; 
+      }
+      
+      const executeChange = () => {
+        els.player.pause();
+        
+        // ΔΙΟΡΘΩΣΗ (iOS): Το src μπαίνει απευθείας στο audio, OXI στο <source>!
+        els.player.src = url;
+        els.player.load();
+
+        if (els.textTarget) els.textTarget.innerHTML = name;
+        if (els.visualizer) els.visualizer.classList.add(CONFIG.visualizerClass);
+        if (typeof JukeboxManager.setupMediaSession === 'function') JukeboxManager.setupMediaSession(name);
+
+        clearInterval(STATE.fadeInterval);
+        STATE.isFading = true; 
+        
+        // ΔΙΟΡΘΩΣΗ (Race Condition): Ταυτότητα στην τρέχουσα εντολή
+        STATE.playToken++;
+        const currentToken = STATE.playToken;
+
+        try { 
+            els.player.volume = 0; 
+            els.player.muted = false; // ΔΙΟΡΘΩΣΗ: Απεγκλωβισμός από το Mute!
+        } catch(e) {}
+        
+        els.player.play().then(() => {
+          if (currentToken !== STATE.playToken) return; // Ακύρωση αν πατήθηκε άλλο ενδιάμεσα
+          JukeboxManager.fadeAudio(STATE.targetVolume, 600); 
+        }).catch(err => {
+          if (currentToken !== STATE.playToken) return; // ΜΗΝ ξεκλειδώνεις αν ανήκει σε παλιό κλικ!
+
+          if (err.name === 'AbortError') {
+              STATE.isFading = false; 
+              return;
+          }
+
+          console.warn("Η αυτόματη αναπαραγωγή μπλοκαρίστηκε.");
+          if (els.visualizer) els.visualizer.classList.remove(CONFIG.visualizerClass);
+          try { els.player.volume = STATE.targetVolume; } catch(e) {}
+          STATE.isFading = false;
+        });
+        
+        document.querySelectorAll('.playlist-btn, .extra-track-btn').forEach(btn => btn.classList.remove('track-active'));
+        if (button) button.classList.add('track-active');
+      };
+
+      executeChange();
+    },
+
+  handleTrackEnd: () => {
+      const els = JukeboxManager.dom;
+
+      if (STATE.loopModeIndex === 1) {
+        // Λειτουργία 1: "Όλη η λίστα" - Πάμε στο επόμενο
+        JukeboxManager.playNextOrPrev(1);
+      } else if (STATE.loopModeIndex === 0) {
+        // ΝΕΟ: Λειτουργία 0 "Κλειστή" - Το τραγούδι τελείωσε. Το 'pause' δεν πυροδοτείται, άρα κλείνουμε το Visualizer χειροκίνητα!
+        if (els.visualizer) els.visualizer.classList.remove(CONFIG.visualizerClass);
+      }
+    },
+
+   handleGlobalClick: (e) => {
+      const els = JukeboxManager.dom;
+      
+      // Στοχεύουμε ΑΥΣΤΗΡΑ μόνο τα στοιχεία του Jukebox για να μην σπάσουμε το υπόλοιπο site
+      const trackBtn = e.target.closest('.playlist-btn[data-url], .extra-track-btn[data-url]');
+      if (trackBtn) {
+        const url = trackBtn.dataset.url;
+        const name = trackBtn.dataset.name;
+        if (url && name) JukeboxManager.playTrack(trackBtn, url, name);
+        return; 
+      }
+
+      if (els.wrapper && els.wrapper.classList.contains('open')) {
+         if (!els.wrapper.contains(e.target) && (!els.moreBtn || !els.moreBtn.contains(e.target))) {
+           els.wrapper.classList.remove('open');
+         }
+      }
+    }
+  };
+
+  // Bulletproof Φόρτωση
+  if (document.readyState === "loading") {
+      document.addEventListener('DOMContentLoaded', JukeboxManager.init);
+  } else {
+      JukeboxManager.init();
+  }
+
+})();
