@@ -1,0 +1,859 @@
+(() => {
+    "use strict";
+
+   const CONFIG = Object.freeze({
+       feedUrl: 'https://dimperist.blogspot.com/feeds/posts/summary?alt=json&max-results=500',
+       quotesJsonUrl: 'https://cdn.jsdelivr.net/gh/valantish-sys/pieria-map@main/hmeroquotes1.json',
+       tooltipDelay: 200 
+    });
+
+  const Utils = {
+        cleanTitle: (rawStr) => {
+            if (!rawStr) return 'Χωρίς τίτλο';
+            return rawStr.replace(/&laquo;|&#171;|\u00C2\u00AB|\u00A4\u00C3/g, '«').replace(/&raquo;|&#187;|\u00C2\u00BB|\u00A5\u00C3/g, '»').replace(/&ldquo;|&rdquo;|&#8220;|&#8221;|&quot;/g, '"').replace(/&lsquo;|&rsquo;|&#8216;|&#8217;|&#39;/g, "'").replace(/&#183;|&middot;/g, '·').replace(/&ndash;|&#8211;/g, '-').replace(/&mdash;|&#8212;/g, '—').replace(/&amp;/g, '&').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&nbsp;/g, ' ').trim();
+        },
+        getQuote: () => {
+            if (!DataEngine.quotesArray || DataEngine.quotesArray.length === 0) return "Μια υπέροχη μέρα σε περιμένει!";
+            let used = [];
+            try { used = JSON.parse(localStorage.getItem('usedQuotes')) || []; } catch(e) {}
+            if (!Array.isArray(used)) used = [];
+            if (used.length >= DataEngine.quotesArray.length) used = [];
+            const usedSet = new Set(used);
+            const available = [];
+            for (let i = 0; i < DataEngine.quotesArray.length; i++) {
+                if (!usedSet.has(i)) available.push(i);
+            }
+            if (available.length === 0) {
+                used = [];
+                for (let i = 0; i < DataEngine.quotesArray.length; i++) available.push(i);
+            }
+            const randomIndex = available[Math.floor(Math.random() * available.length)];
+            used.push(randomIndex);
+            try { localStorage.setItem('usedQuotes', JSON.stringify(used)); } catch(e) {}
+            return DataEngine.quotesArray[randomIndex];
+        },
+        getTodayStr: () => {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        },
+
+        // ==========================================
+        // 1. Υπολογισμός Ορθόδοξου Πάσχα
+        // ==========================================
+        getOrthodoxEaster: (year) => {
+            const a = year % 4;
+            const b = year % 7;
+            const c = year % 19;
+            const d = (19 * c + 15) % 30;
+            const e = (2 * a + 4 * b - d + 34) % 7;
+            const month = Math.floor((d + e + 114) / 31);
+            const day = ((d + e + 114) % 31) + 1;
+            const easter = new Date(year, month - 1, day);
+            easter.setDate(easter.getDate() + 13); // Μετατροπή στο νέο ημερολόγιο (+13 ημέρες)
+            return easter;
+        },
+
+        // ==========================================
+        // 2. Έλεγχος Σχολικής Αργίας / Κλειστού Σχολείου
+        // ==========================================
+        getHolidayInfo: (date) => {
+            const y = date.getFullYear();
+            const m = date.getMonth() + 1; // 1-12
+            const d = date.getDate();
+            const dayOfWeek = date.getDay(); // 0 = Κυριακή, 6 = Σάββατο
+
+          
+            if (dayOfWeek === 0 || dayOfWeek === 6) return 'Σαββατοκύριακο';
+
+           
+            if ((m === 6 && d >= 16) || m === 7 || m === 8 || (m === 9 && d <= 10)) return 'Καλοκαιρινές Διακοπές';
+
+          
+          // --- Βοηθητική συνάρτηση: Υπολογίζει αν πέφτει Σ/Κ και επιστρέφει την Παρασκευή ---
+            const getCelebDay = (month, targetDay) => {
+                const wd = new Date(y, month - 1, targetDay).getDay();
+                if (wd === 6) return targetDay - 1; // Αν Σάββατο, πάει Παρασκευή (-1 μέρα)
+                if (wd === 0) return targetDay - 2; // Αν Κυριακή, πάει Παρασκευή (-2 μέρες)
+                return targetDay; // Αλλιώς (Καθημερινή) μένει στην κανονική της μέρα!
+            };
+
+            // 1. Σταθερές Εθνικές Εορτές & Αργίες
+            if (m === 10 && d === 28) return '28η Οκτωβρίου (Εθνική Εορτή)';
+            if (m === 12 && d === 18) return 'Εορτασμός Αγίου Μοδέστου';
+            if (m === 3 && d === 25) return '25η Μαρτίου (Εθνική Εορτή)';
+            if (m === 5 && d === 1)  return 'Εργατική Πρωτομαγιά';
+
+            // 2. Σχολικές Γιορτές (Μεταφέρονται αυτόματα στην Παρασκευή αν πέσουν Σ/Κ)
+            if (m === 3 && d === getCelebDay(3, 24)) return 'Σχολική Γιορτή 25ης Μαρτίου';
+            if (m === 10 && d === getCelebDay(10, 27)) return 'Σχολική Γιορτή 28ης Οκτωβρίου';
+            if (m === 11 && d === getCelebDay(11, 17)) return '17η Νοεμβρίου (Σχολική Γιορτή)';
+            
+       
+            if ((m === 12 && d >= 24) || (m === 1 && d <= 7)) return 'Διακοπές Χριστουγέννων';
+
+            const easter = Utils.getOrthodoxEaster(y);
+ 
+            const utcDate = Date.UTC(y, m - 1, d);
+            const utcEaster = Date.UTC(easter.getFullYear(), easter.getMonth(), easter.getDate());
+            const daysDiff = Math.round((utcDate - utcEaster) / (1000 * 60 * 60 * 24));
+
+            if (daysDiff === -48) return 'Καθαρά Δευτέρα';
+            if (daysDiff === 50) return 'Αγίου Πνεύματος';
+        
+            if (daysDiff >= -8 && daysDiff <= 7) return 'Διακοπές Πάσχα';
+
+            return null; 
+        }
+    };
+
+    const DataEngine = {
+        postsByDate: {},
+      quotesArray: [],
+       fetchData: async () => {
+            let startIndex = 1;
+            const maxResults = 150; 
+            let hasMore = true;
+            
+            let baseUrl = CONFIG.feedUrl.split('?')[0].replace('/default', '/summary');
+
+            while (hasMore) {
+                try {
+                    const currentUrl = `${baseUrl}?alt=json&max-results=${maxResults}&start-index=${startIndex}`;
+                    const response = await fetch(currentUrl);
+                    const data = await response.json();
+
+                    if (data.feed?.entry && data.feed.entry.length > 0) {
+                        data.feed.entry.forEach(post => {
+                           const dateStr = post.published.$t.split('T')[0];
+                  
+                            const linkObj = post.link?.find(l => l.rel === 'alternate');
+                            
+                            let thumbUrl = null;
+                            if (post.media$thumbnail && post.media$thumbnail.url) {
+                                thumbUrl = post.media$thumbnail.url.replace(/\/s[0-9]+(\-c)?\//, '/s150-c/');
+                            }
+
+                            if (!DataEngine.postsByDate[dateStr]) DataEngine.postsByDate[dateStr] = [];
+                            DataEngine.postsByDate[dateStr].push({
+                                title: Utils.cleanTitle(post.title?.$t),
+                                url: linkObj ? linkObj.href : '#',
+                                thumbnail: thumbUrl
+                            });
+                        });
+                        
+                        startIndex += data.feed.entry.length;
+                        
+                     const totalResults = parseInt(data.feed.openSearch$totalResults?.$t || 0, 10);
+       
+                        if (startIndex > totalResults) {
+                            hasMore = false;
+                        }
+                    } else {
+                        hasMore = false; 
+                    }
+                } catch (e) {
+                    console.warn("Σφάλμα φόρτωσης:", e);
+                    hasMore = false;
+                }
+            }
+        },
+      fetchQuotes: async () => {
+            try {
+                const response = await fetch(CONFIG.quotesJsonUrl);
+                const data = await response.json();
+                DataEngine.quotesArray = data.quotes || [];
+            } catch (e) {
+                console.warn("Το JSON με τα αποφθέγματα δεν φόρτωσε.");
+                DataEngine.quotesArray = [];
+            }
+        }
+    };
+
+    // =========================================================
+    // Έξυπνη Μηχανή (Κοινό Tooltip UI)
+    // =========================================================
+    const UIEngine = {
+        overlay: null,
+        tooltip: null,
+        hideTimeout: null,
+        fadeTimeout: null,
+        isModalActive: false,
+        currentHoveredFrame: null,
+
+      init: () => {
+   
+            const oldOverlay = document.getElementById('calendar-overlay');
+            const oldTooltip = document.getElementById('calendar-tooltip');
+            if (oldOverlay) oldOverlay.remove();
+            if (oldTooltip) oldTooltip.remove();
+            
+            UIEngine.overlay = document.createElement('div');
+            UIEngine.overlay.id = 'calendar-overlay';
+            UIEngine.overlay.className = 'calendar-overlay-class';
+            
+          UIEngine.overlay.addEventListener('touchmove', (e) => {
+            
+                if (UIEngine.isModalActive) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            document.body.appendChild(UIEngine.overlay);
+
+            UIEngine.tooltip = document.createElement('div');
+            UIEngine.tooltip.id = 'calendar-tooltip';
+            UIEngine.tooltip.className = 'calendar-tooltip-class';
+            document.body.appendChild(UIEngine.tooltip);
+
+            ['click', 'touchstart'].forEach(evt => {
+                UIEngine.overlay.addEventListener(evt, (e) => {
+                    UIEngine.closeTooltip();
+                }, { passive: true });
+            });
+            
+            UIEngine.tooltip.addEventListener('mouseenter', () => clearTimeout(UIEngine.hideTimeout));
+            UIEngine.tooltip.addEventListener('mouseleave', () => { 
+                if (UIEngine.isModalActive) return;
+                UIEngine.hideTimeout = setTimeout(UIEngine.closeTooltip, CONFIG.tooltipDelay);
+            });
+
+            if (window.calKeydownFn) document.removeEventListener('keydown', window.calKeydownFn);
+            if (window.calResizeFn) window.removeEventListener('resize', window.calResizeFn);
+            if (window.calPageshowFn) window.removeEventListener('pageshow', window.calPageshowFn);
+
+            window.calKeydownFn = (e) => {
+                if (e.key === 'Escape' && UIEngine.isModalActive) UIEngine.closeTooltip();
+            };
+            document.addEventListener('keydown', window.calKeydownFn);
+
+            window.calResizeFn = () => {
+                if (UIEngine.tooltip && UIEngine.tooltip.style.opacity === '1') UIEngine.closeTooltip();
+            };
+            window.addEventListener('resize', window.calResizeFn, { passive: true });
+
+            window.calPageshowFn = (e) => {
+                if (e.persisted && UIEngine.isModalActive) UIEngine.closeTooltip();
+            };
+            window.addEventListener('pageshow', window.calPageshowFn);
+        },
+
+        showTooltip: (cellFrame, posts, isModal, isPC) => {
+            UIEngine.isModalActive = isModal;
+            clearTimeout(UIEngine.hideTimeout);
+            clearTimeout(UIEngine.fadeTimeout); 
+            UIEngine.tooltip.innerHTML = '';
+            
+        const listContainer = document.createElement('div');
+        
+            listContainer.style.cssText = 'display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; padding: 5px; overscroll-behavior: contain;';
+
+           posts.forEach(p => {
+                let a = document.createElement('a');
+                a.href = p.url;
+                a.className = 'tooltip-title-link';
+     
+                const isQuote = (p.url === 'javascript:void(0);');
+                const pointerCSS = isQuote ? 'pointer-events: none;' : '';
+                
+                a.style.cssText = `display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.02); color: #333; transition: background 0.2s, transform 0.2s; ${pointerCSS}`;
+                
+                if (isPC && !isQuote) { 
+                    a.onmouseover = function() { 
+                        this.style.background = 'rgba(0,0,0,0.06)'; 
+                        this.style.transform = 'translateY(-2px)'; 
+                    };
+                    a.onmouseout = function() { 
+                        this.style.background = 'rgba(0,0,0,0.02)'; 
+                        this.style.transform = 'translateY(0)';
+                    };
+                }
+
+                let iconHtml = '';
+                if (p.thumbnail) {
+                    iconHtml = `<img src="${p.thumbnail}" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">`;
+                } else if (p.url === 'javascript:void(0);') {
+                    iconHtml = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: #fff3cd; border-radius: 8px; font-size: 24px; flex-shrink: 0;">✨</div>`;
+                } else {
+                    iconHtml = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: #e9ecef; border-radius: 8px; font-size: 20px; flex-shrink: 0;">📝</div>`;
+                }
+
+                a.innerHTML = `${iconHtml}<span style="font-size: 14px; font-weight: 600; line-height: 1.3;">${p.title}</span>`;
+                listContainer.appendChild(a);
+            });
+
+            UIEngine.tooltip.appendChild(listContainer);
+            UIEngine.tooltip.style.display = 'block';
+            UIEngine.tooltip.style.visibility = 'hidden';
+
+            const tooltipStyle = isPC 
+                ? `width: 320px; background: #fff; border-radius: 12px; padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);` 
+                : `width: 90vw; max-width: 320px; background: #fff; border-radius: 12px; padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);`;
+
+            if (isModal || !isPC) {
+                UIEngine.overlay.style.display = 'block';
+                UIEngine.tooltip.style.cssText = `display: block; visibility: visible; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); opacity: 0; z-index: 10000; ${tooltipStyle}`;
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    UIEngine.overlay.style.opacity = '1';
+                    UIEngine.tooltip.style.opacity = '1';
+                    UIEngine.tooltip.style.transform = 'translate(-50%, -50%) scale(1)';
+                }));
+           } else {
+               UIEngine.overlay.style.display = 'none'; 
+                UIEngine.tooltip.style.cssText = `display: block; visibility: hidden; position: absolute; z-index: 9999; ${tooltipStyle}`;
+                const rect = cellFrame.getBoundingClientRect();
+                
+                let topPos = rect.top + window.scrollY - UIEngine.tooltip.offsetHeight + 10;
+                let leftPos = rect.left + window.scrollX + (rect.width / 2) - (UIEngine.tooltip.offsetWidth / 2);
+       
+                const maxLeft = document.body.clientWidth - UIEngine.tooltip.offsetWidth - 10;
+                if (leftPos > maxLeft) leftPos = maxLeft;
+                if (leftPos < 10) leftPos = 10; 
+                
+                if (topPos < window.scrollY + 10) topPos = rect.bottom + window.scrollY + 10; // Αν κόβεται πάνω
+       
+                const maxTop = window.scrollY + window.innerHeight - UIEngine.tooltip.offsetHeight - 10;
+                if (topPos > maxTop) topPos = maxTop;
+                
+                UIEngine.tooltip.style.cssText = `display: block; visibility: visible; position: absolute; transform: none; opacity: 0; z-index: 9999; top: ${topPos}px; left: ${leftPos}px; ${tooltipStyle}`;
+       
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    UIEngine.tooltip.style.opacity = '1';
+                }));
+            }
+        },
+
+        closeTooltip: () => {
+            UIEngine.isModalActive = false;
+            UIEngine.currentHoveredFrame = null;
+            if(!UIEngine.overlay || !UIEngine.tooltip) return;
+            
+           UIEngine.overlay.style.opacity = '0';
+            UIEngine.tooltip.style.opacity = '0';
+            
+            clearTimeout(UIEngine.fadeTimeout); 
+            UIEngine.fadeTimeout = setTimeout(() => {
+                UIEngine.overlay.style.display = 'none';
+                UIEngine.tooltip.style.display = 'none';
+            }, 300);
+        }
+    };
+
+    // ==========================================
+    // 4. ΕΡΓΟΣΤΑΣΙΟ ΗΜΕΡΟΛΟΓΙΩΝ (Factory Pattern)
+    // ==========================================
+
+    const CalendarWidget = (suffix) => {
+        const isPC = suffix === '';
+        
+        const self = {
+            isTouchMode: false,
+            calendar: null,
+            isYearView: false,
+            currentYearView: new Date().getFullYear(),
+            isSpinning: false,
+            isAnimating: false,
+            els: {
+                calendarEl: document.getElementById(`calendar${suffix}`),
+                container: document.getElementById(`calendar-container${suffix}`),
+                monthLabel: document.getElementById(`monthLabel${suffix}`),
+                prevBtn: document.getElementById(`prevBtn${suffix}`),
+                nextBtn: document.getElementById(`nextBtn${suffix}`),
+                yearOverlay: null,
+                diceBtn: null,
+                todayBtn: null
+            },
+
+            init: () => {
+                if (!self.els.calendarEl) return false;
+           
+                self.els.diceBtn = document.createElement('button');
+                self.els.diceBtn.innerHTML = '🎲';
+                self.els.diceBtn.className = 'advanced-btn dice-btn';
+                self.els.diceBtn.title = 'Τυχαίο Άρθρο (Ρουλέτα)';
+
+                self.els.todayBtn = document.createElement('button');
+                self.els.todayBtn.innerHTML = '↺ Σήμερα';
+                self.els.todayBtn.className = 'advanced-btn today-anchor-btn';
+
+                self.els.monthLabel.classList.add('month-zoom-label');
+                if (isPC) self.els.monthLabel.title = 'Προβολή Έτους';
+
+                const titleWrapper = document.createElement('div');
+                titleWrapper.style.cssText = 'display: flex; align-items: center; justify-content: center;';
+                self.els.monthLabel.parentNode.insertBefore(titleWrapper, self.els.monthLabel);
+                titleWrapper.appendChild(self.els.monthLabel);
+                titleWrapper.appendChild(self.els.diceBtn);
+
+                self.els.container.style.position = 'relative';
+                self.els.container.appendChild(self.els.todayBtn);
+
+             self.els.yearOverlay = document.createElement('div');
+           
+                self.els.yearOverlay.id = 'year-view-overlay'; 
+                self.els.container.appendChild(self.els.yearOverlay);
+              
+
+       
+                const todayStr = Utils.getTodayStr();
+                self.calendar = new window.FullCalendar.Calendar(self.els.calendarEl, {
+                    locale: 'el', 
+                    initialView: 'dayGridMonth',
+                    headerToolbar: false,
+                    height: '100%',
+                    contentHeight: '100%',
+                    displayEventTime: false,
+                events: [], 
+                    
+                    // 1. ΠΡΟΣΘΗΚΗ: Το σωστό hook του FullCalendar για CSS classes στα κελιά
+                    dayCellClassNames: (info) => {
+                        const classes = [];
+                        if (Utils.getHolidayInfo(info.date)) {
+                            classes.push('school-holiday-cell');
+                        }
+                        return classes;
+                    },
+
+                    datesSet: (info) => {
+                        if (!self.els.monthLabel || self.isYearView) return; 
+             
+                        const monthsGR = ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος", "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"];
+                        const mStr = monthsGR[info.view.currentStart.getMonth()];
+                        const yStr = info.view.currentStart.getFullYear();
+                        self.els.monthLabel.textContent = mStr + ' ' + yStr;
+                        self.updateTimeAnchor(info.view.currentStart);
+                    },
+                    
+                  dayCellDidMount: (info) => {
+                        const cellDateStr = info.el.dataset.date; 
+                        const frame = info.el.querySelector('.fc-daygrid-day-frame');
+                        if (!frame) return;
+                        frame.style.position = 'relative'; 
+
+                        const holidayName = Utils.getHolidayInfo(info.date);
+                        
+                        // 2. ΔΙΟΡΘΩΣΗ: Αφήνουμε ΜΟΝΟ το tooltip/title εδώ, διαγράψαμε το info.el.classList
+                        if (holidayName) {
+                            frame.title = holidayName; 
+                        } else {
+                            frame.removeAttribute('title');
+                        }
+                    
+                        frame.classList.remove('has-posts');
+
+                        const oldDot = frame.querySelector('.post-dot');
+                        if (oldDot) oldDot.remove();
+                        const oldEmoji = frame.querySelector('.day-indicator-emoji');
+                        if (oldEmoji) oldEmoji.remove();
+
+                        if (DataEngine.postsByDate[cellDateStr]) {
+                            frame.classList.add('has-posts');
+                            if (!frame.querySelector('.post-dot')) {
+                                let dot = document.createElement('div');
+                                dot.className = 'post-dot';
+                                dot.style.pointerEvents = 'none'; 
+                                frame.appendChild(dot);
+                            }
+                       } else {
+                     
+                            const realToday = Utils.getTodayStr(); 
+                            if (cellDateStr <= realToday) {
+                                if (!frame.querySelector('.day-indicator-emoji')) {
+                                    let indicator = document.createElement('div');
+                                    indicator.className = 'day-indicator-emoji';
+                                    indicator.innerHTML = (cellDateStr < realToday) ? '💤' : '✨'; 
+                                    indicator.style.cssText = 'position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); opacity: 0.25; font-size: 20px; pointer-events: none;';
+                                    frame.appendChild(indicator);
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                self.calendar.render();
+                self.setupEvents();
+                return true;
+            },
+
+            updateTimeAnchor: (date) => {
+                const now = new Date();
+                const isCurrentMonth = (date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear());
+                if (!isCurrentMonth && !self.isYearView) self.els.todayBtn.classList.add('visible');
+                else self.els.todayBtn.classList.remove('visible');
+            },
+
+           toggleYearView: () => {
+                if (self.isSpinning) return;
+                self.isYearView = !self.isYearView;
+         
+                if (self.isYearView) UIEngine.closeTooltip();
+
+                if (self.isYearView) {
+                    self.currentYearView = self.calendar.getDate().getFullYear();
+                    self.renderYearView(self.currentYearView);
+                    self.els.yearOverlay.classList.add('active');
+                    self.els.todayBtn.classList.remove('visible');
+                } else {
+                    self.els.yearOverlay.classList.remove('active');
+                  const d = self.calendar.getDate();
+                    const monthsGR = ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος", "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"];
+                    self.els.monthLabel.textContent = monthsGR[d.getMonth()] + ' ' + d.getFullYear();
+                    self.updateTimeAnchor(d);
+                }
+            },
+
+            renderYearView: (year) => {
+                self.currentYearView = year;
+                self.els.monthLabel.textContent = `Έτος ${year}`;
+                
+                let html = `
+                    <div class="year-header">
+                        <button id="prevYearBtn${suffix}" class="year-nav-btn">&#10094;</button>
+                        <span>${year}</span>
+                        <button id="nextYearBtn${suffix}" class="year-nav-btn">&#10095;</button>
+                    </div>
+                    <div class="year-grid">
+                `;
+                const months = ["Ιαν", "Φεβ", "Μαρ", "Απρ", "Μαι", "Ιουν", "Ιουλ", "Αυγ", "Σεπ", "Οκτ", "Νοε", "Δεκ"];
+                let maxPosts = 1;
+                const postCounts = new Array(12).fill(0);
+                
+                Object.keys(DataEngine.postsByDate).forEach(d => {
+                    if (d.startsWith(year.toString())) {
+                        const m = parseInt(d.split('-')[1]) - 1;
+                        postCounts[m] += DataEngine.postsByDate[d].length;
+                        if (postCounts[m] > maxPosts) maxPosts = postCounts[m];
+                    }
+                });
+
+                months.forEach((name, index) => {
+                    const count = postCounts[index];
+                    let intensityClass = '';
+                    if (count > 0) {
+                        const ratio = count / maxPosts;
+                        if (ratio > 0.6) intensityClass = 'high';
+                        else if (ratio > 0.2) intensityClass = 'med';
+                    }
+                    html += `<div class="year-month-box ${count > 0 ? 'has-data ' + intensityClass : ''}" data-month="${index}">
+                                <span class="ym-name">${name}</span>
+                                ${count > 0 ? `<span class="ym-count">${count} άρθρ.</span>` : ''}
+                             </div>`;
+                });
+                html += `</div>`;
+                self.els.yearOverlay.innerHTML = html;
+
+                document.getElementById(`prevYearBtn${suffix}`).addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    if (!isPC && navigator.vibrate) navigator.vibrate(10);
+                    self.renderYearView(year - 1);
+                });
+                document.getElementById(`nextYearBtn${suffix}`).addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    if (!isPC && navigator.vibrate) navigator.vibrate(10);
+                    self.renderYearView(year + 1);
+                });
+
+                self.els.yearOverlay.querySelectorAll('.year-month-box').forEach(box => {
+                    box.addEventListener('click', () => {
+                        if (!isPC && navigator.vibrate) navigator.vibrate(15);
+                        const m = box.dataset.month;
+                        self.calendar.gotoDate(new Date(year, m, 1));
+                        self.toggleYearView();
+                    });
+                });
+            },
+
+          playRoulette: () => {
+                if (self.isSpinning || self.isAnimating) return; 
+                const dates = Object.keys(DataEngine.postsByDate);
+                if (dates.length === 0) return;
+                
+                if (self.isYearView) self.toggleYearView();
+
+                self.isSpinning = true;
+                self.els.diceBtn.classList.add('spinning');
+                self.els.calendarEl.classList.add('roulette-blur');
+
+              const targetDateStr = dates[Math.floor(Math.random() * dates.length)];
+       
+                const [ty, tm, td] = targetDateStr.split('-');
+                const targetDate = new Date(ty, tm - 1, td);
+
+               let spins = 0;
+                const maxSpins = 10;
+                const monthNames = ["Ιανουάριος", "Φεβρουάριος", "Μάρτιος", "Απρίλιος", "Μάιος", "Ιούνιος", "Ιούλιος", "Αύγουστος", "Σεπτέμβριος", "Οκτώβριος", "Νοέμβριος", "Δεκέμβριος"];
+                
+                const spinInterval = setInterval(() => {
+                    spins++;
+                    const randomYear = targetDate.getFullYear() - Math.floor(Math.random() * 3);
+                    const randomMonth = Math.floor(Math.random() * 12);
+        
+                    if (self.els.monthLabel) self.els.monthLabel.textContent = `${monthNames[randomMonth]} ${randomYear}`;
+                    
+                    if (!isPC && navigator.vibrate) navigator.vibrate(5); 
+
+                    if (spins >= maxSpins) {
+                        clearInterval(spinInterval);
+                        self.calendar.gotoDate(targetDate); 
+                       self.els.calendarEl.classList.remove('roulette-blur');
+                        self.els.diceBtn.classList.remove('spinning');
+              
+                        if (self.els.monthLabel) {
+                            const finalDate = self.calendar.getDate();
+                            self.els.monthLabel.textContent = `${monthNames[finalDate.getMonth()]} ${finalDate.getFullYear()}`;
+                        }
+                        
+                        if (!isPC && navigator.vibrate) navigator.vibrate([20, 40, 20]);
+                        
+                      setTimeout(() => {
+                            self.isSpinning = false;
+                            const cell = self.els.calendarEl.querySelector(`.fc-day[data-date="${targetDateStr}"] .fc-daygrid-day-frame`);
+                 
+                            UIEngine.showTooltip(cell || document.body, DataEngine.postsByDate[targetDateStr], true, isPC);
+                        }, 400);
+                    }
+                }, 120);
+            },
+
+            changeMonthAnimated: (direction) => {
+                if (self.isAnimating || !self.els.calendarEl || self.isSpinning) return;
+
+                if (!isPC && navigator.vibrate) navigator.vibrate(10);
+
+                if (self.isYearView) {
+                    const newYear = self.currentYearView + (direction === 'next' ? 1 : -1);
+                    self.renderYearView(newYear);
+                    return;
+                }
+
+                self.isAnimating = true;
+                const outClass = direction === 'next' ? 'cal-out-left' : 'cal-out-right';
+                const inClass = direction === 'next' ? 'cal-in-right' : 'cal-in-left';
+
+                self.els.calendarEl.classList.add(outClass);
+
+                setTimeout(() => {
+                    if (direction === 'next') self.calendar.next();
+                    else self.calendar.prev();
+                    
+                    self.els.calendarEl.classList.remove(outClass);
+                    self.els.calendarEl.classList.add(inClass);
+
+                    setTimeout(() => {
+                        self.els.calendarEl.classList.remove(inClass);
+                        self.isAnimating = false;
+                    }, 200);
+                }, 150); 
+            },
+
+            setupEvents: () => {
+            
+                self.els.diceBtn.addEventListener('click', () => {
+                    if (!isPC && navigator.vibrate) navigator.vibrate(15);
+                    self.playRoulette();
+                });
+              self.els.monthLabel.addEventListener('click', () => {
+                 
+                    if (!self.isSpinning && !self.isAnimating) {
+                        if (!isPC && navigator.vibrate) navigator.vibrate(10);
+                        self.toggleYearView();
+                    }
+                });
+                self.els.todayBtn.addEventListener('click', () => {
+                    if (self.isSpinning || self.isAnimating) return; 
+                    if (!isPC && navigator.vibrate) navigator.vibrate(15);
+                    self.calendar.today();
+                    if (self.isYearView) self.toggleYearView();
+                });
+                if (self.els.prevBtn) self.els.prevBtn.addEventListener('click', () => self.changeMonthAnimated('prev'));
+                if (self.els.nextBtn) self.els.nextBtn.addEventListener('click', () => self.changeMonthAnimated('next'));
+
+           let touchstartX = 0, startY = 0, isSwiping = false, swipeTimeout = null; 
+                self.els.container.addEventListener('touchstart', (e) => {
+                    self.isTouchMode = true; 
+                    isSwiping = false; 
+                    touchstartX = e.changedTouches[0].screenX;
+                    startY = e.changedTouches[0].screenY;
+                }, { passive: true });
+
+                self.els.container.addEventListener('touchend', (e) => {
+                    const diffX = e.changedTouches[0].screenX - touchstartX;
+                    const diffY = e.changedTouches[0].screenY - startY;
+
+         
+                    if (Math.abs(diffX) > 10 || Math.abs(diffY) > 10) {
+                        isSwiping = true;
+                        clearTimeout(swipeTimeout); 
+                        swipeTimeout = setTimeout(() => isSwiping = false, 350); 
+                    }
+
+                    if (UIEngine.isModalActive || self.isYearView) return;
+
+                    if (self.isSpinning || self.isAnimating || UIEngine.isModalActive) return; 
+
+                    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+                        if (diffX < -40) self.changeMonthAnimated('next');
+                        else if (diffX > 40) self.changeMonthAnimated('prev');
+                    }
+                }, { passive: true });
+
+             const handleCellInteraction = (frame, type, e = null) => {
+                    if (self.isSpinning || self.isYearView) return;
+                    const cell = frame.closest('.fc-daygrid-day');
+                    if (!cell) return;
+                    const dateStr = cell.dataset.date;
+                   const todayStr = Utils.getTodayStr();
+                    const posts = DataEngine.postsByDate[dateStr];
+
+                    if (!posts && dateStr > todayStr) {
+                    
+                        if (type === 'hover') UIEngine.closeTooltip();
+                        return;
+                    }
+
+                    let content = posts;
+                    if (!posts) {
+             
+                        if (!DataEngine.quotesByDate) DataEngine.quotesByDate = {};
+                        if (!DataEngine.quotesByDate[dateStr]) DataEngine.quotesByDate[dateStr] = Utils.getQuote();
+                        
+                        content = [{ title: DataEngine.quotesByDate[dateStr], url: 'javascript:void(0);' }];
+                    }
+
+                    if (type === 'click') {
+                        if (!isPC && navigator.vibrate) navigator.vibrate(10);
+                   
+                       if (posts && posts.length === 1 && !self.isTouchMode && isPC) {
+        
+                            if (e && (e.ctrlKey || e.metaKey)) {
+                                window.open(posts[0].url, '_blank');
+                            } else {
+                                window.open(posts[0].url, '_self'); 
+                            }
+                        } else {
+                            UIEngine.showTooltip(frame, content, true, isPC);
+                        }
+                    } else if (type === 'hover' && isPC) {
+                        UIEngine.showTooltip(frame, content, false, isPC);
+                    }
+                };
+
+             self.els.container.addEventListener('click', (e) => {
+                    if (isSwiping) { e.preventDefault(); return; } 
+                    const frame = e.target.closest('.fc-daygrid-day-frame');
+       
+                    if (frame) { e.preventDefault(); handleCellInteraction(frame, 'click', e); } 
+                });
+
+                if (isPC) {
+                   self.els.container.addEventListener('mouseover', (e) => {
+        
+                        if (self.isTouchMode || UIEngine.isModalActive) return; 
+                        const frame = e.target.closest('.fc-daygrid-day-frame');
+                        if (frame) {
+                            clearTimeout(UIEngine.hideTimeout); 
+                            if (frame !== UIEngine.currentHoveredFrame) {
+                                UIEngine.currentHoveredFrame = frame;
+                                handleCellInteraction(frame, 'hover');
+                            }
+                        }
+                    });
+
+                  self.els.container.addEventListener('mouseout', (e) => {
+            
+                        if (self.isTouchMode || UIEngine.isModalActive) return;
+                        const frame = e.target.closest('.fc-daygrid-day-frame');
+                        const toTooltip = UIEngine.tooltip && UIEngine.tooltip.contains(e.relatedTarget);
+                        if (frame && !frame.contains(e.relatedTarget) && !toTooltip) {
+                            UIEngine.hideTimeout = setTimeout(UIEngine.closeTooltip, CONFIG.tooltipDelay);
+                        }
+                    });
+
+                    let activeMagnetDot = null;
+
+                    self.els.container.addEventListener('mousemove', (e) => {
+                        if (Math.abs(e.movementX) > 0 || Math.abs(e.movementY) > 0) self.isTouchMode = false;
+
+                        if (UIEngine.isModalActive || self.isSpinning || self.isYearView || self.isTouchMode) return;
+                        const frame = e.target.closest('.fc-daygrid-day-frame.has-posts');
+                        const dot = frame ? frame.querySelector('.post-dot') : null;
+                  
+                        if (activeMagnetDot && activeMagnetDot !== dot) {
+                            activeMagnetDot.style.transform = ''; activeMagnetDot.style.background = ''; activeMagnetDot.style.boxShadow = '';
+                        }
+                        
+                        activeMagnetDot = dot;
+
+                        if (dot && frame) {
+                            const rect = frame.getBoundingClientRect();
+                            const dx = e.clientX - (rect.left + rect.width / 2);
+                            const dy = e.clientY - (rect.top + rect.height / 2);
+                            dot.style.transform = `translate(${dx * 0.3}px, ${dy * 0.3}px) scale(1.4)`;
+                            dot.style.background = '#4A90E2';
+                            dot.style.boxShadow = '0 0 10px 3px rgba(74, 144, 226, 0.6)';
+                        }
+                    });
+
+                    self.els.container.addEventListener('mouseleave', () => {
+                        if (activeMagnetDot) {
+                            activeMagnetDot.style.transform = ''; activeMagnetDot.style.background = ''; activeMagnetDot.style.boxShadow = '';
+                            activeMagnetDot = null;
+                        }
+                    });
+                }
+            }
+        };
+
+        return self;
+    };
+
+    // ==========================================
+    // 5. ΕΚΚΙΝΗΣΗ (MAIN CONTROLLER)
+    // ==========================================
+  const AppController = {
+       init: () => {
+     
+           UIEngine.init();
+      
+            const suffixes = ['-mobile', ''];
+            const activeWidgets = [];
+
+          suffixes.forEach(suffix => {
+                const container = document.getElementById(`calendar-container${suffix}`);
+                const calEl = document.getElementById(`calendar${suffix}`);
+             
+                if (container && calEl && !calEl.classList.contains('fc')) {
+                    activeWidgets.push(CalendarWidget(suffix));
+                }
+            });
+
+           if (activeWidgets.length === 0) return;
+
+            let attempts = 0; 
+            const waitForCalendar = setInterval(async () => {
+                attempts++;
+                if (window.FullCalendar) {
+                    clearInterval(waitForCalendar);
+                    
+              
+                    if (Object.keys(DataEngine.postsByDate).length === 0) {
+                        await Promise.all([
+                            DataEngine.fetchData(),
+                            DataEngine.fetchQuotes()
+                        ]);
+                    }
+                    
+               
+                   activeWidgets.forEach(widget => widget.init());
+                } else if (attempts > 100) {
+            
+                    clearInterval(waitForCalendar);
+                }
+            }, 100);
+        }
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", AppController.init);
+    } else {
+        AppController.init();
+    }
+})();
