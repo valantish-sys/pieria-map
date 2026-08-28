@@ -402,8 +402,7 @@
                     contentHeight: '100%',
                     displayEventTime: false,
                 events: [], 
-                    
-                    // 1. ΠΡΟΣΘΗΚΗ: Το σωστό hook του FullCalendar για CSS classes στα κελιά
+ 
                     dayCellClassNames: (info) => {
                         const classes = [];
                         if (Utils.getHolidayInfo(info.date)) {
@@ -429,8 +428,7 @@
                         frame.style.position = 'relative'; 
 
                         const holidayName = Utils.getHolidayInfo(info.date);
-                        
-                        // 2. ΔΙΟΡΘΩΣΗ: Αφήνουμε ΜΟΝΟ το tooltip/title εδώ, διαγράψαμε το info.el.classList
+    
                         if (holidayName) {
                             frame.title = holidayName; 
                         } else {
