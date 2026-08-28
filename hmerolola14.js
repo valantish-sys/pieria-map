@@ -35,7 +35,7 @@
         getTodayStr: () => {
             const d = new Date();
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        }, // <--- ΠΡΟΣΟΧΗ: Το κόμμα αυτό είναι σημαντικό!
+        },
 
         // ==========================================
         // 1. Υπολογισμός Ορθόδοξου Πάσχα
@@ -62,36 +62,34 @@
             const d = date.getDate();
             const dayOfWeek = date.getDay(); // 0 = Κυριακή, 6 = Σάββατο
 
-            // 1. Σαββατοκύριακα
+          
             if (dayOfWeek === 0 || dayOfWeek === 6) return 'Σαββατοκύριακο';
 
-            // 2. Καλοκαιρινές Διακοπές (16 Ιουνίου έως 10 Σεπτεμβρίου)
+           
             if ((m === 6 && d >= 16) || m === 7 || m === 8 || (m === 9 && d <= 10)) return 'Καλοκαιρινές Διακοπές';
 
-            // 3. Σταθερές Εορτές & Αργίες (Έβαλα και τον Αγ. Μόδεστο που ζήτησες)
+          
             if (m === 10 && d === 28) return '28η Οκτωβρίου (Εθνική Εορτή)';
             if (m === 11 && d === 17) return '17η Νοεμβρίου (Πολυτεχνείο)';
             if (m === 12 && d === 18) return 'Εορτασμός Αγίου Μοδέστου';
             if (m === 3 && d === 25) return '25η Μαρτίου (Εθνική Εορτή)';
             if (m === 5 && d === 1)  return 'Εργατική Πρωτομαγιά';
             
-            // 4. Διακοπές Χριστουγέννων (24 Δεκ έως 7 Ιανουαρίου)
+       
             if ((m === 12 && d >= 24) || (m === 1 && d <= 7)) return 'Διακοπές Χριστουγέννων';
 
-            // 5. Κινητές Εορτές (Υπολογισμός με βάση το Πάσχα της χρονιάς)
             const easter = Utils.getOrthodoxEaster(y);
-            
-            // Χρησιμοποιούμε UTC Timestamp για να μην υπάρξει ποτέ λάθος με την "Αλλαγή Ώρας"
+ 
             const utcDate = Date.UTC(y, m - 1, d);
             const utcEaster = Date.UTC(easter.getFullYear(), easter.getMonth(), easter.getDate());
             const daysDiff = Math.round((utcDate - utcEaster) / (1000 * 60 * 60 * 24));
 
             if (daysDiff === -48) return 'Καθαρά Δευτέρα';
             if (daysDiff === 50) return 'Αγίου Πνεύματος';
-            // Διακοπές Πάσχα: Από το Σάββατο του Λαζάρου (-8) έως την Κυριακή του Θωμά (+7)
+        
             if (daysDiff >= -8 && daysDiff <= 7) return 'Διακοπές Πάσχα';
 
-            return null; // Δεν ανήκει σε καμία κατηγορία, το σχολείο είναι ανοιχτό!
+            return null; 
         }
     };
 
@@ -406,20 +404,17 @@
                         if (!frame) return;
                         frame.style.position = 'relative'; 
 
-                        // === ΝΕΟ: ΕΛΕΓΧΟΣ ΚΑΙ ΧΡΩΜΑΤΙΣΜΟΣ ΑΡΓΙΩΝ ===
                         const holidayName = Utils.getHolidayInfo(info.date);
                         if (holidayName) {
                             info.el.classList.add('school-holiday-cell'); 
-                            frame.title = holidayName; // Εμφανίζει ταμπελάκι αν αφήσεις το ποντίκι πάνω!
+                            frame.title = holidayName; 
                         } else {
                             info.el.classList.remove('school-holiday-cell'); 
                             frame.removeAttribute('title');
                         }
-                        // =========================================
-
-                        // FIX: Καθαρισμός ανακυκλωμένων DOM από τον προηγούμενο μήνα πριν μπουν τα νέα!
+                    
                         frame.classList.remove('has-posts');
-                        // ...ο υπόλοιπος κώδικάς σου συνεχίζει κανονικά από εδώ και κάτω...
+                    
                         const oldDot = frame.querySelector('.post-dot');
                         if (oldDot) oldDot.remove();
                         const oldEmoji = frame.querySelector('.day-indicator-emoji');
