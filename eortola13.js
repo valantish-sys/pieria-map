@@ -561,7 +561,7 @@ const diffFromEaster = Utils.getDaysDiff(dDate, realEaster);
                                 if (hasSnow) { icon = "⛄"; msg = "Προσοχή για χιόνι! Ντύσου σαν κρεμμύδι 🧅!"; advBorder = "#1e6cff"; advBg = "rgba(30, 108, 255, 0.1)"; } 
                                 else if (hasRain) { icon = "☔"; msg = "Προσοχή για βροχή! Μην ξεχάσεις την ομπρέλα σου!"; advBorder = "#3b82f6"; advBg = "rgba(59, 130, 246, 0.1)"; } 
                                 else if (checkTemp < 7) { icon = "🧣"; msg = "Έχει παγωνιά έξω! Σκούφος και γάντια απαραίτητα!"; advBorder = "#0ea5e9"; advBg = "rgba(14, 165, 233, 0.1)"; } 
-                                else if (checkTemp > 25) { icon = "☀️"; msg = "Ζεστούλα έξω! Μην ξεχάσεις το παγούρι με το νερό σου!"; advBorder = "#f59e0b"; advBg = "rgba(245, 158, 11, 0.1)"; } 
+                                else if (checkTemp > 27) { icon = "☀️"; msg = "Ζεστούλα έξω! Μην ξεχάσεις το παγούρι με το νερό σου!"; advBorder = "#f59e0b"; advBg = "rgba(245, 158, 11, 0.1)"; } 
                                 else { icon = "🌤️"; msg = "Ιδανικός καιρός αυτή τη στιγμή για παιχνίδι!"; advBorder = "#10b981"; advBg = "rgba(16, 185, 129, 0.1)"; }
                            } else {
                                 const tomorrowIndex = (currentHour >= 16) ? baseIndex + 24 : baseIndex;
@@ -576,7 +576,7 @@ const diffFromEaster = Utils.getDaysDiff(dDate, realEaster);
                                 // ΝΕΟ: Έλεγχος αν από τις 8:00 μέχρι τις 15:00 η θερμοκρασία ξεπεράσει τους 25
                                 let willBeHot = false;
                                 for (let h = 8; h <= 15; h++) {
-                                    if (data.hourly.apparent_temperature[tomorrowIndex + h] > 25) {
+                                    if (data.hourly.apparent_temperature[tomorrowIndex + h] > 27) {
                                         willBeHot = true;
                                         break; // Μόλις βρει ότι περνάει τους 25, σταματάει το ψάξιμο
                                     }
