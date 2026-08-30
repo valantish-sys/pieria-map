@@ -9852,7 +9852,7 @@ if (document.readyState === "loading") {
      
                 if (diffDays <= 365) {
             
-                    if (Math.random() > 0.10 && retryCount < 10) {
+                    if (Math.random() > 0.30 && retryCount < 10) {
                         return await MobileDataEngine.fetchPosts(retryCount + 1); // Αθόρυβη νέα κλήρωση!
                     }
                 }
