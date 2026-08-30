@@ -8107,7 +8107,7 @@ if (startIndex + entries.length <= totalResults && entries.length > 0) {
                     if (!entry.category) return false;
                     return entry.category.some(cat => {
                         const term = cat.term.toLowerCase();
-                        return term.includes("δράσ") || term.includes("δρασ"); 
+                        return term.includes("δράσει") || term.includes("δρασει"); 
                     });
                 });
 
