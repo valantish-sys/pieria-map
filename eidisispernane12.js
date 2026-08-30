@@ -1,3 +1,5 @@
+(() => {
+  "use strict";
 // ΛΥΣΗ ΝΕΟ BUG 3 (Μέρος Α): Φτιάχνουμε μια ανεξάρτητη συνάρτηση.
 const startTicker = () => {
   (async function initNewsTicker() {
@@ -151,3 +153,4 @@ if (document.readyState === "loading") {
 } else {
   startTicker();
 }
+})();
