@@ -9813,7 +9813,7 @@ if (document.readyState === "loading") {
 
 ;(() => {
     "use strict";
-
+  // xronokapsoyla
     const CONFIG = Object.freeze({
         labels: ["Δράσεις 14-25"], 
         fallbackImg: "https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=600&q=80"
@@ -9934,7 +9934,7 @@ if (document.readyState === "loading") {
      
                 if (diffDays <= 365) {
             
-                    if (Math.random() > 0.30 && retryCount < 10) {
+                    if (Math.random() > 0.20 && retryCount < 10) {
                         return await MobileDataEngine.fetchPosts(retryCount + 1); // Αθόρυβη νέα κλήρωση!
                     }
                 }
