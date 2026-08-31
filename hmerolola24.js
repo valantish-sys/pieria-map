@@ -65,11 +65,18 @@
 
             // Σταθερές Εορτές 
            if (m === 1 && d === 1) events.push({ icon: '🎆', name: 'Πρωτοχρονιά' });
+            if (m === 1 && d === 6) events.push({ icon: '⛪', name: 'Άγια Θεοφάνια' });
+            if (m === 1 && d === 7) events.push({ icon: '⛪', name: 'Αγίου Ιωάννου Προδρόμου' });
             if (m === 1 && d === 30) events.push({ icon: '📖', name: 'Τριών Ιεραρχών' });
             if (m === 3 && d === 25) events.push({ icon: '🇬🇷', name: '25η Μαρτίου' });
             if (m === 5 && d === 1) events.push({ icon: '🌸', name: 'Εργατική Πρωτομαγιά' });
             if (m === 6 && d === 29) events.push({ icon: '🔑', name: 'Αποστόλων Πέτρου και Παύλου' });
+            if (m === 6 && d === 30) events.push({ icon: '⛪', name: 'Σύναξις Αγίων 12 Αποστόλων' });
             if (m === 7 && d === 1) events.push({ icon: '⚕️', name: 'Αγίων Αναργύρων (Κοσμά & Δαμιανού)' });
+            if (m === 7 && d === 20) events.push({ icon: '⛪', name: 'Προφήτου Ηλιού' });
+           if (m === 7 && d === 26) events.push({ icon: '⛪', name: 'Αγίας Παρασκευής' });
+           if (m === 7 && d === 28) events.push({ icon: '⛪', name: 'Αγίας Ειρήνης Χρυσοβαλάντου' });
+            if (m === 8 && d === 6) events.push({ icon: '⛪', name: 'Μεταμόρφωση του Σωτήρος' });
             if (m === 8 && d === 15) events.push({ icon: '⛪', name: 'Δεκαπενταύγουστος' });
             if (m === 9 && d === 8) events.push({ icon: '🌸', name: 'Γενέθλιον της Θεοτόκου' });
             if (m === 10 && d === 28) events.push({ icon: '🇬🇷', name: '28η Οκτωβρίου' });
@@ -78,14 +85,19 @@
             if (m === 12 && d === 25) events.push({ icon: '🎄', name: 'Χριστούγεννα' });
 
             // Κινητές Εορτές
-            const easter = Utils.getOrthodoxEaster(y);
-            const utcDate = Date.UTC(y, m - 1, d);
-            const utcEaster = Date.UTC(easter.getFullYear(), easter.getMonth(), easter.getDate());
-            const daysDiff = Math.round((utcDate - utcEaster) / (1000 * 60 * 60 * 24));
-            if (daysDiff === -59) events.push({ icon: '🥩', name: 'Τσικνοπέμπτη' });
-            if (daysDiff === -48) events.push({ icon: '🪁', name: 'Καθαρά Δευτέρα' });
-            if (daysDiff === 0) events.push({ icon: '🕯️', name: 'Κυριακή του Πάσχα' });
-            if (daysDiff === 50) events.push({ icon: '🌿', name: 'Αγίου Πνεύματος' });
+           const easter = Utils.getOrthodoxEaster(y);
+const utcDate = Date.UTC(y, m - 1, d);
+const utcEaster = Date.UTC(easter.getFullYear(), easter.getMonth(), easter.getDate());
+const daysDiff = Math.round((utcDate - utcEaster) / (1000 * 60 * 60 * 24));
+
+if (daysDiff === -59) events.push({ icon: '🥩', name: 'Τσικνοπέμπτη' });
+if (daysDiff === -48) events.push({ icon: '🪁', name: 'Καθαρά Δευτέρα' });
+if (daysDiff === -8)  events.push({ icon: '🌿', name: 'Σάββατο του Λαζάρου' });
+if (daysDiff === -7) events.push({ icon: '🌿', name: 'Κυριακή των Βαΐων' });
+if (daysDiff === 0)   events.push({ icon: '🕯️', name: 'Κυριακή του Πάσχα' });
+if (daysDiff === 5)   events.push({ icon: '⛪', name: 'Ζωοδόχου Πηγής' });
+if (daysDiff === 7)   events.push({ icon: '⛪', name: 'Κυριακή του Θωμά' });
+if (daysDiff === 50)  events.push({ icon: '🌿', name: 'Αγίου Πνεύματος' });
 
           
             if (events.length > 0) {
