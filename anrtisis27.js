@@ -565,7 +565,7 @@ const rawTitle = document.getElementById('p-title').value.trim();
         }
 
         if (typeof Swal !== 'undefined') Swal.fire({ icon: 'success', title: 'Η ανάρτηση στάλθηκε! 📸', text: 'Σε λίγα λεπτά θα εμφανιστεί!', confirmButtonColor: '#2ecc71' });
-        else alert('Η ανάρτηση στάλθηκε για έγκριση!');
+        else alert('Η ανάρτηση στάλθηκε!');
 
         document.getElementById('p-title').value=''; 
         document.getElementById('p-content').innerHTML=''; 
