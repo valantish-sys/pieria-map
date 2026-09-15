@@ -7382,9 +7382,13 @@ const DataEngine = {
             } else if (isEaster) {
                 batLevel = 40 + ((dayOfYear - easterStartDay + 1) * 1.87);
             } else {
-                if (dayOfYear >= 244) {
-                    batLevel = Utils.getBurnoutCurve(dayOfYear, 244, 113, 100, 47); 
-                } else if (dayOfYear >= 8 && dayOfYear < easterStartDay) {
+    const schoolStartDay = Utils.getDayOfYear(new Date(year, 8, 11));
+    const xmasStartDay = Utils.getDayOfYear(xmasStart);
+    const autumnDays = xmasStartDay - schoolStartDay;
+
+    if (dayOfYear >= schoolStartDay) {
+        batLevel = Utils.getBurnoutCurve(dayOfYear, schoolStartDay, autumnDays, 100, 47); 
+    } else if (dayOfYear >= 8 && dayOfYear < easterStartDay) {
                     const daysToEaster = easterStartDay - 8;
                     batLevel = Utils.getBurnoutCurve(dayOfYear, 8, daysToEaster, 80, 40); 
                 } else {
