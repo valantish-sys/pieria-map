@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   // === 1. ΒΑΣΙΚΕΣ ΜΕΤΑΒΛΗΤΕΣ ===
-  const JSON_URL = "https://cdn.jsdelivr.net/gh/valantish-sys/pieria-map@main/vivliothiki.json";
+  const JSON_URL = "https://cdn.jsdelivr.net/gh/valantish-sys/pieria-map@main/vivliothiki1.json";
   const CACHE_KEY = "lib_data_v4";
   const CACHE_TIME_KEY = "lib_time_v4";
   const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 ώρες προσωρινή μνήμη (Data Caching)
