@@ -5616,7 +5616,7 @@ if (dayOffset === 0 && currentHour >= 14) {
 
                                 if (hasSnow) { icon = "⛄"; msg = "Προσοχή για χιόνι! Ντύσου σαν κρεμμύδι 🧅!"; advBorder = "#1e6cff"; advBg = "rgba(30, 108, 255, 0.1)"; } 
                                 else if (hasRain) { icon = "☔"; msg = "Προσοχή για βροχή! Μην ξεχάσεις την ομπρέλα σου!"; advBorder = "#3b82f6"; advBg = "rgba(59, 130, 246, 0.1)"; } 
-                                else if (checkTemp < 7) { icon = "🧣"; msg = "Έχει παγωνιά έξω! Σκούφος και γάντια απαραίτητα!"; advBorder = "#0ea5e9"; advBg = "rgba(14, 165, 233, 0.1)"; } 
+                                else if (checkTemp < 5) { icon = "🧣"; msg = "Έχει παγωνιά έξω! Σκούφος και γάντια απαραίτητα!"; advBorder = "#0ea5e9"; advBg = "rgba(14, 165, 233, 0.1)"; } 
                                 else if (checkTemp > 26) { icon = "☀️"; msg = "Ζεστούλα έξω! Μην ξεχάσεις το παγούρι με το νερό σου!"; advBorder = "#f59e0b"; advBg = "rgba(245, 158, 11, 0.1)"; } 
                                 else { icon = "🌤️"; msg = "Ιδανικός καιρός αυτή τη στιγμή για παιχνίδι!"; advBorder = "#10b981"; advBg = "rgba(16, 185, 129, 0.1)"; }
                            } else {
@@ -5642,7 +5642,7 @@ if (dayOffset === 0 && currentHour >= 14) {
 
                                 if (hasSnow) { icon = "⛄"; msg = `${textDay} περιμένουμε χιόνι! Ετοίμασε ζεστά ρούχα 🧅!`; advBorder = "#1e6cff"; advBg = "rgba(30, 108, 255, 0.1)"; } 
                                 else if (hasRain) { icon = "☔"; msg = `${textDay} δίνει βροχή! Μην ξεχάσεις την ομπρέλα σου!`; advBorder = "#3b82f6"; advBg = "rgba(59, 130, 246, 0.1)"; } 
-                                else if (checkTemp < 7) { icon = "🧣"; msg = `${textDay === "Το πρωί" ? "Σήμερα" : "Αύριο"} το πρωί θα έχει παγωνιά! Ετοίμασε σκούφο/γάντια!`; advBorder = "#0ea5e9"; advBg = "rgba(14, 165, 233, 0.1)"; } 
+                                else if (checkTemp < 5) { icon = "🧣"; msg = `${textDay === "Το πρωί" ? "Σήμερα" : "Αύριο"} το πρωί θα έχει παγωνιά! Ετοίμασε σκούφο/γάντια!`; advBorder = "#0ea5e9"; advBg = "rgba(14, 165, 233, 0.1)"; } 
                                 else if (willBeHot) { icon = "☀️"; msg = `${textDay} θα κάνει ζέστη! Μην ξεχάσεις το παγούρι σου!`; advBorder = "#f59e0b"; advBg = "rgba(245, 158, 11, 0.1)"; } 
                                 else { icon = "🌤️"; msg = `${textDay} φαίνεται ιδανικός καιρός για παιχνίδι!`; advBorder = "#10b981"; advBg = "rgba(16, 185, 129, 0.1)"; }
                             }
