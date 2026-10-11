@@ -5446,7 +5446,7 @@ const diffFromEaster = Utils.getDaysDiff(dDate, realEaster);
                 let mainIcon = isSchoolEnd ? "🎒" : "🔔";
                 let textColor = isSchoolEnd ? "#a90e0e" : "inherit";
                 let bgColor = "transparent";
-                let fontWeight = "normal";
+                let fontWeight = "500";
 
                 if (snowCodes.includes(code)) {
                     hasAnySnow = true;
