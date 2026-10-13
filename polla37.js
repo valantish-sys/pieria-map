@@ -5493,14 +5493,14 @@ const diffFromEaster = Utils.getDaysDiff(dDate, realEaster);
                 if (isEven) {
                     return `${wStart} 
                             <span class="sch-time">🍝 Φαγητό</span> 
-                            <span class="sch-time">📚 Διάβασμα</span> 
+                            <span class="sch-time">🥋 Καράτε</span> 
                             <span class="sch-time">⚽ Παιχνίδι</span> 
                             <span class="sch-time" style="color:#a90e0e; margin-top:3px;">🎒 Τσάντα</span> 
                             ${wEnd}`;
                 } else {
                     return `${wStart} 
                             <span class="sch-time">🛋️ Χαλάρωση</span> 
-                            <span class="sch-time">📝 Φροντιστήριο</span> 
+                            <span class="sch-time">🎵 Μουσική</span> 
                             <span class="sch-time">🚲 Βόλτα</span> 
                             <span class="sch-time" style="color:#a90e0e; margin-top:3px;">🛌 Ύπνος</span> 
                             ${wEnd}`;
