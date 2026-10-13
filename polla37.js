@@ -4079,11 +4079,13 @@ card.addEventListener('pointerenter', (e) => {
             if (!isPipOpening && JukeboxManager.dom.player.paused) JukeboxManager.dom.player.play().catch(()=>{}); 
         });
         video.addEventListener('pause', () => { 
-            // Μην κλείσεις τη μουσική αν το παραθυράκι του PiP ΔΕΝ υπάρχει πια (δηλ. αν πατήθηκε το "X")
-            if (document.pictureInPictureElement === video && !JukeboxManager.dom.player.paused) {
-                JukeboxManager.dom.player.pause(); 
-            }
-        });
+    setTimeout(() => {
+        // Αν μετά από 30ms το PiP είναι ΑΚΟΜΑ ανοιχτό, τότε ο χρήστης πάτησε όντως "Παύση" και όχι το "Χ"!
+        if (document.pictureInPictureElement === video && !JukeboxManager.dom.player.paused) {
+            JukeboxManager.dom.player.pause(); 
+        }
+    }, 30);
+});
 
       // Συγχρονισμός Σελίδας -> PiP (ΔΙΟΡΘΩΣΗ: Εκτέλεση μόνο όταν το PiP είναι ανοιχτό!)
         JukeboxManager.dom.player.addEventListener('play', () => { 
