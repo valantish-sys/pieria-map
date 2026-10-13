@@ -5310,9 +5310,7 @@ if (DOM.minimap) DOM.minimap.style.display = "flex";
                 MobileWeatherEngine.cachedData = await response.json();
                 MobileWeatherEngine.lastFetch = Date.now();
                 return MobileWeatherEngine.cachedData;
-                if (!response.ok) throw new Error("HTTP error");
-                MobileWeatherEngine.cachedData = await response.json();
-                return MobileWeatherEngine.cachedData;
+           
             } catch (error) {
                 if (retries > 0) {
                     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -5340,23 +5338,24 @@ const diffFromEaster = Utils.getDaysDiff(dDate, realEaster);
             const wStart = '<div style="display:flex; flex-direction:column; align-items:flex-start;">';
             const wEnd = '</div>';
 
-            if (isHoliday) { // Εθνικές Εορτές & Αργίες
-                if (isEven) {
-                    return `${wStart}
-                            <span class="sch-time">🎈 Άραγμα</span>
-                            <span class="sch-time">🎉 Γιορτή</span>
-                            <span class="sch-time">🍖 Τραπέζι</span>
-                            <span class="sch-time" style="color:#a90e0e; margin-top:3px;">🏃 Βόλτα</span>
-                            ${wEnd}`;
-                } else {
-                    return `${wStart}
-                            <span class="sch-time">🇬🇷 Παρέλαση</span>
-                            <span class="sch-time">🚶 Περίπατος</span>
-                            <span class="sch-time">🍰 Γλυκό</span>
-                            <span class="sch-time" style="color:#a90e0e; margin-top:3px;">💤 Σπίτι</span>
-                            ${wEnd}`;
-                }
-            }
+            if (isHoliday) {
+    const isParadeDay = (m === 10 && d === 28) || (m === 3 && d === 25);
+    if (isParadeDay) {
+        return `${wStart}
+                <span class="sch-time">🇬🇷 Παρέλαση</span>
+                <span class="sch-time">🚶 Περίπατος</span>
+                <span class="sch-time">🍖 Τραπέζι</span>
+                <span class="sch-time" style="color:#a90e0e; margin-top:3px;">🍰 Γλυκό</span>
+                ${wEnd}`;
+    } else {
+        return `${wStart}
+                <span class="sch-time">🎈 Άραγμα</span>
+                <span class="sch-time">🎉 Γιορτή</span>
+                <span class="sch-time">🚶 Βόλτα</span>
+                <span class="sch-time" style="color:#a90e0e; margin-top:3px;">💤 Σπίτι</span>
+                ${wEnd}`;
+    }
+}
             if (diffFromEaster >= -8 && diffFromEaster <= 7) { // Διακοπές Πάσχα
                 if (isEven) {
                     return `${wStart}
