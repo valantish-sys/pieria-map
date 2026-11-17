@@ -1,0 +1,928 @@
+document.addEventListener("DOMContentLoaded", () => {
+  // === 1. ΒΑΣΙΚΕΣ ΜΕΤΑΒΛΗΤΕΣ ===
+  const JSON_URL = "https://cdn.jsdelivr.net/gh/valantish-sys/pieria-map@main/vivliothiki2.json";
+  const CACHE_KEY = "lib_data_v4";
+  const CACHE_TIME_KEY = "lib_time_v4";
+  const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 ώρες προσωρινή μνήμη (Data Caching)
+  const BATCH_SIZE = 15; 
+  
+  let allBooks = [];
+  let filteredBooks = [];
+  let currentIndex = 0;
+  
+ // Τοπική Μνήμη (Local Storage) - Ασφαλής Ανάγνωση (Safe Parse)
+ // Τοπική Μνήμη (Local Storage) - Ασφαλής Ανάγνωση (Safe Parse)
+ // Τοπική Μνήμη (Local Storage) - Ασφαλής Ανάγνωση (Safe Parse)
+const safeJSON = (key) => {
+    try { 
+      const parsedData = JSON.parse(localStorage.getItem(key)); 
+      // Ελέγχει αυστηρά αν το αποτέλεσμα είναι Πίνακας (Array) πριν το επιστρέψει
+      return Array.isArray(parsedData) ? parsedData : []; 
+    } 
+    catch (e) { return []; } 
+  };
+
+  // ΝΕΟ: Ασφαλής Αποθήκευση (Αποτρέπει το "κράσαρισμα" αν ο browser μπλοκάρει την αποθήκευση)
+  const safeSetStorage = (key, value) => {
+    try { localStorage.setItem(key, value); } catch (e) {}
+  };
+
+ let favorites = safeJSON('lib-favorites');
+  let historyUrls = safeJSON('lib-history');
+  let readBooks = safeJSON('lib-read'); // <-- ΝΕΟ
+  let showFavsOnly = false;
+  let showReadOnly = false; // <-- ΝΕΟ
+  let rawBooks = []; // Κρατάει την καθαρή σειρά του JSON (χωρίς τις γιορτές)
+  let activeCategory = 'all';
+
+  const cleanStem = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ς/g, "σ");
+
+  const RAW_CATEGORIES = {
+    animals: [
+      'ζωο', 'ζωα', 'ζωακ', 'κατοικιδι', 'φαρμ', 'ζουγκλ', 'σκυλ', 'κουταβ', 'γατ', 'ψιψιν',
+      'ποντικ', 'αρουραι', 'χαμστερ', 'κουνελ', 'λαγο', 'λαγου', 'χελων', 'νεροχελων', 'σκαντζοχοιρ',
+      'σκιουρ', 'ασβοσ', 'ασβου', 'καστορ', 'νυφιτσ', 'τυφλοποντικ', 'νυχτεριδ', 'αρκουδ', 'λυκο',
+      'λυκακ', 'λυκαιν', 'αλεπ', 'ελαφ', 'ζαρκαδ', 'αγριογουρουν', 'αλογ', 'πουλαρ', 'πονυ',
+      'γαιδαρ', 'γαιδουρ', 'μουλαρ', 'αγελαδ', 'μοσχαρ', 'ταυρ', 'προβατ', 'αρνι', 'αρνακ',
+      'κατσικ', 'εριφ', 'γουρουν', 'χοιρ', 'λιονταρ', 'λεοντ', 'τιγρ', 'πανθηρ', 'τσιταχ',
+      'ελεφαντ', 'ελμερ', 'καμηλοπαρδαλ', 'ζεβρ', 'ιπποποταμ', 'ρινοκερ', 'μαιμου', 'πιθηκ',
+      'γοριλ', 'χιμπατζ', 'κοαλ', 'καγκουρ', 'βραδυποδ', 'καμηλ', 'φωκι',
+      'πιγκουιν', 'ταρανδ', 'δελφιν', 'φαλαιν', 'καρχαρι', 'χταποδ', 'καλαμαρ', 'σουπι', 'καβουρ',
+      'αστακ', 'γαριδ', 'αστεριασ', 'αχιν', 'ιπποκαμπ', 'μεδουσ', 'σαλιγκαρ', 'βατραχ', 'γυριν',
+      'φιδ', 'σαυρ', 'ιγκουαν', 'χαμαιλεοντ', 'κροκοδειλ', 'δεινοσαυρ', 'πουλι', 'πουλακ', 'πτην',
+      'χελιδον', 'αηδον', 'σπουργιτ', 'κουκουβαγι', 'μπουφο', 'πελαργ', 'γλαρ', 'κυκν', 'αλκυον',
+      'παπι', 'παπακ', 'χηνα', 'χηνο', 'κοτα', 'κοτο', 'κοτουλ', 'κοκορ', 'πετειν', 'γαλοπουλ',
+      'παγων', 'παπαγαλ', 'αετο', 'αετι', 'γερακ', 'περιστερ', 'τρυγον', 'κορακ', 'καρακαξ',
+      'φλαμινγκ', 'στρουθοκαμηλ', 'τρυποκαρυδ', 'κοκκινολαιμ', 'καναριν', 'ψαρι', 'ψαρακ', 'ψαρια',
+      'χρυσοψαρ', 'τριγωνοψαρ', 'ψαροσουπ', 'εντομ', 'μελισσ', 'σφηκ', 'πεταλουδ', 'καμπια',
+      'πασχαλιτσ', 'μυρμηγκ', 'τζιτζικ', 'ακριδ', 'αραχν', 'πυγολαμπιδ', 'λιβελουλ', 'κουνουπ',
+      'μυγα', 'μυγου', 'σκαθαρι', 'σκουληκ'
+    ],
+    fairytales: [
+      'παραμυθ', 'μαγεμ', 'μαγικ', 'μαγει', 'μαγοσ', 'μαγου', 'μαγοι', 'μαγισσ', 'φρικαντελ',
+      'ξορκ', 'ραβδ', 'βασιλια', 'βασιλο', 'βασιλει', 'βασιλισσ', 'πριγκιπ', 'καστρ', 'παλατ',
+      'κορων', 'θρον', 'ιπποτ', 'σπαθ', 'δρακ', 'νεραιδ', 'ξωτικ', 'νανο', 'νανακ', 'γιγαντ',
+      'τερασ', 'τερατ', 'τρολ', 'μονοκερ', 'γοργον', 'πειρατ', 'θησαυρ', 'λυχνο', 'τζινι',
+      'ιπταμεν', 'καθρεφτ', 'κοκκινοσκουφιτσ', 'σταχτοπουτ', 'χιονατ', 'ραπουνζελ', 'πινοκι',
+      'κοντορεβιθουλ', 'κοιμωμεν', 'ασχημοπαπ', 'παπουτσωμεν', 'μολυβενι', 'καρυοθραυστ',
+      'χανσελ', 'γκρετελ', 'αλαντιν', 'πιτερ', 'πητερ', 'ντενεκεδουπολ', 'μυθο', 'μυθολογ',
+      'αισωπ', 'ηρακλ', 'οδυσσε', 'θησε', 'ικαρ', 'δαιδαλ'
+    ],
+    emotions: [
+      'συναισθημ', 'αισθαν', 'νιωθ', 'ψυχη', 'αγαπ', 'καρδι', 'αγκαλ', 'φιλια', 'φιλοσ', 'φιλη',
+      'φιλοι', 'φιλεσ', 'φιλαρακ', 'παρεα', 'μοναξ', 'μονοσ', 'μονη', 'χαρα', 'χαρουμ', 'χαμογελ',
+      'γελι', 'γελα', 'ευτυχ', 'αισιοδοξ', 'λυπη', 'λυπημ', 'δακρ', 'κλαι', 'στεναχωρ', 'απωλει',
+      'θυμο', 'θυμω', 'οργη', 'νευρ', 'τσακωμ', 'καβγα', 'φοβο', 'φοβα', 'φοβιτσ', 'τρομα',
+      'τρομο', 'σκοταδ', 'εφιαλτ', 'αγχο', 'ανησυχ', 'ντροπ', 'ντρεπ', 'ζηλι', 'ζηλευ', 'εγωισμ',
+      'πεισμα', 'υπομον', 'επιμον', 'θαρρο', 'γενναι', 'τολμ', 'αυτοπεποιθησ', 'ονειρ', 'ελπιδ',
+      'ευχη', 'ευχεσ', 'καλοσυν', 'ευγενει', 'ευγενικ', 'συγγνωμ', 'συγχωρ', 'ευχαριστ', 'μοιραζ',
+      'προσφορ', 'γενναιοδωρ', 'βοηθ', 'αλληλεγγυ', 'συνεργασ', 'σεβασμ', 'διαφορετικ', 'μοναδικ',
+      'αποδοχ', 'συμπεριληψ', 'αναπηρ', 'ειρην', 'πολεμ', 'αληθει', 'ψεμα', 'ψεμ', 'ειλικριν',
+      'εκφοβισμ', 'μπουλινγκ', 'bullying', 'δικαιοσυν', 'ελευθερ', 'ενσυναισθησ', 'ευγνωμοσυν'
+    ],
+    nature: [
+      'φυση', 'φυσε', 'περιβαλλον', 'οικολογ', 'ανακυκλωσ', 'ρυπανσ', 'κλιμα', 'πλανητ', 'υδρογει',
+      'δασο', 'δαση', 'δασακ', 'δεντρ', 'πευκ', 'ελατο', 'ελατα', 'βελανιδ', 'ελια', 'ελιεσ', 'αμυγδαλ',
+      'μηλι', 'κερασι', 'κερασια', 'φυλλ', 'κλαδ', 'ριζα', 'ριζεσ', 'σπορο', 'σπορακ', 'φυτο', 'φυτα',
+      'λουλουδ', 'ανθο', 'ανθη', 'ανθισ', 'τριανταφυλλ', 'μαργαριτ', 'ηλιοτροπ', 'παπαρουν',
+      'τουλιπ', 'γιασεμ', 'κηπο', 'λιβαδ', 'αγρο', 'χωραφ', 'βουν', 'κορυφ', 'φαραγγ', 'σπηλι',
+      'ποταμ', 'λιμν', 'καταρρακτ', 'πηγη', 'ρυακ', 'πετρα', 'πετρεσ', 'βραχ', 'χωμα', 'θαλασσ', 'ωκεαν',
+      'κυμα', 'ακρογιαλ', 'παραλι', 'αμμουδ', 'αμμο', 'νησι', 'νησακ', 'βυθο', 'κοχυλ', 'κοραλλ',
+      'φαροσ', 'φαρου', 'ουραν', 'ηλιο', 'ηλιε', 'ηλιαχτ', 'φεγγαρ', 'σελην', 'αστερ', 'αστρο',
+      'αστρα', 'αστερισμ', 'διαστημ', 'γαλαξι', 'κομητ', 'αστροναυτ', 'πυραυλ', 'συννεφ', 'βροχ',
+      'σταγον', 'νερο', 'νερα', 'νερακ', 'ανεμο', 'αερα', 'αερακ', 'αυρα', 'καταιγιδ', 'αστραπ',
+      'κεραυν', 'χιον', 'χιονο', 'παγο', 'παγωμ', 'ομιχλ', 'εποχ', 'ανοιξη', 'ανοιξιατ', 'καλοκαιρ', 'φθινοπωρ', 'χειμων'
+    ],
+    school: [
+      'σχολει', 'σχολικ', 'νηπιαγωγει', 'νηπιαγωγ', 'ταξη', 'ταξε', 'θρανι', 'μαθητ', 'μαθημ',
+      'δασκαλ', 'διευθυντ', 'προαυλι', 'διαλειμμ', 'τσαντ', 'κασετιν', 'μολυβ', 'μαρκαδορ',
+      'πινελ', 'μπογι', 'τετραδι', 'σβυστρ', 'γομα', 'γομεσ', 'πινακ', 'κιμωλι', 'βιβλι',
+      'βιβλιοθηκ', 'αναγνωσ', 'διαβαζ', 'γραμμ', 'αλφαβητ', 'λεξη', 'λεξε', 'λεξουλ', 'αριθμ',
+      'μετρα', 'μετρημ', 'μαθηματικ', 'χρωμ', 'σχημ', 'μουσικ', 'τραγουδ', 'ζωγραφ', 'εκδρομ',
+      'γυμναστ', 'παιχνιδ', 'μπαλ', 'κουκλ', 'ποδηλατ', 'οικογενει', 'σπιτ', 'σπιτακ', 'μαμα',
+      'μητερ', 'μπαμπ', 'πατερ', 'γονει', 'παππου', 'γιαγι', 'αδελφ', 'αδερφ', 'διδυμ', 'ξαδελφ',
+      'ξαδερφ', 'θειοσ', 'θεια', 'μωρ', 'παιδ', 'αγορ', 'κοριτσ', 'γενεθλι', 'μεγαλων', 'δοντ',
+      'δοντακ', 'υπνο', 'καληνυχτ', 'φαγητ', 'λαχανικ', 'φρουτ'
+    ]
+  };
+
+  const CATEGORY_KEYWORDS = Object.fromEntries(
+    Object.entries(RAW_CATEGORIES).map(([k, list]) => [k, list.map(cleanStem)])
+  );
+let debounceTimeout;
+  let activeBook = null;
+
+  // Στοιχεία (DOM)
+ // Στοιχεία (DOM)
+  const container = document.getElementById('premium-lib-container');
+  if (!container) return; // Τερματίζει ομαλά την εκτέλεση αν το widget δεν βρίσκεται στην τρέχουσα σελίδα
+  const gridEl = document.getElementById('lib-grid');
+  const searchInputEl = document.getElementById('lib-search-input');
+  const scrollAnchor = document.getElementById('lib-scroll-anchor');
+  
+  const historySection = document.getElementById('lib-history-section');
+  const historyGrid = document.getElementById('lib-history-grid');
+// --- ΠΡΟΣΘΗΚΗ: Λειτουργία καθαρισμού ιστορικού ---
+  const clearHistoryBtn = document.getElementById('lib-clear-history-btn');
+  if (clearHistoryBtn) {
+   clearHistoryBtn.addEventListener('click', () => {
+      if (confirm('Είστε σίγουροι ότι θέλετε να διαγράψετε το ιστορικό;')) {
+        historyUrls = [];
+        try { localStorage.removeItem('lib-history'); } catch(e) {} // Ασφαλής διαγραφή χωρίς κίνδυνο crash
+        renderHistory();
+        showToast("Το ιστορικό καθαρίστηκε 🗑️");
+      }
+    });
+  }
+  const toast = document.getElementById('lib-toast');
+  const backToTopBtn = document.getElementById('lib-back-to-top');
+  
+  // Modal Στοιχεία
+  const modal = document.getElementById('lib-modal');
+  const modalImg = document.getElementById('lib-modal-cover');
+  const modalTitle = document.getElementById('lib-modal-title');
+  const modalReadBtn = document.getElementById('lib-modal-read-btn');
+
+  const errorImg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZTJlOGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEwIiBmaWxsPSIjOTRhM2I4IiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7Oks65zrLOu86vzr88L3RleHQ+PC9zdmc+";
+
+  const themeBtn = document.getElementById('lib-theme-btn');
+  if (themeBtn) {
+    try { 
+      if (localStorage.getItem('lib-theme') === 'dark') { container.classList.add('dark-mode'); themeBtn.innerHTML = '☀️'; }
+    } catch (e) {}
+    themeBtn.addEventListener('click', () => {
+      container.classList.toggle('dark-mode');
+      const isDark = container.classList.contains('dark-mode');
+      themeBtn.innerHTML = isDark ? '☀️' : '🌙';
+      safeSetStorage('lib-theme', isDark ? 'dark' : 'light');
+    });
+  }
+
+  let toastTimer;
+function showToast(msg) {
+    if (!toast) return; // Αγνοεί την ειδοποίηση αν δεν υπάρχει το στοιχείο HTML
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  
+ if (backToTopBtn) {
+    backToTopBtn.addEventListener('click', () => {
+      container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  // === 3. ΦΟΡΤΩΣΗ ΔΕΔΟΜΕΝΩΝ (Πάντα Φρέσκα) ===
+  scrollAnchor.style.display = 'grid'; 
+  
+  // --- ΔΙΟΡΘΩΣΗ: Αλεξίσφαιρο Smart Caching για Blogger ---
+  // Δημιουργεί έναν αριθμό που αλλάζει 1 φορά κάθε 2 ώρες (7.200.000 ms)
+  const cacheVersion = Math.floor(new Date().getTime() / 7200000);
+  const SMART_URL = JSON_URL + "?v=" + cacheVersion;
+
+fetch(SMART_URL)
+    .then(res => {
+      if (!res.ok) throw new Error("Αποτυχία HTTP");
+      return res.json();
+    })
+    .then(data => {
+      if (!Array.isArray(data)) throw new Error("Τα δεδομένα δεν είναι μορφής Array");
+
+
+    rawBooks = data.filter(book => book && book.title && book.book_url);
+      allBooks = [...rawBooks];
+
+      // --- ΠΡΟΣΘΗΚΗ: Εποχιακή Προτεραιότητα (Χριστούγεννα, Πάσχα, Καλοκαίρι) ---
+      const now = new Date();
+      const month = now.getMonth() + 1;
+      const day = now.getDate();
+
+      let seasonalKeywords = [];
+
+      // 1. Χριστούγεννα (15 Νοεμβρίου έως 7 Ιανουαρίου)
+      if ((month === 11 && day >= 18) || month === 12 || (month === 1 && day <= 7)) {
+        seasonalKeywords = [
+          'χριστουγενν', 'βασιλη', 'πρωτοχρονι', 'καλαντ', 'φατν', 'βηθλεεμ',
+          'τρεισ μαγοι', 'αγγελακ', 'καμπανακ', 'γιορτιν', 'ξωτικ',
+          'ταρανδ', 'ρουντολφ', 'καρυοθραυστ', 'καλικαντζαρ', 'σκρουτζ',
+          'φρικαντελ', 'χιονανθρωπ', 'στολιδ', 'ελατ', 'μελομακαρον',
+          'κουραμπιε', 'βασιλοπιτ', 'χιον', 'χειμων', 'παγωμεν', 'πολικ', 'σπηλια', 'βουνοπλαγια', 'τζακι'
+        ];
+      }
+      // 2. Πάσχα (20 Μαρτίου έως 10 Μαΐου)
+      else if ((month === 3 && day >= 26) || month === 4 || (month === 5 && day <= 12)) {
+        seasonalKeywords = [
+          'πασχ', 'αναστασ', 'λαμπαδ', 'λαζαρ', 'μεγαλη εβδομαδ', 'επιταφι',
+          'τσουρεκ', 'αυγο', 'αυγα', 'αβγο', 'αβγα', 'βαμμεν', 'κουνελ',
+          'λαγοσ', 'λαγουδ', 'κοτοπουλ', 'κοτουλ', 'χελιδον', 'πεταλουδ',
+          'μελισσ', 'πασχαλιτσ', 'ανοιξ', 'πρωτομαγι', 'λουλουδ', 'ανθισμ', 'στεφαν'
+        ];
+      }
+      // 3. Καλοκαίρι (1 Ιουνίου έως 31 Αυγούστου)
+      else if (month >= 6 && month <= 8) {
+        seasonalKeywords = [
+          'καλοκαιρ', 'διακοπ', 'κατασκηνωσ', 'παγωτ', 'καρπουζ', 'ηλιοσ',
+          'ιουνι', 'ιουλι', 'αυγουστ', 'θαλασσ', 'παραλι', 'κολυμπ',
+          'βουτι', 'αμμουδ', 'αμμοσ', 'κοχυλ', 'κυμα', 'βυθ', 'ωκεαν',
+          'γοργον', 'πειρατ', 'καραβ', 'πλοι', 'βαρκ', 'ναυτ', 'καπεταν',
+          'φαροσ', 'δελφιν', 'φαλαιν', 'καρχαρι', 'χταποδ', 'καβουρ',
+          'αστεριασ', 'ιπποκαμπ', 'ψαρι', 'ψαρακ', 'γλαροσ'
+        ];
+      }
+
+      // Αν είμαστε σε εποχιακή περίοδο, φέρνει τα σχετικά βιβλία μπροστά και κρατά τα υπόλοιπα από το πιο πρόσφατο στο πιο παλιό
+      if (seasonalKeywords.length > 0) {
+        const cleanText = str => String(str || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/ς/g, "σ");
+
+       const isSeasonal = title => {
+          const normalizedTitle = cleanText(title);
+          const words = normalizedTitle.split(/[^a-zα-ω0-9]+/).filter(Boolean);
+          return seasonalKeywords.some(kw => {
+            if (kw.includes(' ')) return normalizedTitle.includes(kw);
+            if (kw === 'ελατ') return words.some(w => w.startsWith('ελατο') || w.startsWith('ελατα'));
+            if (kw === 'ανοιξ') return words.some(w => w.startsWith('ανοιξη') || w.startsWith('ανοιξιατ'));
+            return words.some(w => w.startsWith(kw));
+          }) ? 1 : 0;
+        };
+
+        allBooks.sort((a, b) => isSeasonal(b.title) - isSeasonal(a.title));
+      }
+      // --- ΤΕΛΟΣ ΠΡΟΣΘΗΚΗΣ ---
+
+      initApp();
+    })
+    .catch(err => {
+      scrollAnchor.style.display = 'none';
+      gridEl.innerHTML = "<p style='grid-column: 1/-1; text-align:center;'>❌ Σφάλμα σύνδεσης. Δοκιμάστε να ανανεώσετε τη σελίδα.</p>";
+    });
+
+  function initApp() {
+    renderHistory();
+    applyFilters();
+    checkDeepLink();
+  }
+
+  function createBookCard(book) {
+    const isFav = favorites.includes(book.book_url);
+    const isRead = readBooks.includes(book.book_url);
+    
+    const card = document.createElement('div');
+    card.className = `lib-book-card ${isRead ? 'is-read-card' : ''}`; // Πράσινη Κορνίζα
+    card.title = book.title;
+    
+card.innerHTML = `
+      <div class="lib-cover-wrapper">
+     <img src="${book.image_url || errorImg}" alt="Εξώφυλλο" class="lib-cover" loading="lazy" onerror="this.onerror=null; this.src='${errorImg}';">
+        <div class="lib-overlay"><span class="lib-read-btn-hover">🔍 Προβολή</span></div>
+        <button class="lib-read-icon ${isRead ? 'is-read' : ''}" title="Διαβάστηκε">${isRead ? '✅' : '✔️'}</button>
+        <button class="lib-fav-icon" title="Αγαπημένο">${isFav ? '❤️' : '🤍'}</button>
+     </div>
+      <div class="lib-info"><h3 class="lib-book-title"></h3></div>
+    `;
+    
+    // Ασφαλής εισαγωγή κειμένου (textContent) για απόλυτη προστασία από σφάλματα HTML Parsing
+    card.querySelector('.lib-book-title').textContent = book.title;
+
+    // Λειτουργία Αγαπημένων
+    const favBtn = card.querySelector('.lib-fav-icon');
+    favBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); 
+     if (favorites.includes(book.book_url)) {
+        favorites = favorites.filter(url => url !== book.book_url);
+        favBtn.innerHTML = '🤍'; 
+        showToast("Αφαιρέθηκε από τα αγαπημένα 🤍");
+     if (showFavsOnly) {
+          card.remove(); 
+          filteredBooks = filteredBooks.filter(b => b.book_url !== book.book_url);
+          if (currentIndex > 0) currentIndex--;
+          const countElFav = document.getElementById('lib-count');
+          if (countElFav) countElFav.textContent = filteredBooks.length;
+          if (filteredBooks.length === 0) applyFilters();
+          else if (scrollAnchor.style.display !== 'none' && scrollAnchor.getBoundingClientRect().top <= window.innerHeight + 400) renderBatch();
+        }
+      } else {
+        favorites.push(book.book_url);
+        favBtn.innerHTML = '❤️'; 
+        showToast("Προστέθηκε στα αγαπημένα ❤️");
+      }
+     safeSetStorage('lib-favorites', JSON.stringify(favorites));
+    renderHistory(); // ΣΥΓΧΡΟΝΙΣΜΟΣ: Ανανεώνει το Ιστορικό άμεσα!
+    });
+
+    // Λειτουργία Διαβάστηκε
+    const readBtn = card.querySelector('.lib-read-icon');
+    readBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+    if (readBooks.includes(book.book_url)) {
+        readBooks = readBooks.filter(url => url !== book.book_url);
+        readBtn.innerHTML = '✔️';
+        readBtn.classList.remove('is-read');
+        card.classList.remove('is-read-card');
+        showToast("Αφαιρέθηκε από τα διαβασμένα");
+     if (showReadOnly) {
+        card.remove(); 
+        filteredBooks = filteredBooks.filter(b => b.book_url !== book.book_url);
+        if (currentIndex > 0) currentIndex--;
+        const countElRead = document.getElementById('lib-count');
+        if (countElRead) countElRead.textContent = filteredBooks.length;
+        if (filteredBooks.length === 0) applyFilters();
+        else if (scrollAnchor.style.display !== 'none' && scrollAnchor.getBoundingClientRect().top <= window.innerHeight + 400) renderBatch();
+      }
+      } else {
+        readBooks.push(book.book_url);
+        readBtn.innerHTML = '✅';
+        readBtn.classList.add('is-read');
+        card.classList.add('is-read-card');
+        showToast("Μπράβο! Το βιβλίο ολοκληρώθηκε! \u2705");
+      }
+     safeSetStorage('lib-read', JSON.stringify(readBooks));
+renderHistory(); // ΣΥΓΧΡΟΝΙΣΜΟΣ: Ανανεώνει το Ιστορικό άμεσα!
+    });
+
+    card.addEventListener('click', () => openModal(book));
+    return card;
+  }
+
+ function renderHistory() {
+    if (!historySection || !historyGrid) return; // Προστασία αν έχει διαγραφεί το HTML του ιστορικού
+    const historyBooks = historyUrls.map(url => allBooks.find(b => b.book_url === url)).filter(Boolean);
+    
+const isSearching = searchInputEl ? searchInputEl.value.trim() !== '' : false;
+    if (historyBooks.length === 0 || showFavsOnly || showReadOnly || isSearching || activeCategory !== 'all') {
+      historySection.style.display = 'none';
+      return;
+    }
+    
+    historySection.style.display = 'block';
+    historyGrid.innerHTML = '';
+    
+    historyBooks.forEach(book => {
+      const card = createBookCard(book);
+      
+      // Προσθήκη του μικρού "✖" μόνο για τα βιβλία του ιστορικού
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'lib-history-remove';
+      removeBtn.innerHTML = '✖';
+      removeBtn.title = "Αφαίρεση από το ιστορικό";
+      
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Σταματάει το κλικ για να μην ανοίξει το βιβλίο
+        historyUrls = historyUrls.filter(url => url !== book.book_url);
+    safeSetStorage('lib-history', JSON.stringify(historyUrls));
+        renderHistory(); // Ξαναζωγραφίζει το ράφι αμέσως χωρίς το βιβλίο
+      });
+      
+      // Βάζουμε το "✖" μέσα στην κάρτα, πάνω στο εξώφυλλο
+     // Βάζουμε το "✖" μέσα στην κάρτα, πάνω στο εξώφυλλο
+      const coverWrapper = card.querySelector('.lib-cover-wrapper');
+      coverWrapper.appendChild(removeBtn);
+      
+      // ΔΙΟΡΘΩΣΗ: Κρύβουμε τα άλλα εικονίδια στο ιστορικό για να μην πέφτουν το ένα πάνω στο άλλο!
+      const readIcon = coverWrapper.querySelector('.lib-read-icon');
+      const favIcon = coverWrapper.querySelector('.lib-fav-icon');
+      if (readIcon) readIcon.style.display = 'none';
+      if (favIcon) favIcon.style.display = 'none';
+      historyGrid.appendChild(card);
+    });
+  }
+function addToHistory(book) {
+    historyUrls = historyUrls.filter(url => url !== book.book_url);
+    historyUrls.unshift(book.book_url); 
+    if (historyUrls.length > 5) historyUrls.pop(); // Κρατάμε τα 5 πιο πρόσφατα
+   safeSetStorage('lib-history', JSON.stringify(historyUrls));
+    renderHistory();
+  }
+
+if (searchInputEl) {
+    searchInputEl.addEventListener('input', () => {
+      clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(() => applyFilters(), 300); 
+    });
+  }
+
+const favFilterBtn = document.getElementById('lib-fav-filter-btn');
+  if (favFilterBtn) {
+    favFilterBtn.addEventListener('click', (e) => {
+      showFavsOnly = !showFavsOnly;
+      e.currentTarget.classList.toggle('active', showFavsOnly); 
+      applyFilters();
+    });
+  }
+
+  const readFilterBtn = document.getElementById('lib-read-filter-btn');
+  if (readFilterBtn) {
+    readFilterBtn.addEventListener('click', (e) => {
+      showReadOnly = !showReadOnly;
+      e.currentTarget.classList.toggle('active-read', showReadOnly);
+      applyFilters();
+    });
+  }
+
+ const categoryBar = document.getElementById('lib-categories');
+  if (categoryBar) {
+    categoryBar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.lib-cat-btn');
+      if (!btn) return;
+      const selectedCat = btn.dataset.cat || 'all';
+      // Αν ξαναπατηθεί η ίδια ενεργή κατηγορία, επιστρέφει στο "Όλα"
+      activeCategory = (activeCategory === selectedCat && selectedCat !== 'all') ? 'all' : selectedCat;
+      categoryBar.querySelectorAll('.lib-cat-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.cat === activeCategory);
+      });
+      applyFilters();
+    });
+  }
+
+  // Συγχρονισμός με το πλαϊνό μενού "Όλα τα Βιβλία" (στη λειτουργία Εφαρμογή)
+  const railAllBtn = document.querySelector('[data-rail="all"]');
+  if (railAllBtn) {
+    railAllBtn.addEventListener('click', () => {
+      if (activeCategory !== 'all') {
+        activeCategory = 'all';
+        if (categoryBar) {
+          categoryBar.querySelectorAll('.lib-cat-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.cat === 'all');
+          });
+        }
+        applyFilters();
+      }
+    });
+  }
+
+  let renderTimeout;
+  let isRendering = false;
+
+  function applyFilters() {
+    clearTimeout(renderTimeout);
+    isRendering = false;
+
+    const query = searchInputEl ? searchInputEl.value.toLowerCase().trim() : "";
+    const normalize = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ς/g, "σ");
+    const normalizedQuery = normalize(query);
+    const catKeywords = activeCategory !== 'all' ? (CATEGORY_KEYWORDS[activeCategory] || []) : null;
+    // Στο "Όλα" ισχύουν κανονικά οι γιορτές (allBooks), ενώ στις κατηγορίες μπαίνει η καθαρή σειρά του JSON (rawBooks)
+    const sourceBooks = activeCategory === 'all' ? allBooks : rawBooks;
+
+    filteredBooks = sourceBooks.filter(b => {
+      const safeTitle = (b && b.title) ? String(b.title).toLowerCase() : "";
+      const normalizedTitle = normalize(safeTitle);
+      const matchSearch = normalizedTitle.includes(normalizedQuery);
+      const matchFav = showFavsOnly ? favorites.includes(b && b.book_url) : true;
+      const matchRead = showReadOnly ? readBooks.includes(b && b.book_url) : true;
+
+      let matchCategory = true;
+      if (catKeywords) {
+        const titleWords = normalizedTitle.split(/[^a-zα-ω0-9]+/).filter(Boolean);
+        matchCategory = titleWords.some(word => catKeywords.some(kw => word.startsWith(kw)));
+      }
+
+      return matchSearch && matchFav && matchRead && matchCategory;
+    });
+
+ const countEl = document.getElementById('lib-count');
+    if (countEl) countEl.textContent = filteredBooks.length;
+    currentIndex = 0;
+    gridEl.innerHTML = ''; 
+    renderHistory(); // Κρύβει το ράφι αν ψάχνουμε
+
+    const noResultsEl = document.getElementById('lib-no-results');
+    const suggestionsGridEl = document.getElementById('lib-suggestions-grid');
+
+   if (filteredBooks.length === 0) {
+      noResultsEl.style.display = 'block';
+      scrollAnchor.style.display = 'none';
+
+      const noMsgEl = noResultsEl.querySelector('.no-results-msg');
+      if (noMsgEl) {
+        if (showFavsOnly && showReadOnly) noMsgEl.textContent = '😕 Δεν υπάρχουν βιβλία που να είναι ταυτόχρονα Αγαπημένα και Διαβασμένα.';
+        else if (showFavsOnly) noMsgEl.textContent = '🤍 Δεν έχετε προσθέσει αγαπημένα βιβλία ακόμα.';
+        else if (showReadOnly) noMsgEl.textContent = '✅ Δεν έχετε σημειώσει διαβασμένα βιβλία ακόμα.';
+        else noMsgEl.textContent = '😕 Δεν βρέθηκαν βιβλία με αυτόν τον τίτλο.';
+      }
+      
+      // Έξυπνες Προτάσεις μόνο σε αναζήτηση/κατηγορία (όχι μέσα στα Αγαπημένα ή Διαβασμένα)
+      suggestionsGridEl.innerHTML = '';
+      if (!showFavsOnly && !showReadOnly && allBooks.length > 0) {
+        document.getElementById('lib-suggestions-title').style.display = 'block';
+        const shuffled = [...allBooks].sort(() => 0.5 - Math.random());
+        shuffled.slice(0, 4).forEach(book => suggestionsGridEl.appendChild(createBookCard(book)));
+      } else {
+        document.getElementById('lib-suggestions-title').style.display = 'none';
+      }
+    } else {
+      noResultsEl.style.display = 'none';
+      renderBatch(); 
+    }
+  }
+
+  // === 7. ΑΠΕΙΡΗ ΚΥΛΙΣΗ (Αλεξίσφαιρη) ===
+  function renderBatch() {
+    if (isRendering || currentIndex >= filteredBooks.length) {
+      if (currentIndex >= filteredBooks.length) scrollAnchor.style.display = 'none';
+      return;
+    }
+    isRendering = true;
+    scrollAnchor.style.display = 'grid';
+
+   renderTimeout = setTimeout(() => {
+      let addedCount = 0;
+      try { 
+        const batch = filteredBooks.slice(currentIndex, currentIndex + BATCH_SIZE);
+        addedCount = batch.length;
+        batch.forEach(book => gridEl.appendChild(createBookCard(book)));
+      } catch (err) {
+        console.error("Σφάλμα:", err);
+      } finally {
+        currentIndex += addedCount;
+        isRendering = false;
+        
+      if (currentIndex >= filteredBooks.length) {
+          scrollAnchor.style.display = 'none';
+        } else {
+          // Μόλις βάλει 15 βιβλία, ελέγχει ΑΜΕΣΩΣ αν η οθόνη έχει κι άλλο χώρο.
+          if (scrollAnchor.offsetParent === null) return; // Σταματάει τον βρόχο μνήμης αν το widget είναι κρυφό!
+          
+          const rect = scrollAnchor.getBoundingClientRect();
+          if (rect.top <= window.innerHeight + 400) {
+            renderBatch();
+          }
+        }
+      }
+    }, 150); 
+  }
+
+  // Διπλή προστασία: Observer + Κλασικό Scroll
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && filteredBooks.length > 0) renderBatch(); 
+  }, { rootMargin: "600px" });
+  observer.observe(scrollAnchor);
+
+  // ΔΙΟΡΘΩΣΗ: Ενιαίο και Ελαφρύ Scroll Event (Μηδενικό Lag στα κινητά)
+  let scrollThrottle;
+  window.addEventListener('scroll', () => {
+    if (scrollThrottle) return;
+    scrollThrottle = setTimeout(() => {
+  if (backToTopBtn) {
+        if (window.scrollY > 400) backToTopBtn.classList.add('show');
+        else backToTopBtn.classList.remove('show');
+      }
+      
+      // 2. Έλεγχος Infinite Scroll
+      if (!isRendering && scrollAnchor.style.display !== 'none') {
+        const rect = scrollAnchor.getBoundingClientRect();
+        if (rect.top <= window.innerHeight + 600) renderBatch();
+      }
+      scrollThrottle = null;
+    }, 150); // Τσεκάρει μόνο 6-7 φορές το δευτερόλεπτο. Υπεραρκετό και πανάλαφρο!
+  }, { passive: true }); // Το passive: true κάνει το σκρολ ομαλό σαν βούτυρο
+const luckyBtn = document.getElementById('lib-lucky-btn');
+  if (luckyBtn) {
+    luckyBtn.addEventListener('click', () => {
+    if (filteredBooks.length === 0) {
+      showToast("Δεν βρέθηκαν βιβλία με τα τρέχοντα φίλτρα!");
+      return;
+    }
+    
+    const randomBook = filteredBooks[Math.floor(Math.random() * filteredBooks.length)];
+    openModal(randomBook);
+  });
+    } 
+
+function openModal(book) {
+   activeBook = book;
+    modalImg.onerror = function() { this.onerror = null; this.src = errorImg; }; // Αποτροπή άπειρου βρόχου (Crash)
+   modalImg.src = book.image_url || errorImg;
+    modalTitle.textContent = book.title;
+    modalReadBtn.href = book.book_url;
+    modalReadBtn.target = "_blank"; // Ανοίγει σε νέα καρτέλα για να μην χαθεί η πρόοδος αναζήτησης/σκρολ!
+    
+    // Η ΜΑΓΕΙΑ: Βγάζουμε το παράθυρο ΕΚΤΟΣ Blogger
+    
+    // Η ΜΑΓΕΙΑ: Βγάζουμε το παράθυρο ΕΚΤΟΣ Blogger και το βάζουμε κατευθείαν στο σώμα της σελίδας!
+    document.body.appendChild(modal);
+    if (container.classList.contains('dark-mode')) {
+        modal.classList.add('dark-mode');
+    } else {
+        modal.classList.remove('dark-mode');
+    }
+
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    addToHistory(book); 
+  }
+
+  function closeModal() {
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+    activeBook = null;
+    
+   const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete('book');
+    try { window.history.replaceState({}, document.title, cleanUrl.toString()); } catch(e) {} // Προστασία από Iframe SecurityError
+
+    // NUDGE (ΜΑΓΕΙΑ): Ξυπνάει το σκρολ μόλις κλείσεις το βιβλίο!
+
+    // NUDGE (ΜΑΓΕΙΑ): Ξυπνάει το σκρολ μόλις κλείσεις το βιβλίο!
+    setTimeout(() => {
+      const rect = scrollAnchor.getBoundingClientRect();
+      if (rect.top <= window.innerHeight + 250) renderBatch();
+    }, 150);
+  }
+  
+const closeBtn = document.getElementById('lib-close-btn');
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  const modalOverlay = document.getElementById('lib-modal-overlay');
+  if (modalOverlay) modalOverlay.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('show')) closeModal(); });
+
+const shareBtn = document.getElementById('lib-modal-share-btn');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', async (e) => {
+    if (!activeBook) return;
+    const shareUrl = new URL(window.location.href);
+    const slugify = (text) => String(text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zα-ω0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const slug = slugify(activeBook.title); 
+    
+    shareUrl.searchParams.set('book', slug);
+    const finalUrl = shareUrl.toString();
+
+    // 1. ΔΟΚΙΜΗ ΓΙΑ ΚΙΝΗΤΑ: Άνοιγμα του native μενού (αναδύεται από κάτω)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: activeBook.title,
+          text: 'Δες αυτό το βιβλίο:',
+          url: finalUrl
+        });
+      } catch (err) {
+        console.log("Η κοινοποίηση ακυρώθηκε από τον χρήστη.");
+      }
+    } 
+    // 2. ΕΝΑΛΛΑΚΤΙΚΗ ΓΙΑ ΥΠΟΛΟΓΙΣΤΕΣ (Fall-back): Αντιγραφή του link
+    else {
+      try {
+        await navigator.clipboard.writeText(finalUrl);
+        showToast("Ο σύνδεσμος αντιγράφηκε! 🔗");
+      } catch (err) {
+        // Αλεξίσφαιρη αντιγραφή αν το clipboard API δεν υποστηρίζεται
+        const textArea = document.createElement("textarea");
+        textArea.value = finalUrl;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        textArea.setAttribute("readonly", "true"); // Μπλοκάρει το βίαιο άνοιγμα του πληκτρολογίου στα κινητά
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showToast("Ο σύνδεσμος αντιγράφηκε! 🔗");
+        } catch (e) {
+          showToast("Σφάλμα αντιγραφής.");
+        }
+        document.body.removeChild(textArea);
+      }
+    }
+  });
+    }
+
+  // Έλεγχος αν ο χρήστης μπήκε από σύνδεσμο κοινοποίησης
+  function checkDeepLink() {
+    const params = new URLSearchParams(window.location.search);
+    const bookSlug = params.get('book');
+    if (bookSlug && allBooks.length > 0) {
+      
+  // Ασφαλής μετατροπή σε String πριν την επεξεργασία για αποτροπή TypeError
+    const slugify = (text) => String(text || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zα-ω0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const foundBook = allBooks.find(b => slugify(b.title) === bookSlug);
+      
+   if (foundBook) {
+        setTimeout(() => {
+          // Το 'auto' μετακινεί ακαριαία τη σελίδα για να αποφευχθεί το τρέμουλο/πάγωμα (glitch) από το Modal
+          container.scrollIntoView({ behavior: 'auto', block: 'start' }); 
+          openModal(foundBook);
+        }, 500); 
+      }
+    }
+  }
+
+(function() {
+  const bar = document.getElementById('lib-sanctuary-bar');
+  const rail = document.getElementById('lib-app-rail');
+  const toggleBtn = document.getElementById('lib-toggle-site-mode');
+  const ideaBtns = document.querySelectorAll('.idea-btn');
+  const libContainer = document.getElementById('premium-lib-container');
+  if (!bar || !toggleBtn || !libContainer) return;
+
+  // 1. Ασφάλεια: Μπλοκάρει τυχόν κλικ στο εξωτερικό .toTopBtn στη Λειτουργία Ανάγνωσης
+  window.addEventListener('click', (e) => {
+    if (document.body.classList.contains('lib-sanctuary-mode') && e.target.closest('.toTopBtn')) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+    }
+  }, true);
+
+  // 2. Τοποθέτηση μπάρας και πλαϊνού μενού απευθείας στο <body>
+  document.body.prepend(bar);
+  if (rail) document.body.appendChild(rail);
+
+  // 3. Δυναμικό Hero Banner (Χωρίς κενό src="" που προκαλεί διπλό φόρτωμα & σπασμένο εικονίδιο)
+  const transparentPixel = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+  const hero = document.createElement('div');
+  hero.id = 'app-hero-banner';
+  hero.style.opacity = '0'; // Κρύβεται απαλά μέχρι να φορτώσει το 1ο αληθινό βιβλίο
+  hero.style.transition = 'opacity 0.3s ease';
+  hero.innerHTML = `
+    <img id="app-hero-img" src="${transparentPixel}" alt="Πρόταση Ημέρας" />
+    <div>
+      <span class="hero-meta-tag">🌟 ΠΡΟΤΑΣΗ ΓΙΑ ΑΝΑΓΝΩΣΗ</span>
+      <h2 id="app-hero-title">Φόρτωση βιβλιοθήκης...</h2>
+      <div class="hero-actions">
+        <button type="button" id="app-hero-btn">📖 Άνοιγμα Βιβλίου</button>
+        <button type="button" id="app-hero-shuffle">🔄 Άλλη Πρόταση</button>
+      </div>
+    </div>
+  `;
+  const libHeader = libContainer.querySelector('.lib-header');
+  if (libHeader) libContainer.insertBefore(hero, libHeader);
+
+  const heroImg = document.getElementById('app-hero-img');
+  const heroTitle = document.getElementById('app-hero-title');
+  const heroBtn = document.getElementById('app-hero-btn');
+  let currentHeroBook = null;
+
+  function pickRandomHeroBook() {
+    const source = filteredBooks.length > 0 ? filteredBooks : allBooks;
+    if (!source.length) return false;
+
+    let pool = source;
+    if (pool.length > 1 && currentHeroBook) {
+      pool = pool.filter(b => b.book_url !== currentHeroBook.book_url);
+    }
+    const randomBook = pool[Math.floor(Math.random() * pool.length)] || source[0];
+    currentHeroBook = randomBook;
+
+    heroImg.onerror = function() { this.onerror = null; this.src = errorImg; };
+    heroImg.src = randomBook.image_url || errorImg;
+    heroTitle.textContent = randomBook.title;
+    hero.style.opacity = '1';
+
+    heroBtn.onclick = () => openModal(randomBook);
+    return true;
+  }
+
+  document.getElementById('app-hero-shuffle').addEventListener('click', () => {
+    pickRandomHeroBook();
+  });
+
+  const gridElHero = document.getElementById('lib-grid');
+  if (gridElHero) {
+    const obs = new MutationObserver(() => {
+      if (pickRandomHeroBook()) obs.disconnect();
+    });
+    obs.observe(gridElHero, { childList: true });
+  }
+
+  // 4. Ακριβής συγχρονισμός μετρητή διαβασμένων (και μεταξύ καρτελών)
+  function updateMagicReadCount() {
+    try {
+      const readArr = JSON.parse(localStorage.getItem('lib-read'));
+      const numEl = document.getElementById('magic-read-num');
+      if (numEl) numEl.textContent = Array.isArray(readArr) ? readArr.length : 0;
+    } catch(e) {}
+  }
+ updateMagicReadCount();
+  libContainer.addEventListener('click', (e) => {
+    if (e.target.closest('.lib-read-icon')) requestAnimationFrame(() => setTimeout(updateMagicReadCount, 50));
+  }, true);
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'lib-read') updateMagicReadCount();
+  });
+
+  // 5. Αμφίδρομος συγχρονισμός Πλαϊνού Μενού (App Rail) <-> Κουμπιών Βιβλιοθήκης
+  const favFilterBtn = document.getElementById('lib-fav-filter-btn');
+  const readFilterBtn = document.getElementById('lib-read-filter-btn');
+
+  function syncRailActiveState() {
+    if (!rail) return;
+    const isFav = favFilterBtn && favFilterBtn.classList.contains('active');
+    const isRead = readFilterBtn && readFilterBtn.classList.contains('active-read');
+
+    rail.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
+    if (isFav && !isRead) {
+      rail.querySelector('[data-rail="fav"]')?.classList.add('active');
+    } else if (isRead && !isFav) {
+      rail.querySelector('[data-rail="read"]')?.classList.add('active');
+    } else if (!isFav && !isRead && activeCategory === 'all') {
+      rail.querySelector('[data-rail="all"]')?.classList.add('active');
+    } else if (isFav && isRead) {
+      rail.querySelector('[data-rail="fav"]')?.classList.add('active');
+      rail.querySelector('[data-rail="read"]')?.classList.add('active');
+    }
+  }
+
+  // Αν ο χρήστης πατήσει τα κουμπιά ή κατηγορία μέσα στη βιβλιοθήκη, ενημερώνεται το αριστερό μενού & η Πρόταση Ημέρας!
+  favFilterBtn?.addEventListener('click', () => setTimeout(syncRailActiveState, 20));
+  readFilterBtn?.addEventListener('click', () => setTimeout(syncRailActiveState, 20));
+  document.getElementById('lib-categories')?.addEventListener('click', () => {
+    setTimeout(() => {
+      syncRailActiveState();
+      pickRandomHeroBook();
+    }, 20);
+  });
+
+  if (rail) {
+    rail.addEventListener('click', (e) => {
+      const btn = e.target.closest('.rail-btn');
+      if (!btn) return;
+      const action = btn.dataset.rail;
+      const isFav = favFilterBtn && favFilterBtn.classList.contains('active');
+      const isRead = readFilterBtn && readFilterBtn.classList.contains('active-read');
+
+      if (action === 'all') {
+        if (isFav) favFilterBtn.click();
+        if (isRead) readFilterBtn.click();
+      } else if (action === 'fav') {
+        // Καθαρή εναλλαγή: κλείνει τα "Διαβασμένα" αν ήταν ανοιχτά, ώστε να μη συγκρούονται
+        if (isRead) readFilterBtn.click();
+        favFilterBtn?.click();
+      } else if (action === 'read') {
+        // Καθαρή εναλλαγή: κλείνει τα "Αγαπημένα" αν ήταν ανοιχτά
+        if (isFav) favFilterBtn.click();
+        readFilterBtn?.click();
+      } else if (action === 'lucky') {
+        document.getElementById('lib-lucky-btn')?.click();
+      } else if (action === 'theme') {
+        document.getElementById('lib-theme-btn')?.click();
+      } else if (action === 'classic') {
+        toggleBtn.click();
+        return;
+      }
+
+      setTimeout(syncRailActiveState, 30);
+    });
+  }
+
+  // 6. Εφαρμογή επιλεγμένης Ιδέας (wood / app / magic / space / nature)
+  // Βοηθητική συνάρτηση: Ενημερώνει το ύψος του πλαϊνού μενού & ξυπνάει το Infinite Scroll
+  function refreshLayoutAndScroll() {
+    if (rail && bar && document.body.classList.contains('lib-sanctuary-mode')) {
+      rail.style.top = bar.offsetHeight + 'px';
+    }
+    setTimeout(() => window.dispatchEvent(new Event('scroll')), 60);
+  }
+  window.addEventListener('resize', refreshLayoutAndScroll, { passive: true });
+
+  // 6. Εφαρμογή επιλεγμένης Ιδέας (wood / app / magic / space / nature)
+  const validIdeas = ['wood', 'app', 'magic', 'space', 'nature'];
+  function setIdea(ideaName) {
+    const safeIdea = validIdeas.includes(ideaName) ? ideaName : 'wood';
+    document.body.setAttribute('data-lib-idea', safeIdea);
+    ideaBtns.forEach(b => b.classList.toggle('active', b.dataset.idea === safeIdea));
+    try { localStorage.setItem('lib-selected-idea', safeIdea); } catch(e) {}
+    refreshLayoutAndScroll();
+  }
+
+  ideaBtns.forEach(btn => {
+    btn.addEventListener('click', () => setIdea(btn.dataset.idea));
+  });
+
+  // 7. Εναλλαγή Λειτουργίας Ανάγνωσης <-> Κλασικής Προβολής Blogger
+  function setSanctuaryMode(isSanctuary) {
+    if (isSanctuary) {
+      document.body.classList.add('lib-sanctuary-mode');
+      toggleBtn.innerHTML = '🖼️ Κλασική Προβολή';
+      if (bar.parentElement !== document.body) document.body.prepend(bar);
+    } else {
+      document.body.classList.remove('lib-sanctuary-mode');
+      toggleBtn.innerHTML = '📖 Λειτουργία Ανάγνωσης';
+      if (libContainer.parentElement) {
+        libContainer.parentElement.insertBefore(bar, libContainer);
+      }
+    }
+    refreshLayoutAndScroll();
+  }
+
+  let savedMode = 'sanctuary';
+  let savedIdea = 'wood';
+  try {
+    savedMode = localStorage.getItem('lib-view-mode') || 'sanctuary';
+    savedIdea = localStorage.getItem('lib-selected-idea') || 'wood';
+  } catch(e) {}
+
+  setIdea(savedIdea);
+  setSanctuaryMode(savedMode === 'sanctuary');
+
+ toggleBtn.addEventListener('click', () => {
+    const isNowSanctuary = !document.body.classList.contains('lib-sanctuary-mode');
+    setSanctuaryMode(isNowSanctuary);
+    try { localStorage.setItem('lib-view-mode', isNowSanctuary ? 'sanctuary' : 'classic'); } catch(e) {}
+  });
+})();
+
+});
