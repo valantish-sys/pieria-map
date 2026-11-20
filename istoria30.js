@@ -330,13 +330,15 @@
         });
       }
 
-     var mythLinkEl = document.getElementById("pfacPortalMyth");
+    var mythLinkEl = document.getElementById("pfacPortalMyth");
       var mythCtaEl = document.getElementById("pfacPortalMythCta");
-      var isMouseDevice = !!(window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches);
-      var desktopMythWidget = document.getElementById("HTML40");
+      var getVisibleMythWidget = function() {
+        var w = document.getElementById("HTML40");
+        return (w && window.getComputedStyle(w).display !== "none") ? w : null;
+      };
 
       if (mythLinkEl) {
-        if (isMouseDevice && desktopMythWidget) {
+        if (getVisibleMythWidget()) {
           mythLinkEl.setAttribute("href", "#HTML40");
           if (mythCtaEl) mythCtaEl.textContent = "\uD83D\uDC46 Ανέβα στον Μυθολογικό Χάρτη \u279C";
         } else if (hasMythUrl) {
@@ -348,9 +350,8 @@
         }
 
         mythLinkEl.addEventListener("click", function(e) {
-          var mouseNow = !!(window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches);
-          var topWidget = document.getElementById("HTML40");
-          if (mouseNow && topWidget) {
+          var topWidget = getVisibleMythWidget();
+          if (topWidget) {
             e.preventDefault();
             topWidget.scrollIntoView({ behavior: "smooth", block: "start" });
             return;
