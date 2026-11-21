@@ -454,8 +454,14 @@
         ".pfac-walk-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}" +
         ".pfac-step-pill{display:inline-flex;align-items:center;gap:4px;background:#ffffff;border:1.5px solid #60a5fa;color:#1d4ed8;font-size:12px;font-weight:900;padding:3px 10px;border-radius:999px;white-space:nowrap}" +
         ".pfac-safety-pill{display:inline-flex;align-items:center;gap:5px;background:#fffbeb;border:1.5px solid #f59e0b;color:#92400e;font-size:11.8px;font-weight:800;padding:3px 10px;border-radius:999px;line-height:1.35}" +
-        ".pfac-safety-pill--cross{background:#fef2f2;border-color:#ef4444;color:#991b1b}" +
-        ".pvid-kicker{position:absolute;top:12px;left:12px;max-width:calc(100% - 24px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2;background:rgba(15,23,42,.82);color:#fde047;border:1.5px solid rgba(253,224,71,.65);font-size:12px;font-weight:800;padding:4px 11px;border-radius:999px;pointer-events:none}" +
+       ".pfac-safety-pill--cross{background:#fef2f2;border-color:#ef4444;color:#991b1b}" +
+        ".pvid-m-right{display:inline-flex;align-items:center;gap:6px}" +
+        ".pvid-m-reset{appearance:none;border:1px solid #cbd5e1;background:#fff;color:#475569;font-family:inherit;font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:999px;cursor:pointer}" +
+        ".pvid-m-reset:hover{border-color:#60a5fa;color:#1d4ed8}" +
+        ".pfac-cross-anim{transform-box:fill-box;transform-origin:center;animation:pfacWarnPulse .9s ease-in-out 4}" +
+        "@media (min-width:1200px){.preg-wrap.is-zoomed{padding:11px 15px}.preg-wrap.is-zoomed .preg-stage{width:min(100%,calc((93dvh - 122px) * 1.63))}}" +
+        "@media (max-width:640px){.pvid-kicker{font-size:10.5px;padding:3px 8px;top:8px;left:8px;max-width:calc(100% - 16px)}.pvid-center{padding-top:14px;gap:7px}.pvid-play-circle{width:54px;height:38px;border-radius:12px}.pvid-play-tri{border-width:8px 0 8px 14px}.pvid-play-lbl{font-size:11.5px;padding:4px 11px}.pvid-m-btn{flex:1 1 100%;justify-content:flex-start}.pexp-cent-cap{font-size:11.8px;padding:8px 10px}.pfac-safety-pill{border-radius:10px;white-space:normal}}";
+      (document.body || document.head).appendChild(extraCss);
     }
 
     function optImg(url, maxDim) {
