@@ -1994,7 +1994,7 @@ function handleImgFallback() {
           { src: "https://commons.wikimedia.org/wiki/Special:FilePath/Kemenches,Flute_and_Drum_from_Pontus_Benaki.jpg?width=640", cap: "Ποντιακές λύρες (κεμεντζέδες) & νταούλι (Μουσείο Μπενάκη)" },
           { src: "https://commons.wikimedia.org/wiki/Special:FilePath/2_Pontic_Female_Folk_Costumes_Benaki.jpg?width=640", cap: "Αυθεντικές Ποντιακές παραδοσιακές φορεσιές" }
         ],
-        tags: ["\uD83C\uDFBB Ποντιακή Λύρα", "\uD83D\uDD25 Χοροί Σέρα & Κοτσαρί", "\uD83E\uDD5F Πιροσκί, Ωτία & Σορβάς"]
+        tags: ["\uD83C\uDFBB Ποντιακή Λύρα", "\uD83D\uDD25 Χοροί Σέρα & Κότσαρι", "\uD83E\uDD5F Πιροσκί, Ωτία & Σορβάς"]
       },
       church: {
         title: "\u26EA Ι.Ν. Αγίου Γεωργίου & Μοδέστου (από το 1924)",
