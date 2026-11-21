@@ -1989,7 +1989,7 @@ function handleImgFallback() {
         minYear: 1971,
         title: "\uD83D\uDFE9 Ελληνισμός του Πόντου (1965 & 1990)",
         accent: "#047857", border: "#6ee7b7", bg: "#ecfdf5",
-        desc: "Οι Πόντιοι συγχωριανοί μας ζωντάνεψαν τις γειτονιές με τον ήχο της ποντιακής λύρας (κεμεντζέ), τους περήφανους χορούς «Τικ», «Κοτσαρί» και «Σέρα» και αγαπημένα εδέσματα όπως τα πιροσκί και τα ωτία!",
+        desc: "Οι Πόντιοι συγχωριανοί μας ζωντάνεψαν τις γειτονιές με τον ήχο της ποντιακής λύρας (κεμεντζέ), τους περήφανους χορούς «Τικ», «Κότσαρι» και «Σέρα» και αγαπημένα εδέσματα όπως τα πιροσκί και τα ωτία!",
         photos: [
           { src: "https://commons.wikimedia.org/wiki/Special:FilePath/Kemenches,Flute_and_Drum_from_Pontus_Benaki.jpg?width=640", cap: "Ποντιακές λύρες (κεμεντζέδες) & νταούλι (Μουσείο Μπενάκη)" },
           { src: "https://commons.wikimedia.org/wiki/Special:FilePath/2_Pontic_Female_Folk_Costumes_Benaki.jpg?width=640", cap: "Αυθεντικές Ποντιακές παραδοσιακές φορεσιές" }
