@@ -198,7 +198,7 @@ var photoBridge = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjO
       badge: "\uD83D\uDCCD Ζωοδόχου Πηγής Τέρμα, Περίσταση 601 00",
       eraTag: "\u267F Επίπεδος Χώρος & Πρόσβαση ΑμεΑ",
       title: "Πέτρινη Τοξωτή Πύλη & Μεγάλο Πλάτωμα",
-      milestones: ["Παλιό Μονήδριο (πριν το 1923)", "Ενορία Αγ. Γεωργίου Περίστασης", "Σήμερα Άνετο Πλάτωμα & Πύλη"],
+      milestones: ["Παλιό Μονύδριο (πριν το 1923)", "Ενορία Αγ. Γεωργίου Περίστασης", "Σήμερα Άνετο Πλάτωμα & Πύλη"],
       story: "Φτάνοντας από τον δρόμο της Περίστασης (ή από την Κατερίνη μέσω της μικρής γέφυρας), ο δρόμος ανοίγει σε ένα μεγάλο, άνετο πλάτωμα στάθμευσης. Ακριβώς μπροστά μας υψώνεται η χαρακτηριστική πέτρινη τοξωτή πύλη του μαντρότοιχου, που μας καλωσορίζει στους δύο ναούς της Παναγίας!",
       tags: [
         "\u26E9\uFE0F Πέτρινη Τοξωτή Πύλη",
@@ -206,7 +206,7 @@ var photoBridge = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjO
         "\u267F Πλήρης Πρόσβαση ΑμεΑ",
         "\u26EA Παρεκκλήσι Αγ. Γεωργίου Περίστασης"
       ],
-      fact: "\uD83D\uDCA1 Το ήξερες; Στους χάρτες το προσκύνημα καταγράφεται και ως «Μονή Παναγίας» (Ζωοδόχου Πηγής Τέρμα), επειδή εδώ υπήρχε παλιό μονήδριο πριν ακόμη έρθουν οι πρόσφυγες το 1923!",
+      fact: "\uD83D\uDCA1 Το ήξερες; Στους χάρτες το προσκύνημα καταγράφεται και ως «Μονή Παναγίας» (Ζωοδόχου Πηγής Τέρμα), επειδή εδώ υπήρχε παλιό μονύδριο πριν ακόμη έρθουν οι πρόσφυγες το 1923!",
       hasMirror: true
     },
     {
@@ -456,12 +456,12 @@ var photoBridge = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjO
     },
     {
       tab: "\uD83C\uDF33 3. Πριν το 1923 & 1941 vs Σήμερα",
-      oldYr: "\uD83D\uDD70\uFE0F Παλιό Μονήδριο & 1941",
+      oldYr: "\uD83D\uDD70\uFE0F Παλιό Μονύδριο & 1941",
       oldIcons: "\u26FA \uD83C\uDF5E \uD83C\uDF33",
       oldImg: photoGroveArea,
       oldCap: "Τα αιωνόβια πλατάνια του παλιού μοναστηριού όπου στρατοπέδευσαν την άνοιξη του 1941 οι Νεοζηλανδοί Σύμμαχοι",
       oldTitle: "Παλιό Μοναστήρι & Καταφύγιο Συμμάχων (1941)",
-      oldDesc: "Υπήρχε ήδη πριν το 1923 ως παλιό μονήδριο στον κάμπο! Την άνοιξη του 1941 κάτω από τα πλατάνια του έστησαν τις σκηνές τους οι Νεοζηλανδοί Σύμμαχοι (ANZAC), τρώγοντας ζυμωτό ψωμί από τις οικογένειες της Περίστασης.",
+      oldDesc: "Υπήρχε ήδη πριν το 1923 ως παλιό μονύδριο στον κάμπο! Την άνοιξη του 1941 κάτω από τα πλατάνια του έστησαν τις σκηνές τους οι Νεοζηλανδοί Σύμμαχοι (ANZAC), τρώγοντας ζυμωτό ψωμί από τις οικογένειες της Περίστασης.",
      newYr: "\uD83C\uDF38 Σήμερα στο Προσκύνημα",
       newIcons: "\uD83C\uDF38 \uD83D\uDEDD \u267F",
       newImg: photoCourtyard,
@@ -477,11 +477,11 @@ var photoBridge = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjO
       cx: 842, cy: 78, color: "#b45309", steps: 0, meters: 0, bikeTime: "0 λεπτά",
       crossRoad: false, crossPt: null, pts: [[842, 78]], walkerPt: [792, 92],
       modernSpot: 1,
-      chip: "1. \uD83C\uDFDB\uFE0F Παλιό Μονήδριο",
+      chip: "1. \uD83C\uDFDB\uFE0F Παλιό Μονύδριο",
       img: photoOldChurch,
       cap: "Το ιστορικό πέτρινο εκκλησάκι της Παναγίας Ζωοδόχου Πηγής (υπήρχε ήδη πριν το 1923)",
-      walk: "\uD83C\uDFDB\uFE0F <strong>Το Παλιό Μονήδριο (πριν το 1923 &amp; 1941):</strong> Τότε υπήρχε μόνο ο χαμηλός πέτρινος ναός με το ξύλινο χαγιάτι (ο καινούριος ναός δεν είχε χτιστεί ακόμη)!",
-      bike: "\uD83D\uDC34 <strong>Το Παλιό Μονήδριο στον Κάμπο:</strong> Οι πρόσφυγες του 1923\u20131924 το βρήκαν εδώ ανάμεσα στα πλατάνια και το αγάπησαν αμέσως!",
+      walk: "\uD83C\uDFDB\uFE0F <strong>Το Παλιό Μονύδριο (πριν το 1923 &amp; 1941):</strong> Τότε υπήρχε μόνο ο χαμηλός πέτρινος ναός με το ξύλινο χαγιάτι (ο καινούριος ναός δεν είχε χτιστεί ακόμη)!",
+      bike: "\uD83D\uDC34 <strong>Το Παλιό Μονύδριο στον Κάμπο:</strong> Οι πρόσφυγες του 1923\u20131924 το βρήκαν εδώ ανάμεσα στα πλατάνια και το αγάπησαν αμέσως!",
       safety: "\uD83D\uDD6F\uFE0F Χαμηλή θύρα ευλάβειας, ασβεστωμένοι πέτρινοι τοίχοι & πέτρινα μανουάλια!",
       bikeSafety: "\uD83D\uDC0E Χωματόδρομος ανάμεσα στα μποστάνια του κάμπου από την Περίσταση (1,2 χλμ)!"
     },
@@ -2023,7 +2023,7 @@ function hasInnerHorizScroll(startEl, stopEl) {
       var stCls = "pzood-step-pill" + (isBike && !isPastEra ? " pzood-step-pill--bike" : "");
       var stTxt = "";
       if (isBike && isPastEra) {
-        stTxt = walkMeta.meters > 0 ? ("\uD83D\uDC34 " + walkMeta.bikeTime + " με κάρο (~" + fmtNum(walkMeta.meters) + " μ.)") : "\uD83D\uDC34 Αφετηρία: Παλιό Μονήδριο";
+        stTxt = walkMeta.meters > 0 ? ("\uD83D\uDC34 " + walkMeta.bikeTime + " με κάρο (~" + fmtNum(walkMeta.meters) + " μ.)") : "\uD83D\uDC34 Αφετηρία: Παλιό Μονύδριο";
       } else if (isBike) {
         stTxt = walkMeta.meters > 0 ? ("\uD83D\uDEB2 " + walkMeta.bikeTime + " (~" + fmtNum(walkMeta.meters) + " μ.)") : ("\uD83D\uDEB2 " + (walkMeta.bikeTime || "Αφετηρία: Πλάτωμα Πύλης"));
       } else {
@@ -2319,7 +2319,7 @@ function selectHistStop(hIdx, fromBridge) {
   var detPastPool = [
     { era: "past", histIdx: 1, cx: 268, cy: 118, q: "\u26FA Γρίφος (Άνοιξη 1941): Πού έστησαν τις καμουφλαρισμένες σκηνές τους οι Νεοζηλανδοί Σύμμαχοι (ANZAC) για να μη φαίνονται από τα εχθρικά αεροπλάνα;", note: "Κάτω από τα πυκνά αιωνόβια πλατάνια του άλσους!" },
     { era: "past", histIdx: 2, cx: 562, cy: 158, q: "\uD83C\uDF5E Γρίφος (Άνοιξη 1941): Πού κατέφθαναν οι οικογένειες της Περίστασης φέρνοντας ζεστό ζυμωτό ψωμί και αυγά στους στρατιώτες από τη Νέα Ζηλανδία;", note: "Στο ξέφωτο της εισόδου από τον πάνω χωματόδρομο της Περίστασης!" },
-    { era: "past", histIdx: 0, cx: 842, cy: 78, q: "\uD83D\uDD6F\uFE0F Γρίφος (1923\u20131941): Ποιο ιστορικό κτίσμα προϋπήρχε εδώ ως παλιό μονήδριο πριν ακόμη χτιστεί ο νεότερος ναός;", note: "Το Παλιό Πέτρινο Εκκλησάκι της Ζωοδόχου Πηγής!" },
+    { era: "past", histIdx: 0, cx: 842, cy: 78, q: "\uD83D\uDD6F\uFE0F Γρίφος (1923\u20131941): Ποιο ιστορικό κτίσμα προϋπήρχε εδώ ως παλιό μονύδριο πριν ακόμη χτιστεί ο νεότερος ναός;", note: "Το Παλιό Πέτρινο Εκκλησάκι της Ζωοδόχου Πηγής!" },
     { era: "past", histIdx: 3, cx: 442, cy: 262, q: "\uD83D\uDCA7 Γρίφος (1941): Από ποιο πέρασμα πάνω από το κανάλι νερού περνούσε ο παλιός χωματόδρομος προς την Κατερίνη;", note: "Από το παλιό Γεφυράκι της διασταύρωσης δίπλα στο δροσερό κανάλι!" }
   ];
 
@@ -3217,7 +3217,7 @@ var exitOriginSpotIdx = -1;
             '<span class="pzood-exp-badge" id="pzoodExpBadge">\uD83D\uDDFA\uFE0F Εξερεύνησες 0/8 σημεία</span>' +
             '<button type="button" class="pzood-exp-reset" id="pzoodExpReset" style="display:none" title="Μηδενισμός εξερεύνησης">\u21BA</button>' +
           '</span>' +
-          '<span class="pzood-past-badge" id="pzoodPastBadge">\uD83D\uDCDC Άνοιξη 1941 \u2022 Μονήδριο &amp; Νεοζηλανδοί ANZAC</span>' +
+          '<span class="pzood-past-badge" id="pzoodPastBadge">\uD83D\uDCDC Άνοιξη 1941 \u2022 Μονύδριο &amp; Νεοζηλανδοί ANZAC</span>' +
         '</div>' +
         '<div class="pzood-map-head-right">' +
           '<span class="pzood-hint-span" id="pzoodMapHintSpan" style="font-size:12.4px;color:#166534">\uD83D\uDC46 Πάτησε στους 2 ναούς, τη γέφυρα ή την παιδική χαρά!</span>' +
@@ -3601,11 +3601,11 @@ var exitOriginSpotIdx = -1;
 
             /* ==================== ΔΙΑΔΡΑΣΤΙΚΟΙ ΚΟΜΒΟΙ: ΑΝΟΙΞΗ 1941 (0..4) ==================== */
             '<g class="pzood-era-past">' +
-              '<g class="pzood-hist-node" data-zmap-hist="0" role="button" tabindex="0" aria-label="Παλιό Μονήδριο Ζωοδόχου Πηγής">' +
+              '<g class="pzood-hist-node" data-zmap-hist="0" role="button" tabindex="0" aria-label="Παλιό Μονύδριο Ζωοδόχου Πηγής">' +
                 '<rect x="760" y="38" width="146" height="84" rx="14" fill="transparent"/>' +
                 '<circle cx="842" cy="78" r="23" fill="#b45309" stroke="#fde047" stroke-width="3.5"/>' +
                 '<text x="842" y="85" text-anchor="middle" font-size="18.5">\uD83C\uDFDB\uFE0F</text>' +
-                '<text class="pzood-map-lbl" x="842" y="116" text-anchor="middle" fill="#78350f" font-size="11.6" font-weight="900">\u2B50 Παλιό Μονήδριο</text>' +
+                '<text class="pzood-map-lbl" x="842" y="116" text-anchor="middle" fill="#78350f" font-size="11.6" font-weight="900">\u2B50 Παλιό Μονύδριο</text>' +
               '</g>' +
               '<g class="pzood-hist-node" data-zmap-hist="1" role="button" tabindex="0" aria-label="Στρατόπεδο Νεοζηλανδών Συμμάχων 1941">' +
                 '<rect x="190" y="76" width="156" height="92" rx="14" fill="transparent"/>' +
