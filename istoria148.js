@@ -2312,9 +2312,9 @@ var returnZoodZoomAfterModal = false;
         oldCap: "Αρχείο 1947: Η δασκάλα Κατίνα Κουζώνη μπροστά στην παλιά πόρτα του πρώτου σχολείου μας (κτίριο 1926\u20131963)",
         oldTitle: "Πρώτες Αίθουσες, Συνδιδασκαλία & Ξυλόσομπα",
         oldDesc: "Από το πλίνθινο σχολείο στο πρώτο διδακτήριο των 3 αιθουσών (όπου βλέπουμε στην παλιά πόρτα τη δασκάλα Κατίνα Κουζώνη το 1947)! Δύο-τρεις τάξεις έκαναν μάθημα μαζί σε ξύλινα θρανία και ζεσταίνονταν με την ξυλόσομπα, όπου κάθε παιδί έφερνε κι ένα κούτσουρο από το σπίτι.",
-        newIcons: "\uD83C\uDFEB \uD83D\uDDA5\uFE0F \uD83C\uDFA8",
-        newImg: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg5I-4gpVPit29pk2-R5GMqYOUAHS5WPUeZ8r12kEEv-aaKFCtFTrpPD03aj9EcSyFfEeoazWO_MVYD5s0neGL2zQ2xiN2l-qwe8WLosTCsI7igZyIV2QEqkU8cLXrVTZ6rP_KcJ9JBpKOj414NBApLsU1mRU-J7vyNTb42X7c4ii0bW_RP4Yzdr0xT69s/s1600/2025-10-24%2015_32_58-NVIDIA%20GeForce%20Overlay.png",
-        newCap: "Το σύγχρονο 12/θέσιο Δημοτικό Σχολείο Περίστασης από ψηλά",
+       newIcons: "\uD83C\uDFEB \uD83D\uDDA5\uFE0F \uD83C\uDFA8",
+        newImg: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiEze4PZdW1uMRy75ZQRBngzy63lvLNFJT7BeMXWVjoia1HyJ0ukJN_rfhSq7ISMM2vG30oYEuFxzjr_sC-LRmHarabVCbnG3NCaft_FsrsulPaonxBimP8W1nGFkmnd-0bfHP8cKnA-I1sZmzT3XDFqLIY7cBb-l4XAn4dRgE5SWohyphenhyphenRrJdPSgq-JMUZA/s1600/2026-11-27%2023_20_18-2025-09-25%2018_01_46-World%20of%20Warcraft.png.png",
+        newCap: "Το σύγχρονο 12/θέσιο Δημοτικό Σχολείο Περίστασης",
         newTitle: "12/θέσιο Σύγχρονο Διδακτήριο",
         newDesc: "Μεγάλο, φωτεινό σχολείο με πέτρινο κτίριο και νέα πτέρυγα! Έχουμε 12 τμήματα, διαδραστικούς πίνακες, εργαστήριο υπολογιστών, αίθουσα ζωγραφικής, μουσικής, ολοήμερου και μεγάλη αίθουσα εκδηλώσεων!"
       },
@@ -2325,8 +2325,8 @@ var returnZoodZoomAfterModal = false;
         oldCap: "Αναπαράσταση 1926: Το υφαντό ταγάρι, η μαύρη πέτρινη πλάκα, το πετροκοντύλι, το σφουγγαράκι και το Αναγνωστικό",
         oldTitle: "Υφαντό Ταγάρι, Πλάκα & Κοντύλι",
         oldDesc: "Κρεμούσαν στον ώμο το μάλλινο υφαντό «ταγάρι» της γιαγιάς! Μέσα είχε τη μαύρη πέτρινη πλάκα, το πετροκοντύλι για να γράφουν, ένα βρεγμένο σφουγγαράκι για να σβήνουν και ένα μόνο Αναγνωστικό.",
-        newIcons: "\uD83C\uDF92 \uD83E\uDD16 \uD83D\uDCDA",
-        newImg: "https://commons.wikimedia.org/wiki/Special:FilePath/Lego_Mindstorms_EV3_Robot.jpg?width=700",
+       newIcons: "\uD83C\uDF92 \uD83E\uDD16 \uD83D\uDCDA",
+        newImg: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgtaYr_VGsX-D28r7tRD2pPVau9tUVEA51-d8eCeNETeB39f6tdDuAaeZ4u57MAYFOUI-APso3W778shSr-PFSLkNBPdF50u3O1ptd5w6zFktfzmuOF5zpr-tpR3TRxorQxea7PDGbcni7yjtu6HvkkqOf8NcDmYovUm-UHiJtiIy-2_lceOFCgbWDSEVY/s1600/2026-11-27%2023_23_13-2025-09-25%2018_01_46-World%20of%20Warcraft.png.png",
         newCap: "Εκπαιδευτική ρομποτική, υπολογιστές & σύγχρονα βιβλία",
         newTitle: "Βιβλία, Ψηφιακή Βιβλιοθήκη & Ρομποτική",
         newDesc: "Ανατομική πολύχρωμη τσάντα με τετράδια και χρώματα, Δανειστική Βιβλιοθήκη, Ψηφιακή Βιβλιοθήκη με 350 δωρεάν παιδικά βιβλία και σετ εκπαιδευτικής ρομποτικής!"
